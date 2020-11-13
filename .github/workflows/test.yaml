@@ -1,6 +1,18 @@
 on: pull_request
-name: Run tests
+name: Run linting checks and tests
 jobs:
+  lint:
+    name: Linting
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Check Linting.
+        run: |
+          cd ./backend/app
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
+          pip3 install $($HOME/.poetry/bin/poetry export --dev --without-hashes | egrep "black|mypy|isort|flake8|pydantic|sqlalchemy-stubs" | cut -d';' -f1)
+          if [ -d "$HOME/.local/bin" ] && [[ ! $PATH =~ (^|:)$HOME/.local/bin(:|$) ]]; then export PATH="$HOME/.local/bin:$PATH"; fi
+          bash ./scripts/lint.sh
   test:
     name: Tests
     runs-on: ubuntu-20.04
