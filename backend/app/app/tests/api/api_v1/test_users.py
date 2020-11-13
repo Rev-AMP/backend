@@ -9,9 +9,7 @@ from app.schemas.user import UserCreate
 from app.tests.utils.utils import random_email, random_lower_string
 
 
-def test_get_users_superuser_me(
-    client: TestClient, superuser_token_headers: Dict[str, str]
-) -> None:
+def test_get_users_superuser_me(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
     r = client.get(f"{settings.API_V1_STR}/users/me", headers=superuser_token_headers)
     current_user = r.json()
     assert current_user
@@ -20,9 +18,7 @@ def test_get_users_superuser_me(
     assert current_user["email"] == settings.FIRST_SUPERUSER
 
 
-def test_get_users_normal_user_me(
-    client: TestClient, normal_user_token_headers: Dict[str, str]
-) -> None:
+def test_get_users_normal_user_me(client: TestClient, normal_user_token_headers: Dict[str, str]) -> None:
     r = client.get(f"{settings.API_V1_STR}/users/me", headers=normal_user_token_headers)
     current_user = r.json()
     assert current_user
@@ -31,9 +27,7 @@ def test_get_users_normal_user_me(
     assert current_user["email"] == settings.EMAIL_TEST_USER
 
 
-def test_create_user_new_email(
-    client: TestClient, superuser_token_headers: dict, db: Session
-) -> None:
+def test_create_user_new_email(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
     username = random_email()
     password = random_lower_string()
     data = {"email": username, "password": password}
@@ -49,9 +43,7 @@ def test_create_user_new_email(
     assert user.email == created_user["email"]
 
 
-def test_get_existing_user(
-    client: TestClient, superuser_token_headers: dict, db: Session
-) -> None:
+def test_get_existing_user(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
     username = random_email()
     password = random_lower_string()
     user_in = UserCreate(email=username, password=password)
@@ -68,9 +60,7 @@ def test_get_existing_user(
     assert existing_user.email == api_user["email"]
 
 
-def test_create_user_existing_username(
-    client: TestClient, superuser_token_headers: dict, db: Session
-) -> None:
+def test_create_user_existing_username(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
     username = random_email()
     # username = email
     password = random_lower_string()
@@ -87,9 +77,7 @@ def test_create_user_existing_username(
     assert "_id" not in created_user
 
 
-def test_create_user_by_normal_user(
-    client: TestClient, normal_user_token_headers: Dict[str, str]
-) -> None:
+def test_create_user_by_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str]) -> None:
     username = random_email()
     password = random_lower_string()
     data = {"email": username, "password": password}
@@ -101,9 +89,7 @@ def test_create_user_by_normal_user(
     assert r.status_code == 400
 
 
-def test_retrieve_users(
-    client: TestClient, superuser_token_headers: dict, db: Session
-) -> None:
+def test_retrieve_users(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
     username = random_email()
     password = random_lower_string()
     user_in = UserCreate(email=username, password=password)
