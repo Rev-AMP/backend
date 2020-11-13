@@ -1,0 +1,10 @@
+on: pull_request
+name: Run tests
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: Run tests.
+      run: sh ./scripts/test.sh
