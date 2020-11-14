@@ -4,5 +4,5 @@ set -ex
 
 mypy app
 black app --check
-isort --recursive --check-only app
+isort --check-only app
 flake8
