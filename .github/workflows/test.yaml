@@ -11,12 +11,55 @@ jobs:
           cd ./backend/app
           curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
           pip3 install $($HOME/.poetry/bin/poetry export --dev --without-hashes | egrep "black|mypy|isort|flake8|pydantic|sqlalchemy-stubs" | cut -d';' -f1)
-          if [ -d "$HOME/.local/bin" ] && [[ ! $PATH =~ (^|:)$HOME/.local/bin(:|$) ]]; then export PATH="$HOME/.local/bin:$PATH"; fi
-          bash ./scripts/lint.sh
+          PATH=$HOME/.local/bin:$PATH ./scripts/lint.sh
   test:
     name: Tests
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v1
-    - name: Run tests.
-      run: sh ./scripts/test.sh
+      - uses: actions/checkout@v1
+      - name: Run tests.
+        run: |
+          cat > .env << EOF
+          DOMAIN=localhost
+          STACK_NAME=epic-erp-ci-env
+          TRAEFIK_PUBLIC_NETWORK=traefik-public
+          TRAEFIK_TAG=epic-erp.ci.env
+          TRAEFIK_PUBLIC_TAG=traefik-public
+          DOCKER_IMAGE_BACKEND=epic-erp_backend
+          DOCKER_IMAGE_CELERYWORKER=epic-erp_celeryworker
+          DOCKER_IMAGE_FRONTEND=epic-erp_frontend
+          BACKEND_CORS_ORIGINS=["http://localhost", "http://localhost:4200", "http://localhost:3000", "http://localhost:8080", "https://localhost", "https://localhost:4200", "https://localhost:3000", "https://localhost:8080"]
+          PROJECT_NAME=Epic ERP
+          SECRET_KEY=$(openssl rand -hex 32)
+          FIRST_SUPERUSER=admin@epic-erp.ci.env
+          FIRST_SUPERUSER_PASSWORD=$(openssl rand -hex 32)
+          SMTP_TLS=True
+          SMTP_PORT=587
+          SMTP_HOST=
+          SMTP_USER=
+          SMTP_PASSWORD=
+          EMAILS_FROM_EMAIL=epic-erp@ci.env
+          USERS_OPEN_REGISTRATION=False
+          SENTRY_DSN=
+          # Flower
+          FLOWER_BASIC_AUTH=admin:$(openssl rand -hex 32)
+          # Postgres
+          POSTGRES_SERVER=db
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=$(openssl rand -hex 32)
+          POSTGRES_DB=app
+          # PgAdmin
+          PGADMIN_LISTEN_PORT=5050
+          PGADMIN_DEFAULT_EMAIL=admin@epic-erp.ci.env
+          PGADMIN_DEFAULT_PASSWORD=$(openssl rand -hex 32)
+          EOF
+
+          cat > frontend/.env << EOF
+          VUE_APP_DOMAIN_DEV=localhost
+          VUE_APP_DOMAIN_STAG=stag.epic-erp.ci.env
+          VUE_APP_DOMAIN_PROD=epic-erp.ci.env
+          VUE_APP_NAME=Epic ERP
+          VUE_APP_ENV=development
+          EOF
+
+          ./scripts/test.sh

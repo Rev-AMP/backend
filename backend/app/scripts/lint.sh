@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -x
+set -ex
 
 mypy app
 black app --check
