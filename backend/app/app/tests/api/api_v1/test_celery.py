@@ -1,8 +1,7 @@
 from typing import Dict
 
-from fastapi.testclient import TestClient
-
 from app.core.config import settings
+from fastapi.testclient import TestClient
 
 
 def test_celery_worker_test(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
