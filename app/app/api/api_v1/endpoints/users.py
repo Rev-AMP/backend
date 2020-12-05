@@ -90,7 +90,9 @@ def create_user_open(
     db: Session = Depends(deps.get_db),
     password: str = Body(...),
     email: EmailStr = Body(...),
+    user_type: str = Body(...),
     full_name: str = Body(None),
+    profile_picture: str = Body(None),
 ) -> Any:
     """
     Create new user without the need to be logged in.
@@ -106,7 +108,9 @@ def create_user_open(
             status_code=400,
             detail="The user with this username already exists in the system",
         )
-    user_in = schemas.UserCreate(password=password, email=email, full_name=full_name)
+    user_in = schemas.UserCreate(
+        password=password, email=email, type=user_type, full_name=full_name, profile_picture=profile_picture
+    )
     user = crud.user.create(db, obj_in=user_in)
     return user
 
