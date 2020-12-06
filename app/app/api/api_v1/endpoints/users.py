@@ -46,7 +46,7 @@ def create_user(
     :param current_user: currently active superuser logged in
     :return: User object that has been stored in DB
     """
-    # check if the user already exists; raise exception code 400 if it does
+    # Check if the user already exists; raise HTTPException with error code 400 if it does
     user = crud.user.get_by_email(db, email=user_in.email)
     if user:
         raise HTTPException(
@@ -54,7 +54,7 @@ def create_user(
             detail="The user with this username already exists in the system.",
         )
 
-    # create new user
+    # Create new user
     user = crud.user.create(db, obj_in=user_in)
     if settings.EMAILS_ENABLED and user_in.email:
         send_new_account_email(email_to=user_in.email, username=user_in.email, password=user_in.password)
@@ -80,11 +80,11 @@ def update_user_me(
     :param current_user: Currently logged in User who is to be updated
     :return: updated User object
     """
-    # create a UserUpdate object to update info in
+    # Create a UserUpdate object to update info in
     current_user_data = jsonable_encoder(current_user)
     user_in = schemas.UserUpdate(**current_user_data)
 
-    # update info given
+    # Update info given
     # TODO: need to update profile picture, and maybe type
     if password is not None:
         user_in.password = password
@@ -93,7 +93,8 @@ def update_user_me(
     if email is not None:
         user_in.email = email
 
-    user = crud.user.update(db, db_obj=current_user, obj_in=user_in)  # use the object to update user in db
+    # Use the object to update user in db
+    user = crud.user.update(db, db_obj=current_user, obj_in=user_in)
 
     return user
 
@@ -132,14 +133,14 @@ def create_user_open(
     :param profile_picture: profile picture of new User
     :return:
     """
-    # check if open registration is available
+    # Check if open registration is available
     if not settings.USERS_OPEN_REGISTRATION:
         raise HTTPException(
             status_code=403,
             detail="Open user registration is forbidden on this server",
         )
 
-    # check if user exists
+    # Check if user exists
     user = crud.user.get_by_email(db, email=email)
     if user:
         raise HTTPException(
@@ -147,7 +148,7 @@ def create_user_open(
             detail="The user with this username already exists in the system",
         )
 
-    # create new User using the UserCreate object and save it in db
+    # Create new User using the UserCreate object and save it in db
     user_in = schemas.UserCreate(
         password=password, email=email, type=user_type, full_name=full_name, profile_picture=profile_picture
     )
@@ -169,13 +170,15 @@ def read_user_by_id(
     :param db: SQLAlchemy Session object pointing to the project database
     :return: User object corresponding to given ID
     """
-    user = crud.user.get(db, id=user_id)  # fetch User from db
 
-    # return the fetched object without checking perms if current_user is trying to fetch itself
+    # Fetch User with the corresponding id from db
+    user = crud.user.get(db, id=user_id)
+
+    # Return the fetched object without checking perms if current_user is trying to fetch itself
     if user == current_user:
         return user
 
-    # rasie exception if fetched User is not the current_user and the current_user is not a superuser
+    # Raise exception if fetched User is not the current_user and the current_user is not a superuser
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
 
@@ -198,7 +201,8 @@ def update_user(
     :param current_user: superuser currently logged in
     :return: updated User object
     """
-    # fetch existing User object from db
+
+    # Fetch existing User object from db
     user = crud.user.get(db, id=user_id)
     if not user:
         raise HTTPException(
@@ -206,7 +210,7 @@ def update_user(
             detail="The user with this username does not exist in the system",
         )
 
-    # save updated object based on given UserUpdate object in db
+    # Save updated object based on given UserUpdate object in db
     user = crud.user.update(db, db_obj=user, obj_in=user_in)
 
     return user
