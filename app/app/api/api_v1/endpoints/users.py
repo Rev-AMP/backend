@@ -22,7 +22,7 @@ def read_users(
 ) -> Any:
     """
     Retrieve users.
-    :param db: SQLAlchemt Session object pointing to the project database
+    :param db: SQLAlchemy Session object pointing to the project database
     :param skip: how many initial users to skip
     :param limit: maximum number of users to fetch
     :param current_user: currently active superuser logged in
@@ -41,7 +41,7 @@ def create_user(
 ) -> Any:
     """
     Create new user.
-    :param db: SQLAlchemt Session object pointing to the project database
+    :param db: SQLAlchemy Session object pointing to the project database
     :param user_in: User object to be stored in DB
     :param current_user: currently active superuser logged in
     :return: User object that has been stored in DB
@@ -73,7 +73,7 @@ def update_user_me(
 ) -> Any:
     """
     Update own user.
-    :param db: SQLAlchemt Session object pointing to the project database
+    :param db: SQLAlchemy Session object pointing to the project database
     :param password:  (new) password of the user
     :param full_name: (new) full name of the user
     :param email: (new) email of the User
@@ -105,7 +105,7 @@ def read_user_me(
 ) -> Any:
     """
     Get current user.
-    :param db: SQLAlchemt Session object pointing to the project database
+    :param db: SQLAlchemy Session object pointing to the project database
     :param current_user: User currently logged in
     :return: User object for user currently logged in
     """
@@ -124,7 +124,7 @@ def create_user_open(
 ) -> Any:
     """
     Create new user without the need to be logged in.
-    :param db: SQLAlchemt Session object pointing to the project database
+    :param db: SQLAlchemy Session object pointing to the project database
     :param password: password of new User
     :param email: email of new User
     :param user_type: type of new User
@@ -166,7 +166,7 @@ def read_user_by_id(
     Get a specific user by id.
     :param user_id: ID of the User to be fetched
     :param current_user: User who is currently logged in
-    :param db: SQLAlchemt Session object pointing to the project database
+    :param db: SQLAlchemy Session object pointing to the project database
     :return: User object corresponding to given ID
     """
     user = crud.user.get(db, id=user_id)  # fetch User from db
@@ -192,7 +192,7 @@ def update_user(
 ) -> Any:
     """
     Update a user.
-    :param db: SQLAlchemt Session object pointing to the project database
+    :param db: SQLAlchemy Session object pointing to the project database
     :param user_id: ID of the User to be updated
     :param user_in: UserUpdate object describing new User to be stored in db
     :param current_user: superuser currently logged in
