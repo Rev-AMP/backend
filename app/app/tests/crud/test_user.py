@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.core.security import verify_password
 from app.schemas.user import UserCreate, UserUpdate
-from app.tests.utils.utils import random_email, random_lower_string
 from app.tests.utils.user import create_random_user
+from app.tests.utils.utils import random_email, random_lower_string
 
 
 def test_create_user_student(db: Session) -> None:
@@ -78,7 +78,7 @@ def test_update_user_student(db: Session) -> None:
     assert verify_password(new_password, user_2.hashed_password)
 
 
-def test_update_user_superuser  (db: Session) -> None:
+def test_update_user_superuser(db: Session) -> None:
     user = create_random_user(db, "superuser")
     new_password = random_lower_string()
     user_in_update = UserUpdate(password=new_password, type="superuser")
