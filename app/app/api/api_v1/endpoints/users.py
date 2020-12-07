@@ -113,50 +113,6 @@ def read_user_me(
     return current_user
 
 
-@router.post("/open", response_model=schemas.User)
-def create_user_open(
-    *,
-    db: Session = Depends(deps.get_db),
-    password: str = Body(...),
-    email: EmailStr = Body(...),
-    user_type: str = Body(...),
-    full_name: str = Body(None),
-    profile_picture: str = Body(None),
-) -> Any:
-    """
-    Create new user without the need to be logged in.
-    :param db: SQLAlchemy Session object pointing to the project database
-    :param password: password of new User
-    :param email: email of new User
-    :param user_type: type of new User
-    :param full_name: full name of new User
-    :param profile_picture: profile picture of new User
-    :return:
-    """
-    # Check if open registration is available
-    if not settings.USERS_OPEN_REGISTRATION:
-        raise HTTPException(
-            status_code=403,
-            detail="Open user registration is forbidden on this server",
-        )
-
-    # Check if user exists
-    user = crud.user.get_by_email(db, email=email)
-    if user:
-        raise HTTPException(
-            status_code=400,
-            detail="The user with this username already exists in the system",
-        )
-
-    # Create new User using the UserCreate object and save it in db
-    user_in = schemas.UserCreate(
-        password=password, email=email, type=user_type, full_name=full_name, profile_picture=profile_picture
-    )
-    user = crud.user.create(db, obj_in=user_in)
-
-    return user
-
-
 @router.get("/{user_id}", response_model=schemas.User)
 def read_user_by_id(
     user_id: int,
