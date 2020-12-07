@@ -24,8 +24,8 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("full_name", sa.String(), nullable=True),
         sa.Column("email", sa.String(), nullable=True),
-        sa.Column("profile_picture", sa.String(), nullable=True),
-        sa.Column("hashed_password", sa.String(), nullable=True, default=None),
+        sa.Column("profile_picture", sa.String(), nullable=True, default=None),
+        sa.Column("hashed_password", sa.String(), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=True),
         sa.Column(
             "type", postgresql.ENUM("superuser", "student", "professor", "admin", name="user_type"), nullable=True
