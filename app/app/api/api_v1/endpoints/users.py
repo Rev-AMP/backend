@@ -51,7 +51,7 @@ def create_user(
     if user:
         raise HTTPException(
             status_code=400,
-            detail="The user with this username already exists in the system.",
+            detail="The user with this email already exists in the system.",
         )
 
     # Create new user
@@ -69,6 +69,7 @@ def update_user_me(
     password: str = Body(None),
     full_name: str = Body(None),
     email: EmailStr = Body(None),
+    profile_picture: str = Body(None),
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
@@ -77,6 +78,7 @@ def update_user_me(
     :param password:  (new) password of the user
     :param full_name: (new) full name of the user
     :param email: (new) email of the User
+    :param profile_picture: (new) profile picture of the User
     :param current_user: Currently logged in User who is to be updated
     :return: updated User object
     """
@@ -85,13 +87,14 @@ def update_user_me(
     user_in = schemas.UserUpdate(**current_user_data)
 
     # Update info given
-    # TODO: need to update profile picture, and maybe type
     if password is not None:
         user_in.password = password
     if full_name is not None:
         user_in.full_name = full_name
     if email is not None:
         user_in.email = email
+    if profile_picture is not None:
+        user_in.profile_picture = profile_picture
 
     # Use the object to update user in db
     user = crud.user.update(db, db_obj=current_user, obj_in=user_in)
