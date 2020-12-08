@@ -6,10 +6,6 @@
 * [Docker Compose](https://docs.docker.com/compose/install/).
 * [Poetry](https://python-poetry.org/) for Python package and environment management.
 
-## Frontend Requirements
-
-* Node.js (with `npm`).
-
 ## Backend local development
 
 * Start the stack with Docker Compose:
@@ -19,8 +15,6 @@ docker-compose up -d
 ```
 
 * Now you can open your browser and interact with these URLs:
-
-Frontend, built with Docker, with routes handled based on the path: http://localhost
 
 Backend, JSON based web API based on OpenAPI: http://localhost/api/
 
@@ -354,21 +348,7 @@ DOMAIN=localhost.tiangolo.com
 
 That variable will be used by the Docker Compose files.
 
-* Now open the file located at `./frontend/.env`. It would have a line like:
-
-```
-VUE_APP_DOMAIN_DEV=localhost
-```
-
-* Change that line to the domain you are going to use, e.g.:
-
-```
-VUE_APP_DOMAIN_DEV=localhost.tiangolo.com
-```
-
-That variable will make your frontend communicate with that domain when interacting with your backend API, when the other variable `VUE_APP_ENV` is set to `development`.
-
-After changing the two lines, you can re-start your stack with:
+After changing this line, you can re-start your stack with:
 
 ```bash
 docker-compose up -d
@@ -376,59 +356,7 @@ docker-compose up -d
 
 and check all the corresponding available URLs in the section at the end.
 
-## Frontend development
-
-* Enter the `frontend` directory, install the NPM packages and start the live server using the `npm` scripts:
-
-```bash
-cd frontend
-npm install
-npm run serve
-```
-
-Then open your browser at http://localhost:8080
-
-Notice that this live server is not running inside Docker, it is for local development, and that is the recommended workflow. Once you are happy with your frontend, you can build the frontend Docker image and start it, to test it in a production-like environment. But compiling the image at every change will not be as productive as running the local development server with live reload.
-
-Check the file `package.json` to see other available options.
-
-If you have Vue CLI installed, you can also run `vue ui` to control, configure, serve, and analyze your application using a nice local web user interface.
-
-If you are only developing the frontend (e.g. other team members are developing the backend) and there is a staging environment already deployed, you can make your local development code use that staging API instead of a full local Docker Compose stack.
-
-To do that, modify the file `./frontend/.env`, there's a section with:
-
-```
-VUE_APP_ENV=development
-# VUE_APP_ENV=staging
-```
-
-* Switch the comment, to:
-
-```
-# VUE_APP_ENV=development
-VUE_APP_ENV=staging
-```
-
-### Removing the frontend
-
-If you are developing an API-only app and want to remove the frontend, you can do it easily:
-
-* Remove the `./frontend` directory.
-* In the `docker-compose.yml` file, remove the whole service / section `frontend`.
-* In the `docker-compose.override.yml` file, remove the whole service / section `frontend`.
-
-Done, you have a frontend-less (api-only) app. 🔥 🚀
-
 ---
-
-If you want, you can also remove the `FRONTEND` environment variables from:
-
-* `.env`
-* `.gitlab-ci.yml`
-* `./scripts/*.sh`
-
-But it would be only to clean them up, leaving them won't really have any effect either way.
 
 ## Deployment
 
@@ -580,11 +508,10 @@ Here are the steps in detail:
 
 * Set these environment variables, right before the next command:
   * `TAG=prod`
-  * `FRONTEND_ENV=production`
 * Use the provided `scripts/build.sh` file with those environment variables:
 
 ```bash
-TAG=prod FRONTEND_ENV=production bash ./scripts/build.sh
+TAG=prod bash ./scripts/build.sh
 ```
 
 2. **Optionally, push your images to a Docker Registry**
@@ -595,11 +522,10 @@ If you are using a registry and pushing your images, you can omit running the pr
 
 * Set these environment variables:
   * `TAG=prod`
-  * `FRONTEND_ENV=production`
 * Use the provided `scripts/build-push.sh` file with those environment variables:
 
 ```bash
-TAG=prod FRONTEND_ENV=production bash ./scripts/build-push.sh
+TAG=prod bash ./scripts/build-push.sh
 ```
 
 3. **Deploy your stack**
@@ -632,12 +558,9 @@ The deployment requires using `docker stack` instead of `docker-swarm`, and it c
 You can do the process by hand based on those same scripts if you wanted. The general structure is like this:
 
 ```bash
-# Use the environment variables passed to this script, as TAG and FRONTEND_ENV
+# Use the environment variables passed to this script, as TAG
 # And re-create those variables as environment variables for the next command
 TAG=${TAG?Variable not set} \
-# Set the environment variable FRONTEND_ENV to the same value passed to this script with
-# a default value of "production" if nothing else was passed
-FRONTEND_ENV=${FRONTEND_ENV-production?Variable not set} \
 # The actual comand that does the work: docker-compose
 docker-compose \
 # Pass the file that should be used, setting explicitly docker-compose.yml avoids the
@@ -703,8 +626,6 @@ These are the URLs that will be used and generated by the project.
 
 Production URLs, from the branch `production`.
 
-Frontend: https://epic-erp.akhilnarang.dev
-
 Backend: https://epic-erp.akhilnarang.dev/api/
 
 Automatic Interactive Docs (Swagger UI): https://epic-erp.akhilnarang.dev/docs
@@ -719,8 +640,6 @@ Flower: https://flower.epic-erp.akhilnarang.dev
 
 Staging URLs, from the branch `master`.
 
-Frontend: https://stag.epic-erp.akhilnarang.dev
-
 Backend: https://stag.epic-erp.akhilnarang.dev/api/
 
 Automatic Interactive Docs (Swagger UI): https://stag.epic-erp.akhilnarang.dev/docs
@@ -734,8 +653,6 @@ Flower: https://flower.stag.epic-erp.akhilnarang.dev
 ### Development URLs
 
 Development URLs, for local development.
-
-Frontend: http://localhost
 
 Backend: http://localhost/api/
 
@@ -753,8 +670,6 @@ Traefik UI: http://localhost:8090
 
 Development URLs, for local development.
 
-Frontend: http://local.dockertoolbox.tiangolo.com
-
 Backend: http://local.dockertoolbox.tiangolo.com/api/
 
 Automatic Interactive Docs (Swagger UI): https://local.dockertoolbox.tiangolo.com/docs
@@ -771,8 +686,6 @@ Traefik UI: http://local.dockertoolbox.tiangolo.com:8090
 
 Development URLs, for local development.
 
-Frontend: http://dev.epic-erp.akhilnarang.dev
-
 Backend: http://dev.epic-erp.akhilnarang.dev/api/
 
 Automatic Interactive Docs (Swagger UI): https://dev.epic-erp.akhilnarang.dev/docs
@@ -788,8 +701,6 @@ Traefik UI: http://dev.epic-erp.akhilnarang.dev:8090
 ### Development in localhost with a custom domain URLs
 
 Development URLs, for local development.
-
-Frontend: http://localhost.tiangolo.com
 
 Backend: http://localhost.tiangolo.com/api/
 
