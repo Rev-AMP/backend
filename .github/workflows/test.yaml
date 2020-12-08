@@ -27,7 +27,6 @@ jobs:
           TRAEFIK_PUBLIC_TAG=traefik-public
           DOCKER_IMAGE_BACKEND=epic-erp_backend
           DOCKER_IMAGE_CELERYWORKER=epic-erp_celeryworker
-          DOCKER_IMAGE_FRONTEND=epic-erp_frontend
           BACKEND_CORS_ORIGINS=["http://localhost", "http://localhost:4200", "http://localhost:3000", "http://localhost:8080", "https://localhost", "https://localhost:4200", "https://localhost:3000", "https://localhost:8080"]
           PROJECT_NAME=Epic ERP
           SECRET_KEY=$(openssl rand -hex 32)
@@ -52,14 +51,6 @@ jobs:
           PGADMIN_LISTEN_PORT=5050
           PGADMIN_DEFAULT_EMAIL=admin@epic-erp.ci.env
           PGADMIN_DEFAULT_PASSWORD=$(openssl rand -hex 32)
-          EOF
-
-          cat > frontend/.env << EOF
-          VUE_APP_DOMAIN_DEV=localhost
-          VUE_APP_DOMAIN_STAG=stag.epic-erp.ci.env
-          VUE_APP_DOMAIN_PROD=epic-erp.ci.env
-          VUE_APP_NAME=Epic ERP
-          VUE_APP_ENV=development
           EOF
 
           ./scripts/test.sh
