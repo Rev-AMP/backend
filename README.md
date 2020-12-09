@@ -22,10 +22,6 @@ Automatic interactive documentation with Swagger UI (from the OpenAPI backend): 
 
 Alternative automatic documentation with ReDoc (from the OpenAPI backend): http://localhost/redoc
 
-PGAdmin, PostgreSQL web administration: http://localhost:5050
-
-Flower, administration of Celery tasks: http://localhost:5555
-
 Traefik UI, to see how the routes are being handled by the proxy: http://localhost:8090
 
 **Note**: The first time you start your stack, it might take a minute for it to be ready. While the backend waits for the database to be ready and configures everything. You can check the logs to monitor it.
@@ -632,10 +628,6 @@ Automatic Interactive Docs (Swagger UI): https://epic-erp.akhilnarang.dev/docs
 
 Automatic Alternative Docs (ReDoc): https://epic-erp.akhilnarang.dev/redoc
 
-PGAdmin: https://pgadmin.epic-erp.akhilnarang.dev
-
-Flower: https://flower.epic-erp.akhilnarang.dev
-
 ### Staging URLs
 
 Staging URLs, from the branch `master`.
@@ -646,10 +638,6 @@ Automatic Interactive Docs (Swagger UI): https://stag.epic-erp.akhilnarang.dev/d
 
 Automatic Alternative Docs (ReDoc): https://stag.epic-erp.akhilnarang.dev/redoc
 
-PGAdmin: https://pgadmin.stag.epic-erp.akhilnarang.dev
-
-Flower: https://flower.stag.epic-erp.akhilnarang.dev
-
 ### Development URLs
 
 Development URLs, for local development.
@@ -659,10 +647,6 @@ Backend: http://localhost/api/
 Automatic Interactive Docs (Swagger UI): https://localhost/docs
 
 Automatic Alternative Docs (ReDoc): https://localhost/redoc
-
-PGAdmin: http://localhost:5050
-
-Flower: http://localhost:5555
 
 Traefik UI: http://localhost:8090
 
@@ -676,10 +660,6 @@ Automatic Interactive Docs (Swagger UI): https://local.dockertoolbox.tiangolo.co
 
 Automatic Alternative Docs (ReDoc): https://local.dockertoolbox.tiangolo.com/redoc
 
-PGAdmin: http://local.dockertoolbox.tiangolo.com:5050
-
-Flower: http://local.dockertoolbox.tiangolo.com:5555
-
 Traefik UI: http://local.dockertoolbox.tiangolo.com:8090
 
 ### Development with a custom IP URLs
@@ -692,10 +672,6 @@ Automatic Interactive Docs (Swagger UI): https://dev.epic-erp.akhilnarang.dev/do
 
 Automatic Alternative Docs (ReDoc): https://dev.epic-erp.akhilnarang.dev/redoc
 
-PGAdmin: http://dev.epic-erp.akhilnarang.dev:5050
-
-Flower: http://dev.epic-erp.akhilnarang.dev:5555
-
 Traefik UI: http://dev.epic-erp.akhilnarang.dev:8090
 
 ### Development in localhost with a custom domain URLs
@@ -707,10 +683,6 @@ Backend: http://localhost.tiangolo.com/api/
 Automatic Interactive Docs (Swagger UI): https://localhost.tiangolo.com/docs
 
 Automatic Alternative Docs (ReDoc): https://localhost.tiangolo.com/redoc
-
-PGAdmin: http://localhost.tiangolo.com:5050
-
-Flower: http://localhost.tiangolo.com:5555
 
 Traefik UI: http://localhost.tiangolo.com:8090
 
