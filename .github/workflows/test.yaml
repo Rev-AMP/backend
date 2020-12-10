@@ -8,7 +8,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Check Linting.
         run: |
-          cd ./backend/app
+          cd ./app
           curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
           pip3 install $($HOME/.poetry/bin/poetry export --dev --without-hashes | egrep "black|mypy|isort|flake8|pydantic|sqlalchemy-stubs" | cut -d';' -f1)
           PATH=$HOME/.local/bin:$PATH ./scripts/lint.sh

@@ -46,7 +46,7 @@ If your Docker is not running in `localhost` (the URLs above wouldn't work) chec
 
 By default, the dependencies are managed with [Poetry](https://python-poetry.org/), go there and install it.
 
-From `./backend/app/` you can install all the dependencies with:
+From `./app/` you can install all the dependencies with:
 
 ```console
 $ poetry install
@@ -58,13 +58,13 @@ Then you can start a shell session with the new environment with:
 $ poetry shell
 ```
 
-Next, open your editor at `./backend/app/` (instead of the project root: `./`), so that you see an `./app/` directory with your code inside. That way, your editor will be able to find all the imports, etc. Make sure your editor uses the environment you just created with Poetry.
+Next, open your editor at `./app/` (instead of the project root: `./`), so that you see an `./app/` directory with your code inside. That way, your editor will be able to find all the imports, etc. Make sure your editor uses the environment you just created with Poetry.
 
-Modify or add SQLAlchemy models in `./backend/app/app/models/`, Pydantic schemas in `./backend/app/app/schemas/`, API endpoints in `./backend/app/app/api/`, CRUD (Create, Read, Update, Delete) utils in `./backend/app/app/crud/`. The easiest might be to copy the ones for Items (models, endpoints, and CRUD utils) and update them to your needs.
+Modify or add SQLAlchemy models in `./app/app/models/`, Pydantic schemas in `./app/app/schemas/`, API endpoints in `./app/app/api/`, CRUD (Create, Read, Update, Delete) utils in `./app/app/crud/`. The easiest might be to copy the ones for Items (models, endpoints, and CRUD utils) and update them to your needs.
 
-Add and modify tasks to the Celery worker in `./backend/app/app/worker.py`.
+Add and modify tasks to the Celery worker in `./app/app/worker.py`.
 
-If you need to install any additional package to the worker, add it to the file `./backend/app/celeryworker.dockerfile`.
+If you need to install any additional package to the worker, add it to the file `./app/celeryworker.dockerfile`.
 
 ### Docker Compose Override
 
@@ -130,7 +130,7 @@ $ DOMAIN=backend sh ./scripts/test.sh
 
 The file `./scripts/test.sh` has the commands to generate a testing `docker-stack.yml` file, start the stack and test it.
 
-The tests run with Pytest, modify and add tests to `./backend/app/app/tests/`.
+The tests run with Pytest, modify and add tests to `./app/app/tests/`.
 
 If you use GitLab CI the tests will run automatically.
 
@@ -141,7 +141,7 @@ Start the stack with this command:
 ```Bash
 DOMAIN=backend sh ./scripts/test-local.sh
 ```
-The `./backend/app` directory is mounted as a "host volume" inside the docker container (set in the file `docker-compose.dev.volumes.yml`).
+The `./app` directory is mounted as a "host volume" inside the docker container (set in the file `docker-compose.dev.volumes.yml`).
 You can rerun the test on live code:
 
 ```Bash
@@ -233,7 +233,7 @@ Make sure you create a "revision" of your models and that you "upgrade" your dat
 $ docker-compose exec backend bash
 ```
 
-* If you created a new model in `./backend/app/app/models/`, make sure to import it in `./backend/app/app/db/base.py`, that Python module (`base.py`) that imports all the models will be used by Alembic.
+* If you created a new model in `./app/app/models/`, make sure to import it in `./app/app/db/base.py`, that Python module (`base.py`) that imports all the models will be used by Alembic.
 
 * After changing a model (for example, adding a column), inside the container, create a revision, e.g.:
 
@@ -249,7 +249,7 @@ $ alembic revision --autogenerate -m "Add column last_name to User model"
 $ alembic upgrade head
 ```
 
-If you don't want to use migrations at all, uncomment the line in the file at `./backend/app/app/db/init_db.py` with:
+If you don't want to use migrations at all, uncomment the line in the file at `./app/app/db/init_db.py` with:
 
 ```python
 Base.metadata.create_all(bind=engine)
@@ -261,7 +261,7 @@ and comment the line in the file `prestart.sh` that contains:
 $ alembic upgrade head
 ```
 
-If you don't want to start with the default models and want to remove them / modify them, from the beginning, without having any previous revision, you can remove the revision files (`.py` Python files) under `./backend/app/alembic/versions/`. And then create a first migration as described above.
+If you don't want to start with the default models and want to remove them / modify them, from the beginning, without having any previous revision, you can remove the revision files (`.py` Python files) under `./app/alembic/versions/`. And then create a first migration as described above.
 
 ### Development with Docker Toolbox
 
