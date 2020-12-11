@@ -38,7 +38,6 @@ jobs:
           SMTP_USER=
           SMTP_PASSWORD=
           EMAILS_FROM_EMAIL=epic-erp@ci.env
-          USERS_OPEN_REGISTRATION=False
           SENTRY_DSN=
           # Flower
           FLOWER_BASIC_AUTH=admin:$(openssl rand -hex 32)

@@ -20,10 +20,15 @@ def user_authentication_headers(*, client: TestClient, email: str, password: str
     return headers
 
 
-def create_random_user(db: Session) -> User:
+def create_random_user(db: Session, type: str) -> User:
+    """
+    :param db: SQLAlchemy Session object pointing to the project database
+    :param type: Type of user to create
+    :return: User object created from random values and given type
+    """
     email = random_email()
     password = random_lower_string()
-    user_in = UserCreate(username=email, email=email, password=password)
+    user_in = UserCreate(email=email, password=password, type=type)
     user = crud.user.create(db=db, obj_in=user_in)
     return user
 
@@ -37,7 +42,7 @@ def authentication_token_from_email(*, client: TestClient, email: str, db: Sessi
     password = random_lower_string()
     user = crud.user.get_by_email(db, email=email)
     if not user:
-        user_in_create = UserCreate(username=email, email=email, password=password)
+        user_in_create = UserCreate(email=email, password=password, type="student")
         user = crud.user.create(db, obj_in=user_in_create)
     else:
         user_in_update = UserUpdate(password=password)
