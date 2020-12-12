@@ -399,7 +399,7 @@ Then you need to have those constraints in your `docker-compose.yml` file for th
 To be able to use different environments, like `prod` and `stag`, you should pass the name of the stack as an environment variable. Like:
 
 ```bash
-STACK_NAME=stag-rev-amp.tech sh ./scripts/deploy.sh
+STACK_NAME=stag-rev-amp-tech sh ./scripts/deploy.sh
 ```
 
 To use and expand that environment variable inside the `docker-compose.yml` files you can add the constraints to the services like:
@@ -427,7 +427,7 @@ services:
     deploy:
       placement:
         constraints:
-          - node.labels.rev-amp.tech.app-db-data == true
+          - node.labels.rev-amp-tech.app-db-data == true
 ```
 
 **Note**: The `${STACK_NAME?Variable not set}` means "use the environment variable `STACK_NAME`, but if it is not set, show an error `Variable not set`".
@@ -479,13 +479,13 @@ then chose a node from the list. For example, `dog.example.com`.
 * Add the label to that node. Use as label the name of the stack you are deploying followed by a dot (`.`) followed by the named volume, and as value, just `true`, e.g.:
 
 ```bash
-docker node update --label-add rev-amp.tech.app-db-data=true dog.example.com
+docker node update --label-add rev-amp-tech.app-db-data=true dog.example.com
 ```
 
 * Then you need to do the same for each stack version you have. For example, for staging you could do:
 
 ```bash
-docker node update --label-add stag-rev-amp.tech.app-db-data=true cat.example.com
+docker node update --label-add stag-rev-amp-tech.app-db-data=true cat.example.com
 ```
 
 ### Deploy to a Docker Swarm mode cluster
