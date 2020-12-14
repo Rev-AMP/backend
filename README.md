@@ -1,4 +1,4 @@
-![REVAMP](https://raw.githubusercontent.com/Rev-AMP/media/main/logo/revamp_transparent.png)
+![REVAMP](https://media.rev-amp.tech/logo/revamp_transparent.png)
 
 A reliable, effecient and versatile Academics management system.
 
