@@ -21,26 +21,24 @@ jobs:
         run: |
           cat > .env << EOF
           DOMAIN=localhost
-          STACK_NAME=epic-erp-ci-env
+          STACK_NAME=revamp-ci-env
           TRAEFIK_PUBLIC_NETWORK=traefik-public
-          TRAEFIK_TAG=epic-erp.ci.env
+          TRAEFIK_TAG=revamp.ci.env
           TRAEFIK_PUBLIC_TAG=traefik-public
-          DOCKER_IMAGE_BACKEND=epic-erp_backend
-          DOCKER_IMAGE_CELERYWORKER=epic-erp_celeryworker
+          DOCKER_IMAGE_BACKEND=revamp_backend
+          DOCKER_IMAGE_CELERYWORKER=revamp_celeryworker
           BACKEND_CORS_ORIGINS=["http://localhost", "http://localhost:4200", "http://localhost:3000", "http://localhost:8080", "https://localhost", "https://localhost:4200", "https://localhost:3000", "https://localhost:8080"]
           PROJECT_NAME=Epic ERP
           SECRET_KEY=$(openssl rand -hex 32)
-          FIRST_SUPERUSER=admin@epic-erp.ci.env
+          FIRST_SUPERUSER=admin@revamp.ci.env
           FIRST_SUPERUSER_PASSWORD=$(openssl rand -hex 32)
           SMTP_TLS=True
           SMTP_PORT=587
           SMTP_HOST=
           SMTP_USER=
           SMTP_PASSWORD=
-          EMAILS_FROM_EMAIL=epic-erp@ci.env
+          EMAILS_FROM_EMAIL=revamp@ci.env
           SENTRY_DSN=
-          # Flower
-          FLOWER_BASIC_AUTH=admin:$(openssl rand -hex 32)
           # Postgres
           POSTGRES_SERVER=db
           POSTGRES_USER=postgres
@@ -48,7 +46,7 @@ jobs:
           POSTGRES_DB=app
           # PgAdmin
           PGADMIN_LISTEN_PORT=5050
-          PGADMIN_DEFAULT_EMAIL=admin@epic-erp.ci.env
+          PGADMIN_DEFAULT_EMAIL=admin@revamp.ci.env
           PGADMIN_DEFAULT_PASSWORD=$(openssl rand -hex 32)
           EOF
 
