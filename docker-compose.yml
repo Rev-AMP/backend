@@ -69,13 +69,11 @@ services:
         - traefik.http.routers.${STACK_NAME?Variable not set}-proxy-http.middlewares=${STACK_NAME?Variable not set}-www-redirect,${STACK_NAME?Variable not set}-https-redirect
 
   db:
-    image: postgres:12
+    image: mysql
     volumes:
-      - app-db-data:/var/lib/postgresql/data/pgdata
+      - app-db-data:/var/lib/mysql
     env_file:
       - .env
-    environment:
-      - PGDATA=/var/lib/postgresql/data/pgdata
     deploy:
       placement:
         constraints:

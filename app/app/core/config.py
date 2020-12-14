@@ -1,7 +1,12 @@
 import secrets
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
+from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, EmailStr, HttpUrl, validator
+
+
+class MySQLDsn(AnyUrl):
+    allowed_schemes = {'mysql+mysqlconnector'}
+    user_required = True
 
 
 class Settings(BaseSettings):
@@ -33,22 +38,22 @@ class Settings(BaseSettings):
             return None
         return v
 
-    POSTGRES_SERVER: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-    SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
+    MYSQL_SERVER: str
+    MYSQL_USER: str
+    MYSQL_PASSWORD: str
+    MYSQL_DATABASE: str
+    SQLALCHEMY_DATABASE_URI: Optional[MySQLDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
             return v
-        return PostgresDsn.build(
-            scheme="postgresql",
-            user=values.get("POSTGRES_USER"),
-            password=values.get("POSTGRES_PASSWORD"),
-            host=values.get("POSTGRES_SERVER"),
-            path=f"/{values.get('POSTGRES_DB') or ''}",
+        return MySQLDsn.build(
+            scheme="mysql+mysqlconnector",
+            user=values.get("MYSQL_USER"),
+            password=values.get("MYSQL_PASSWORD"),
+            host=values.get("MYSQL_SERVER"),
+            path=f"/{values.get('MYSQL_DATABASE') or ''}",
         )
 
     SMTP_TLS: bool = True

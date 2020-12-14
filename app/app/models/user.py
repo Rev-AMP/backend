@@ -1,5 +1,5 @@
 from sqlalchemy import Boolean, Column, Integer, String
-from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy.dialects.mysql import ENUM
 
 from app.db.base_class import Base
 
