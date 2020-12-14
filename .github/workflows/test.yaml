@@ -39,8 +39,6 @@ jobs:
           SMTP_PASSWORD=
           EMAILS_FROM_EMAIL=revamp@ci.env
           SENTRY_DSN=
-          # Flower
-          FLOWER_BASIC_AUTH=admin:$(openssl rand -hex 32)
           # Postgres
           POSTGRES_SERVER=db
           POSTGRES_USER=postgres
