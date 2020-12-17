@@ -33,6 +33,7 @@ jobs:
           FIRST_SUPERUSER=admin@revamp.ci.env
           FIRST_SUPERUSER_PASSWORD=$(openssl rand -hex 32)
           SMTP_HOST=
+          SENTRY_DSN=
           # MySQL
           MYSQL_SERVER=db
           MYSQL_USER=mysql
