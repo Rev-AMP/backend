@@ -1,19 +1,11 @@
 import secrets
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import (
-    AnyHttpUrl,
-    AnyUrl,
-    BaseSettings,
-    EmailStr,
-    HttpUrl,
-    PostgresDsn,
-    validator,
-)
+from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, EmailStr, HttpUrl, validator
 
 
-class MySQLDsn(AnyUrl):
-    allowed_schemes = {'mysql+mysqlconnector'}
+class SQLDsn(AnyUrl):
+    allowed_schemes = {'mysql+mysqlconnector', 'postgres', 'postgresql'}
     user_required = True
 
 
@@ -50,7 +42,7 @@ class Settings(BaseSettings):
     MYSQL_USER: str
     MYSQL_PASSWORD: str
     MYSQL_DATABASE: str
-    SQLALCHEMY_DATABASE_URI: Optional[Union[MySQLDsn, PostgresDsn]] = None
+    SQLALCHEMY_DATABASE_URI: Optional[SQLDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
