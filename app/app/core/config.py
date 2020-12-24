@@ -1,6 +1,7 @@
 import secrets
 from typing import Any, Dict, List, Optional, Union
 
+from decouple import config
 from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, EmailStr, HttpUrl, validator
 
 
@@ -38,22 +39,22 @@ class Settings(BaseSettings):
             return None
         return v
 
-    MYSQL_SERVER: str
-    MYSQL_USER: str
-    MYSQL_PASSWORD: str
-    MYSQL_DATABASE: str
+    DB_SERVER: str
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_NAME: str
     SQLALCHEMY_DATABASE_URI: Optional[SQLDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
             return v
-        return MySQLDsn.build(
-            scheme="mysql+mysqlconnector",
-            user=values.get("MYSQL_USER"),
-            password=values.get("MYSQL_PASSWORD"),
-            host=values.get("MYSQL_SERVER"),
-            path=f"/{values.get('MYSQL_DATABASE') or ''}",
+        return SQLDsn.build(
+            scheme='mysql+mysqlconnector' if config('DB', default='mysql') == 'mysql' else 'postgresql',
+            user=values.get("DB_USER"),
+            password=values.get("DB_PASSWORD"),
+            host=values.get("DB_SERVER"),
+            path=f"/{values.get('DB_NAME') or ''}",
         )
 
     SMTP_TLS: bool = True

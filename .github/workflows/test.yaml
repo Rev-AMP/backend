@@ -34,12 +34,13 @@ jobs:
           FIRST_SUPERUSER_PASSWORD=$(openssl rand -hex 32)
           SMTP_HOST=
           SENTRY_DSN=
-          # MySQL
-          MYSQL_SERVER=db
-          MYSQL_USER=mysql
-          MYSQL_PASSWORD=$(openssl rand -hex 32)
-          MYSQL_ROOT_PASSWORD=$(openssl rand -hex 32)
-          MYSQL_DATABASE=app
+          # Database configuration - set postgres for CI
+          DB=postgres
+          DB_SERVER=db
+          DB_USER=postgres
+          DB_PASSWORD=password
+          POSTGRES_PASSWORD=password
+          DB_NAME=postgres
           EOF
 
           ./scripts/test.sh
