@@ -4,7 +4,7 @@ from sqlalchemy import Boolean, Column, Integer, String
 if decouple.config('DB', default='mysql') == 'mysql':
     from sqlalchemy.dialects.mysql import ENUM
 else:
-    from sqlalchemy.dialects.postgresql import ENUM
+    from sqlalchemy.dialects.postgresql import ENUM  # type: ignore
 
 from app.db.base_class import Base
 
