@@ -32,22 +32,15 @@ jobs:
           SECRET_KEY=$(openssl rand -hex 32)
           FIRST_SUPERUSER=admin@revamp.ci.env
           FIRST_SUPERUSER_PASSWORD=$(openssl rand -hex 32)
-          SMTP_TLS=True
-          SMTP_PORT=587
           SMTP_HOST=
-          SMTP_USER=
-          SMTP_PASSWORD=
-          EMAILS_FROM_EMAIL=revamp@ci.env
           SENTRY_DSN=
-          # Postgres
-          POSTGRES_SERVER=db
-          POSTGRES_USER=postgres
-          POSTGRES_PASSWORD=$(openssl rand -hex 32)
-          POSTGRES_DB=app
-          # PgAdmin
-          PGADMIN_LISTEN_PORT=5050
-          PGADMIN_DEFAULT_EMAIL=admin@revamp.ci.env
-          PGADMIN_DEFAULT_PASSWORD=$(openssl rand -hex 32)
+          # Database configuration - set postgres for CI
+          DB=postgres
+          DB_SERVER=db
+          DB_USER=postgres
+          DB_PASSWORD=password
+          POSTGRES_PASSWORD=password
+          DB_NAME=postgres
           EOF
 
           ./scripts/test.sh

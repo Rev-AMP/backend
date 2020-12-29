@@ -83,7 +83,7 @@ services:
 
   queue:
     image: rabbitmq:3
-  
+
   backend:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     depends_on:
@@ -106,7 +106,7 @@ services:
         - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}
         - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`)
         - traefik.http.services.${STACK_NAME?Variable not set}-backend.loadbalancer.server.port=80
-  
+
   celeryworker:
     image: '${DOCKER_IMAGE_CELERYWORKER?Variable not set}:${TAG-latest}'
     depends_on:
@@ -124,7 +124,7 @@ services:
       dockerfile: app/celeryworker.dockerfile
       args:
         INSTALL_DEV: ${INSTALL_DEV-false}
-  
+
 volumes:
   app-db-data:
 

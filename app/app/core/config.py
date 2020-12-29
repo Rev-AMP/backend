@@ -1,7 +1,13 @@
 import secrets
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
+from decouple import config
+from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, EmailStr, HttpUrl, validator
+
+
+class SQLDsn(AnyUrl):
+    allowed_schemes = {'mysql+mysqlconnector', 'postgres', 'postgresql'}
+    user_required = True
 
 
 class Settings(BaseSettings):
@@ -33,22 +39,22 @@ class Settings(BaseSettings):
             return None
         return v
 
-    POSTGRES_SERVER: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-    SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
+    DB_SERVER: str
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_NAME: str
+    SQLALCHEMY_DATABASE_URI: Optional[SQLDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
             return v
-        return PostgresDsn.build(
-            scheme="postgresql",
-            user=values.get("POSTGRES_USER"),
-            password=values.get("POSTGRES_PASSWORD"),
-            host=values.get("POSTGRES_SERVER"),
-            path=f"/{values.get('POSTGRES_DB') or ''}",
+        return SQLDsn.build(
+            scheme='mysql+mysqlconnector' if config('DB', default='mysql') == 'mysql' else 'postgresql',
+            user=values.get("DB_USER"),
+            password=values.get("DB_PASSWORD"),
+            host=values.get("DB_SERVER"),
+            path=f"/{values.get('DB_NAME') or ''}",
         )
 
     SMTP_TLS: bool = True

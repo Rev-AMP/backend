@@ -5,8 +5,13 @@ Revises:
 Create Date: 2019-04-17 13:53:32.978401
 
 """
+import decouple
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
+
+if decouple.config('DB', default='mysql') == 'mysql':
+    from sqlalchemy.dialects.mysql import ENUM
+else:
+    from sqlalchemy.dialects.postgresql import ENUM
 
 from alembic import op
 
@@ -22,13 +27,13 @@ def upgrade():
     op.create_table(
         "user",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("full_name", sa.String(), nullable=True),
-        sa.Column("email", sa.String(), nullable=True),
-        sa.Column("profile_picture", sa.String(), nullable=True, default=None),
-        sa.Column("hashed_password", sa.String(), nullable=False),
+        sa.Column("full_name", sa.String(100), nullable=True),
+        sa.Column("email", sa.String(100), nullable=True),
+        sa.Column("profile_picture", sa.String(4096), nullable=True, default=None),
+        sa.Column("hashed_password", sa.String(100), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=True),
         sa.Column(
-            "type", postgresql.ENUM("superuser", "student", "professor", "admin", name="user_type"), nullable=True
+            "type", ENUM("superuser", "student", "professor", "admin", name="user_type"), nullable=True
         ),
         sa.PrimaryKeyConstraint("id"),
     )
