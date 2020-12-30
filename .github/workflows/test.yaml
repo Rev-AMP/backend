@@ -27,7 +27,6 @@ jobs:
           TRAEFIK_PUBLIC_TAG=traefik-public
           DOCKER_IMAGE_BACKEND=revamp_backend
           DOCKER_IMAGE_CELERYWORKER=revamp_celeryworker
-          BACKEND_CORS_ORIGINS=["http://localhost", "http://localhost:4200", "http://localhost:3000", "http://localhost:8080", "https://localhost", "https://localhost:4200", "https://localhost:3000", "https://localhost:8080"]
           PROJECT_NAME=Epic ERP
           SECRET_KEY=$(openssl rand -hex 32)
           FIRST_SUPERUSER=admin@revamp.ci.env
