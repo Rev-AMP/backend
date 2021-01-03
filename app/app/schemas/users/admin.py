@@ -2,18 +2,16 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from app.models.users.user import User
-
 
 # Shared properties
 class AdminBase(BaseModel):
-    user: Optional[User] = None
+    user_id: Optional[int] = None
     permissions: Optional[int] = 0
 
 
 # Properties to receive via API on creation
 class AdminCreate(AdminBase):
-    user: User
+    user_id: int
     permissions: int
 
 
