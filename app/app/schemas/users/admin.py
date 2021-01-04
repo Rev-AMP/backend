@@ -17,4 +17,10 @@ class AdminCreate(AdminBase):
 
 # Properties to receive via API on update
 class AdminUpdate(AdminBase):
-    permissions: Optional[int]
+    user_id: int
+    permissions: int
+
+
+# Additional properties to return through API
+class Admin(AdminBase):
+    pass

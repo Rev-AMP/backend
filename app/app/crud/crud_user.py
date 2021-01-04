@@ -61,6 +61,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def is_active(self, user: User) -> bool:
         return user.is_active
 
+    def is_admin(self, user: User) -> bool:
+        return user.type == "admin"
+
     def is_superuser(self, user: User) -> bool:
         return user.type == "superuser"
 
