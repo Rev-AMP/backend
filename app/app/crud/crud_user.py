@@ -3,8 +3,10 @@ from typing import Any, Dict, Optional, Union
 from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash, verify_password
+from app.crud import admin
 from app.crud.base import CRUDBase
 from app.models.users.user import User
+from app.schemas.users.admin import AdminCreate
 from app.schemas.users.user import UserCreate, UserUpdate
 
 
@@ -21,8 +23,20 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             profile_picture=obj_in.profile_picture,
         )
         db.add(db_obj)
+
         db.commit()
         db.refresh(db_obj)
+
+        # Ensure user gets the appropriate permissions depending on type
+        if obj_in.type == 'admin':
+            admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=0))
+        elif obj_in.type == 'professor':
+            pass
+        elif obj_in.type == 'student':
+            pass
+        elif obj_in.type == 'superuser':
+            pass
+
         return db_obj
 
     def update(self, db: Session, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]) -> User:
