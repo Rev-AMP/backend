@@ -33,7 +33,7 @@ def create_admin(
     current_superuser: models.User = Depends(deps.get_current_active_superuser),
 ) -> Any:
     """
-    Create new admin.B
+    Create new admin.
     """
     # Check if the admin already exists; raise HTTPException with error code 400 if it does
     admin = crud.admin.get(db, id=admin_in.user_id)
@@ -63,7 +63,7 @@ def create_admin(
     if user.type != "admin":
         user_in = schemas.UserUpdate(id=user.id, type="admin")
         # TODO: Delete user from student/professor if so required
-        crud.user.update(db, db_obj=current_superuser, obj_in=user_in)
+        crud.user.update(db, db_obj=user, obj_in=user_in)
 
     # Create new admin
     admin = crud.admin.create(db, obj_in=admin_in)
