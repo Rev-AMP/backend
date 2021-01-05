@@ -23,4 +23,5 @@ class AdminUpdate(AdminBase):
 
 # Additional properties to return through API
 class Admin(AdminBase):
-    pass
+    class Config:
+        orm_mode = True
