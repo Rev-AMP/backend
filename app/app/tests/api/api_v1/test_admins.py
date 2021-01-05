@@ -14,7 +14,7 @@ def test_get_existing_admin(client: TestClient, superuser_token_headers: dict, d
     user = crud.user.create(db, obj_in=user_in)
     user_id = user.id
     r = client.get(
-        f"{settings.API_V1_STR}/admin/{user_id}",
+        f"{settings.API_V1_STR}/admins/{user_id}",
         headers=superuser_token_headers,
     )
     assert 200 <= r.status_code < 300
@@ -33,7 +33,7 @@ def test_create_admin_existing_id(client: TestClient, superuser_token_headers: d
     admin_id = crud.user.create(db, obj_in=user_in).id
     data = {"user_id": admin_id, "permissions": 0}
     r = client.post(
-        f"{settings.API_V1_STR}/admin/",
+        f"{settings.API_V1_STR}/admins/",
         headers=superuser_token_headers,
         json=data,
     )
@@ -51,7 +51,7 @@ def test_create_admin_existing_nonadmin(client: TestClient, superuser_token_head
     admin_id = user.id
     data = {"user_id": admin_id, "permissions": 0}
     r = client.post(
-        f"{settings.API_V1_STR}/admin/",
+        f"{settings.API_V1_STR}/admins/",
         headers=superuser_token_headers,
         json=data,
     )
