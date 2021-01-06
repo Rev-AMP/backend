@@ -53,19 +53,17 @@ def create_admin(
         )
 
     # Ensure the user is not a superuser
-    if user.type == "superuser":
+    if user.type != "professor":
         raise HTTPException(
             status_code=400,
-            detail="This user is a superuser!",
+            detail="This user cannot be promoted to an admin!",
         )
 
-    # Ensure the user is an admin - change type if required
-    if user.type != "admin":
-        user_in = schemas.UserUpdate(id=user.id, type="admin")
-        # TODO: Delete user from student/professor if so required
-        crud.user.update(db, db_obj=user, obj_in=user_in)
+    # Set is_admin to true so that we don't need to change user type
+    user_in = schemas.UserUpdate(id=user.id, is_admin=True)
+    crud.user.update(db, db_obj=user, obj_in=user_in)
 
-    # Create new admin
+    # Create new admin object
     admin = crud.admin.create(db, obj_in=admin_in)
 
     if settings.EMAILS_ENABLED:

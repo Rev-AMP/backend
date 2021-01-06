@@ -59,7 +59,7 @@ def test_create_admin_existing_nonadmin(client: TestClient, superuser_token_head
     updated_user = crud.user.get(db, admin_id)
     assert 200 <= r.status_code < 300
     assert updated_user
-    assert updated_user.type == "admin"
+    assert updated_user.is_admin
     assert "user_id" in created_admin
     assert "permissions" in created_admin
 

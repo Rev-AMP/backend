@@ -16,4 +16,5 @@ class User(Base):
     profile_picture = Column(String(4096), default=None, nullable=True)
     hashed_password = Column(String(100), nullable=False)
     is_active = Column(Boolean(), default=True)
+    is_admin = Column(Boolean(), default=False)
     type = Column(ENUM("superuser", "student", "professor", "admin", name="user_type"), nullable=False)
