@@ -46,7 +46,7 @@ def test_create_admin_existing_nonadmin(client: TestClient, superuser_token_head
     username = random_email()
     # username = email
     password = random_lower_string()
-    user_in = UserCreate(email=username, password=password, type="student")
+    user_in = UserCreate(email=username, password=password, type="professor")
     user = crud.user.create(db, obj_in=user_in)
     admin_id = user.id
     data = {"user_id": admin_id, "permissions": 0}
