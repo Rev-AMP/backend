@@ -61,15 +61,14 @@ def create_admin(
 
     # Set is_admin to true so that we don't need to change user type
     user_in = schemas.UserUpdate(id=user.id, is_admin=True)
-    crud.user.update(db, db_obj=user, obj_in=user_in)
+    updated_user = crud.user.update(db, db_obj=user, obj_in=user_in)
 
     # Create new admin object
     admin = crud.admin.create(db, obj_in=admin_in)
 
     if settings.EMAILS_ENABLED:
         # Get the admin's email address
-        if user := crud.user.get(db, admin_in.user_id):
-            send_new_admin_email(email_to=user.email, permissions=admin_in.permissions)
+        send_new_admin_email(email_to=updated_user.email, permissions=admin_in.permissions)
 
     return admin
 
