@@ -36,10 +36,9 @@ jobs:
           # Database configuration - set postgres for CI
           DB=postgres
           DB_SERVER=db
-          DB_USER=postgres
+          DB_USER=revamp
           DB_PASSWORD=password
-          POSTGRES_PASSWORD=password
-          DB_NAME=postgres
+          DB_NAME=revamp
           EOF
 
           ./scripts/test.sh
