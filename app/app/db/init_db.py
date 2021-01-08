@@ -22,4 +22,4 @@ def init_db(db: Session) -> None:
         )
         admin_in = schemas.AdminCreate(user_id=1, permissions=9999)
         user = crud.user.create(db, obj_in=user_in)  # noqa: F841
-        admin = crud.admin.create(db, obj_in=admin_in)
+        admin = crud.admin.create(db, obj_in=admin_in)  # noqa: F841
