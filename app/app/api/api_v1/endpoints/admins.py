@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -11,18 +11,15 @@ from app.utils import send_new_admin_email
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Admin])
-def read_admins(
+@router.get("/", response_model=schemas.Admin)
+def get_admin(
     db: Session = Depends(deps.get_db),
-    skip: int = 0,
-    limit: int = 100,
     current_admin: models.User = Depends(deps.get_current_active_admin),
 ) -> Any:
     """
-    Retrieve admins.
+    Get current admin
     """
-    admins = crud.admin.get_multi(db, skip=skip, limit=limit)
-    return admins
+    return crud.admin.get(db, current_admin.id)
 
 
 @router.post("/", response_model=schemas.Admin)
@@ -91,39 +88,3 @@ def update_admin(
         status_code=400,
         detail="This admin does not exist!",
     )
-
-
-@router.get("/me", response_model=schemas.Admin)
-def read_admin_me(
-    db: Session = Depends(deps.get_db),
-    current_admin: models.User = Depends(deps.get_current_active_admin),
-) -> Any:
-    """
-    Get current admin
-    """
-    return current_admin
-
-
-@router.get("/{admin_id}", response_model=schemas.Admin)
-def read_admin_by_id(
-    admin_id: int,
-    current_user: models.User = Depends(deps.get_current_active_user),
-    db: Session = Depends(deps.get_db),
-) -> Any:
-    """
-    Get a specific admin by id.
-    """
-
-    # Fetch User with the corresponding id from db
-    if admin := crud.admin.get(db, id=admin_id):
-
-        # Return the fetched object without checking perms if current_admin is trying to fetch itself
-        if admin.user_id == current_user.id or current_user.type == "superuser":
-            return admin
-
-    # Raise exception if fetched User is not the current_admin and the current_admin doesn't have permissions
-    # TODO: Add check for admin permissions
-    # if not crud.admin.is_superuser(current_admin):
-    #    raise HTTPException(status_code=400, detail="The admin doesn't have enough privileges")
-
-    return admin
