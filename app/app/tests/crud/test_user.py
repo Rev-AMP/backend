@@ -80,6 +80,7 @@ def test_update_user_student(db: Session) -> None:
 
 def test_update_user_superuser(db: Session) -> None:
     user = create_random_user(db, "superuser")
+    db.refresh(user)
     new_password = random_lower_string()
     user_in_update = UserUpdate(password=new_password, type="superuser")
     crud.user.update(db, db_obj=user, obj_in=user_in_update)
