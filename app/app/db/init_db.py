@@ -20,6 +20,4 @@ def init_db(db: Session) -> None:
         user_in = schemas.UserCreate(
             email=settings.FIRST_SUPERUSER, password=settings.FIRST_SUPERUSER_PASSWORD, type="superuser", is_admin=True
         )
-        admin_in = schemas.AdminCreate(user_id=1, permissions=9999)
         user = crud.user.create(db, obj_in=user_in)  # noqa: F841
-        admin = crud.admin.create(db, obj_in=admin_in)  # noqa: F841

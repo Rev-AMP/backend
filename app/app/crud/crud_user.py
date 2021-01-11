@@ -36,7 +36,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         elif obj_in.type == 'student':
             pass
         elif obj_in.type == 'superuser':
-            pass
+            admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=9999))
 
         return db_obj
 
