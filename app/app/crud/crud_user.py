@@ -21,6 +21,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             full_name=obj_in.full_name,
             type=obj_in.type,
             profile_picture=obj_in.profile_picture,
+            is_admin=obj_in.is_admin,
         )
         db.add(db_obj)
 
