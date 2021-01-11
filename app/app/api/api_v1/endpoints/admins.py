@@ -49,11 +49,11 @@ def create_admin(
             detail="This user does not exist!",
         )
 
-    # Ensure the user is not a superuser
+    # Ensure the user is a professor - others can't be made an admin
     if user.type != "professor":
         raise HTTPException(
             status_code=400,
-            detail="This user cannot be promoted to an admin!",
+            detail=f"A {user.type} cannot be promoted to an admin!",
         )
 
     # Set is_admin to true so that we don't need to change user type
