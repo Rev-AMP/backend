@@ -92,3 +92,36 @@ def test_remove_admin(client: TestClient, superuser_token_headers: dict, db: Ses
     assert 200 <= r.status_code < 300
     assert not user.is_admin
     assert not crud.admin.get(db, id=admin_id)
+
+
+def test_remove_admin_nonadmin(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
+    username = random_email()
+    password = random_lower_string()
+    user_in = UserCreate(email=username, password=password, type="student")
+    user = crud.user.create(db, obj_in=user_in)
+    admin_id = user.id
+    data = {"user_id": admin_id}
+    r = client.delete(
+        f"{settings.API_V1_STR}/admins/",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    db.refresh(user)
+    assert r.status_code == 400
+    assert not user.is_admin
+
+
+def test_remove_admin_nonuser(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
+    username = random_email()
+    password = random_lower_string()
+    user_in = UserCreate(email=username, password=password, type="student")
+    user = crud.user.create(db, obj_in=user_in)
+    admin_id = user.id
+    crud.user.remove(db, id=admin_id)
+    data = {"user_id": admin_id}
+    r = client.delete(
+        f"{settings.API_V1_STR}/admins/",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert r.status_code == 400
