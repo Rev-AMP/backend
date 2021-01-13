@@ -21,6 +21,11 @@ class AdminUpdate(AdminBase):
     permissions: int
 
 
+# Properties to recieve via API on remove
+class AdminRemove(AdminBase):
+    user_id: int
+
+
 # Additional properties to return through API
 class Admin(AdminBase):
     class Config:

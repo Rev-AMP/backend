@@ -88,3 +88,33 @@ def update_admin(
         status_code=400,
         detail="This admin does not exist!",
     )
+
+
+@router.delete("/", response_model=schemas.Admin)
+def remove_admin(
+    *,
+    db: Session = Depends(deps.get_db),
+    admin_in: schemas.AdminRemove,
+    current_superuser: models.User = Depends(deps.get_current_active_superuser),
+) -> Any:
+    """
+    Delete admin i.e. demote user
+    """
+
+    # update user object
+    if current_user := crud.user.get(db, admin_in.user_id):
+        crud.user.update(db, db_obj=current_user, obj_in={'is_admin': False})
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="This user does not exist!",
+        )
+
+    # delete admin object
+    if crud.admin.get(db, admin_in.user_id):
+        return crud.admin.remove(db, id=admin_in.user_id)
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="This admin does not exist!",
+        )

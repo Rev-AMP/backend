@@ -74,3 +74,21 @@ def test_create_admin_existing_nonadmin(client: TestClient, superuser_token_head
     assert user.is_admin
     assert "user_id" in created_admin
     assert "permissions" in created_admin
+
+
+def test_remove_admin(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
+    username = random_email()
+    password = random_lower_string()
+    user_in = UserCreate(email=username, password=password, type="admin")
+    user = crud.user.create(db, obj_in=user_in)
+    admin_id = user.id
+    data = {"user_id": admin_id}
+    r = client.delete(
+        f"{settings.API_V1_STR}/admins/",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    db.refresh(user)
+    assert 200 <= r.status_code < 300
+    assert not user.is_admin
+    assert not crud.admin.get(db, id=admin_id)
