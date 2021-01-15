@@ -1,5 +1,7 @@
 import decouple
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+
+from app.models.school import School
 
 if decouple.config('DB', default='mysql') == 'mysql':
     from sqlalchemy.dialects.mysql import ENUM
@@ -18,3 +20,4 @@ class User(Base):
     is_active = Column(Boolean(), default=True)
     is_admin = Column(Boolean(), default=False)
     type = Column(ENUM("superuser", "student", "professor", "admin", name="user_type"), nullable=False)
+    school = Column(Integer, ForeignKey(f'{School.__table__.name}.id'), index=True, nullable=True)

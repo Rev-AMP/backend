@@ -11,6 +11,7 @@ class UserBase(BaseModel):
     full_name: Optional[str] = None
     profile_picture: Optional[str] = None
     is_admin: bool = False
+    school: Optional[int] = None
 
 
 # Properties to receive via API on creation
