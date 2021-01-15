@@ -92,3 +92,29 @@ def update_school(
     school = crud.school.update(db, db_obj=school, obj_in=school_in)
 
     return school
+
+
+@router.get("/{school_id}/students", response_model=List[schemas.User])
+def get_students(
+    *,
+    db: Session = Depends(deps.get_db),
+    school_id: int,
+    current_user: models.User = Depends(deps.get_current_active_superuser),
+) -> Any:
+    """
+    Get all students belonging to a school.
+    """
+    return crud.school.get_all_students(db, school_id=school_id)
+
+
+@router.get("/{school_id}/professors", response_model=List[schemas.User])
+def get_professors(
+    *,
+    db: Session = Depends(deps.get_db),
+    school_id: int,
+    current_user: models.User = Depends(deps.get_current_active_superuser),
+) -> Any:
+    """
+    Get all students belonging to a school.
+    """
+    return crud.school.get_all_professors(db, school_id=school_id)
