@@ -1,3 +1,4 @@
 from .msg import Msg
 from .token import Token, TokenPayload
-from .user import User, UserCreate, UserInDB, UserUpdate
+from .users.admin import Admin, AdminCreate, AdminRemove, AdminUpdate
+from .users.user import User, UserCreate, UserInDB, UserUpdate
