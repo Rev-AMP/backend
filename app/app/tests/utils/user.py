@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -20,20 +20,23 @@ def user_authentication_headers(*, client: TestClient, email: str, password: str
     return headers
 
 
-def create_random_user(db: Session, type: str) -> User:
+def create_random_user(db: Session, type: str, school: Optional[int] = None) -> User:
     """
     :param db: SQLAlchemy Session object pointing to the project database
     :param type: Type of user to create
+    :param school: School that the user belongs to (optional)
     :return: User object created from random values and given type
     """
     email = random_email()
     password = random_lower_string()
-    user_in = UserCreate(email=email, password=password, type=type)
+    user_in = UserCreate(email=email, password=password, type=type, school=school)
     user = crud.user.create(db=db, obj_in=user_in)
     return user
 
 
-def authentication_token_from_email(*, client: TestClient, email: str, db: Session) -> Dict[str, str]:
+def authentication_token_from_email(
+    *, client: TestClient, email: str, db: Session, user_type: str = "student", school: Optional[int] = None
+) -> Dict[str, str]:
     """
     Return a valid token for the user with given email.
 
@@ -42,7 +45,7 @@ def authentication_token_from_email(*, client: TestClient, email: str, db: Sessi
     password = random_lower_string()
     user = crud.user.get_by_email(db, email=email)
     if not user:
-        user_in_create = UserCreate(email=email, password=password, type="student")
+        user_in_create = UserCreate(email=email, password=password, type=user_type, school=school)
         user = crud.user.create(db, obj_in=user_in_create)
     else:
         user_in_update = UserUpdate(password=password)
