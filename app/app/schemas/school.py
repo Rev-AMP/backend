@@ -12,7 +12,6 @@ class SchoolBase(BaseModel):
 # Properties to receive via API on creation
 class SchoolCreate(SchoolBase):
     name: str
-    head: str
 
 
 # Properties to receive via API on update
