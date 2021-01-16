@@ -62,8 +62,8 @@ def read_school_by_id(
 
     # TODO: check the perms of admin, or if user belongs to the school
     # Raise exception if fetched School is not the current_user and the current_user is not a superuser
-    # if not crud.user.is_superuser(current_user):
-    #     raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+    if not crud.user.is_superuser(current_user) and not crud.user.check_admin(current_user) and not current_user.school == school_id:
+        raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
 
     return school
 
