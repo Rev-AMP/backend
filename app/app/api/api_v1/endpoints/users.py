@@ -118,6 +118,12 @@ def read_user_by_id(
     if not crud.user.is_superuser(current_user):
         raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
 
+    if not user:
+        raise HTTPException(
+            status_code=400,
+            detail="The user with this ID does not exist in the system",
+        )
+
     return user
 
 
