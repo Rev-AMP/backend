@@ -36,7 +36,7 @@ def create_admin(
     admin = crud.admin.get(db, id=admin_in.user_id)
     if admin:
         raise HTTPException(
-            status_code=400,
+            status_code=409,
             detail="This user is already an admin!",
         )
 
