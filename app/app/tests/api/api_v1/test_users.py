@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.core.config import settings
 from app.schemas import UserCreate
+from app.tests.utils.user import create_random_user
 from app.tests.utils.utils import random_email, random_lower_string
 
 
@@ -62,7 +63,6 @@ def test_get_existing_user(client: TestClient, superuser_token_headers: dict, db
 
 def test_create_user_existing_username(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
     username = random_email()
-    # username = email
     password = random_lower_string()
     user_in = UserCreate(email=username, password=password, type="superuser")
     crud.user.create(db, obj_in=user_in)
@@ -90,15 +90,8 @@ def test_create_user_by_normal_user(client: TestClient, normal_user_token_header
 
 
 def test_retrieve_users(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
-    username = random_email()
-    password = random_lower_string()
-    user_in = UserCreate(email=username, password=password, type="superuser")
-    crud.user.create(db, obj_in=user_in)
-
-    username2 = random_email()
-    password2 = random_lower_string()
-    user_in2 = UserCreate(email=username2, password=password2, type="superuser")
-    crud.user.create(db, obj_in=user_in2)
+    create_random_user(db, type="superuser")
+    create_random_user(db, type="superuser")
 
     r = client.get(f"{settings.API_V1_STR}/users/", headers=superuser_token_headers)
     all_users = r.json()
