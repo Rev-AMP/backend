@@ -65,7 +65,7 @@ def test_create_user_existing_username(client: TestClient, superuser_token_heade
         json=data,
     )
     created_user = r.json()
-    assert r.status_code == 400
+    assert 400 <= r.status_code < 500
     assert "_id" not in created_user
 
 
@@ -78,7 +78,7 @@ def test_create_user_by_normal_user(client: TestClient, normal_user_token_header
         headers=normal_user_token_headers,
         json=data,
     )
-    assert r.status_code == 400
+    assert 400 <= r.status_code < 500
 
 
 def test_retrieve_users(client: TestClient, superuser_token_headers: dict, db: Session) -> None:

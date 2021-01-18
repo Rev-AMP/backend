@@ -29,7 +29,7 @@ def test_create_admin_existing_id(client: TestClient, superuser_token_headers: d
         json=data,
     )
     created_user = r.json()
-    assert r.status_code == 400
+    assert 400 <= r.status_code < 500
     assert "user_id" not in created_user
 
 
@@ -62,7 +62,7 @@ def test_create_admin_existing_student(client: TestClient, superuser_token_heade
     )
     created_admin = r.json()
     db.refresh(user)
-    assert r.status_code == 400
+    assert 400 <= r.status_code < 500
     assert user
     assert not user.is_admin
     assert "user_id" not in created_admin
@@ -92,7 +92,7 @@ def test_update_admin_nonadmin(client: TestClient, superuser_token_headers: dict
         json=data,
     )
     updated_admin = r.json()
-    assert r.status_code == 400
+    assert 400 <= r.status_code < 500
     db.refresh(user)
     assert user
     assert not user.is_admin
@@ -125,7 +125,7 @@ def test_remove_admin_nonadmin(client: TestClient, superuser_token_headers: dict
         json=data,
     )
     db.refresh(user)
-    assert r.status_code == 400
+    assert 400 <= r.status_code < 500
     assert user
     assert not user.is_admin
 
@@ -141,4 +141,4 @@ def test_remove_admin_nonuser(client: TestClient, superuser_token_headers: dict,
         headers=superuser_token_headers,
         json=data,
     )
-    assert r.status_code == 400
+    assert 400 <= r.status_code < 500
