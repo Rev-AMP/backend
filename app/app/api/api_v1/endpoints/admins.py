@@ -45,7 +45,7 @@ def create_admin(
     # Ensure the user with the given ID exists
     if not user:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail="This user does not exist!",
         )
 
@@ -85,7 +85,7 @@ def update_admin(
         return crud.admin.update(db, db_obj=current_admin, obj_in=admin_in)
 
     raise HTTPException(
-        status_code=400,
+        status_code=404,
         detail="This admin does not exist!",
     )
 
@@ -106,7 +106,7 @@ def remove_admin(
         crud.user.update(db, db_obj=current_user, obj_in={'is_admin': False})
     else:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail="This user does not exist!",
         )
 
@@ -115,6 +115,6 @@ def remove_admin(
         return crud.admin.remove(db, id=admin_in.user_id)
     else:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail="This admin does not exist!",
         )
