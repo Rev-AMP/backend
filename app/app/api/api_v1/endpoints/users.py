@@ -41,7 +41,7 @@ def create_user(
     user = crud.user.get_by_email(db, email=user_in.email)
     if user:
         raise HTTPException(
-            status_code=400,
+            status_code=409,
             detail="The user with this email already exists in the system.",
         )
 
@@ -116,11 +116,11 @@ def read_user_by_id(
 
     # Raise exception if fetched User is not the current_user and the current_user is not a superuser
     if not crud.user.is_superuser(current_user):
-        raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+        raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
 
     if not user:
         raise HTTPException(
-            status_code=400,
+            status_code=403,
             detail="The user with this ID does not exist in the system",
         )
 
