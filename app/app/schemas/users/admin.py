@@ -59,9 +59,17 @@ class AdminPermissions:
         self.permissions = permissions
 
     def is_allowed(self, permission: str) -> bool:
+        # for superusers
+        if self.permissions < 0:
+            return True
+        # for admins
         return permission not in self.bit_names and self.__getitem__(permission)
 
     def __getitem__(self, key: str) -> bool:
+        # for superusers
+        if self.permissions < 0:
+            return True
+        # for admins
         bit_no = self.bit_names[key]
         return bool(self.permissions & 2 ** bit_no)
 
@@ -69,11 +77,13 @@ class AdminPermissions:
         """
         Unused for now, left in case we need to set certain permissions directly through the backend
         """
-        bit_no = self.bit_names[key]
-        if val:
-            self.permissions |= 2 ** bit_no
-        else:
-            self.permissions &= ~(2 ** bit_no)
+        # make sure you don't change permissions of superusers
+        if self.permissions >= 0:
+            bit_no = self.bit_names[key]
+            if val:
+                self.permissions |= 2 ** bit_no
+            else:
+                self.permissions &= ~(2 ** bit_no)
 
     def reset(self) -> None:
         self.permissions = 0
