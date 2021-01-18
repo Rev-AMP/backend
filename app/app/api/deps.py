@@ -78,7 +78,10 @@ def get_current_active_admin_with_permission(permission: str) -> Callable:
     """
 
     def inner(current_admin: models.Admin = Depends(get_current_admin)) -> models.Admin:
-        if schemas.AdminPermissions(current_admin.permissions).is_allowed(permission):
+        if (
+            schemas.AdminPermissions(current_admin.permissions).is_allowed(permission)
+            or current_admin.permissions == -1
+        ):
             return current_admin
         raise HTTPException(status_code=403, detail="This admin doesn't have enough privileges")
 
