@@ -3,8 +3,8 @@ from typing import Any, Dict, Optional, Union
 from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
-from app.models.users.admin import Admin
-from app.schemas.users.admin import AdminCreate, AdminUpdate
+from app.models import Admin
+from app.schemas import AdminCreate, AdminUpdate
 
 
 class CRUDAdmin(CRUDBase[Admin, AdminCreate, AdminUpdate]):

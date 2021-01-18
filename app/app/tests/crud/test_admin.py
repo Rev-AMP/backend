@@ -1,8 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app import crud
-from app.schemas.users.admin import AdminUpdate
-from app.schemas.users.user import UserCreate
+from app.schemas import AdminUpdate, UserCreate
 from app.tests.utils.user import create_random_user
 from app.tests.utils.utils import random_email, random_lower_string
 

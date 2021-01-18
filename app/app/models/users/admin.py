@@ -1,7 +1,7 @@
 from sqlalchemy import Column, ForeignKey, Integer
 
 from app.db.base_class import Base
-from app.models.users.user import User
+from app.models import User
 
 
 class Admin(Base):

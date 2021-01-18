@@ -1,7 +1,7 @@
 import decouple
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 
-from app.models.school import School
+from app.models import School
 
 if decouple.config('DB', default='mysql') == 'mysql':
     from sqlalchemy.dialects.mysql import ENUM
