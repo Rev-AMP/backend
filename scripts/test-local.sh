@@ -13,3 +13,5 @@ fi
 docker-compose build
 docker-compose up -d
 docker-compose exec -T backend bash /app/tests-start.sh "$@"
+
+docker-compose down -v --remove-orphans # Remove stack after testing is done
