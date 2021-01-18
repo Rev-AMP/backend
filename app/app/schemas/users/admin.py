@@ -59,11 +59,13 @@ class AdminPermissions:
         self.permissions = permissions
 
     def is_allowed(self, permission: str) -> bool:
-        # for superusers
-        if self.permissions < 0:
-            return True
-        # for admins
-        return permission not in self.bit_names and self.__getitem__(permission)
+        """
+        Function that takes in a permission in string format and returns whether an admin with the given permissions
+        can access that resource or not
+
+        Superusers are special, hence their `permissions` is set to -1, so we can quickly check that first
+        """
+        return self.permissions < 0 or permission in self.bit_names and self.__getitem__(permission)
 
     def __getitem__(self, key: str) -> bool:
         # for superusers
