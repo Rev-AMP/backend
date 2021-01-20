@@ -120,7 +120,7 @@ def read_user_by_id(
 
     if not user:
         raise HTTPException(
-            status_code=403,
+            status_code=404,
             detail="The user with this ID does not exist in the system",
         )
 
