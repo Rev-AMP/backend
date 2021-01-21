@@ -3,9 +3,8 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
-from app.models import User
-from app.models.school import School
-from app.schemas.school import SchoolCreate, SchoolUpdate
+from app.models import School, User
+from app.schemas import SchoolCreate, SchoolUpdate
 
 
 class CRUDSchool(CRUDBase[School, SchoolCreate, SchoolUpdate]):

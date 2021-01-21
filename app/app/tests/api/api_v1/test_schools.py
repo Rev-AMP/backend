@@ -39,7 +39,7 @@ def test_create_school_existing(client: TestClient, superuser_token_headers: Dic
     school = create_random_school(db)
     data = {'name': school.name, 'head': school.head}
     r = client.post(f"{settings.API_V1_STR}/schools/", headers=superuser_token_headers, json=data)
-    assert 400 == r.status_code
+    assert 400 <= r.status_code < 500
 
 
 def test_get_school_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -85,7 +85,7 @@ def test_get_school_invalid_student(client: TestClient, db: Session) -> None:
     school = create_random_school(db)
     admin_user_token_headers = authentication_token_from_email(client=client, db=db, email=random_email())
     r = client.get(f"{settings.API_V1_STR}/schools/{school.id}", headers=admin_user_token_headers)
-    assert 400 == r.status_code
+    assert 400 <= r.status_code < 500
 
 
 def test_update_school(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -107,7 +107,7 @@ def test_update_school_nonexisting(client: TestClient, superuser_token_headers: 
         pass
     data = {'name': random_lower_string(), 'head': random_lower_string()}
     r = client.put(f"{settings.API_V1_STR}/schools/{school_id}", headers=superuser_token_headers, json=data)
-    assert 400 == r.status_code
+    assert 400 <= r.status_code < 500
 
 
 def test_get_all_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:

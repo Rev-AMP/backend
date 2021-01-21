@@ -5,9 +5,8 @@ from sqlalchemy.orm import Session
 from app.core.security import get_password_hash, verify_password
 from app.crud import admin
 from app.crud.base import CRUDBase
-from app.models.users.user import User
-from app.schemas.users.admin import AdminCreate
-from app.schemas.users.user import UserCreate, UserUpdate
+from app.models import User
+from app.schemas import AdminCreate, UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):

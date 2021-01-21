@@ -37,7 +37,7 @@ def create_school(
     school = crud.school.get_by_name(db, name=school_in.name)
     if school:
         raise HTTPException(
-            status_code=400,
+            status_code=409,
             detail="The user with this name already exists in the system.",
         )
 
@@ -67,7 +67,7 @@ def read_school_by_id(
         and not crud.user.check_admin(current_user)
         and not current_user.school == school_id
     ):
-        raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+        raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
 
     return school
 
@@ -88,7 +88,7 @@ def update_school(
     school = crud.school.get(db, id=school_id)
     if not school:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail="The school with this ID does not exist in the system",
         )
 

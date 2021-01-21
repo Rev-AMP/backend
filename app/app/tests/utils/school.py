@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app import crud
-from app.models.school import School
+from app.models import School
 from app.schemas import SchoolCreate
 from app.tests.utils.utils import random_lower_string
 
