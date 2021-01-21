@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Callable, Generator
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -72,28 +72,17 @@ def get_current_active_admin(
     raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
 
 
-def get_current_active_admin_user_access(
-    current_admin: models.Admin = Depends(get_current_admin),
-) -> models.Admin:
-    if schemas.AdminPermissions(current_admin.permissions).is_allowed("user"):
-        return current_admin
-    raise HTTPException(status_code=403, detail="This admin doesn't have enough privileges")
+def get_current_active_admin_with_permission(permission: str) -> Callable:
+    """
+    Return a function that checks if the current active admin has permission for given task
+    """
 
+    def inner(current_admin: models.Admin = Depends(get_current_admin)) -> models.Admin:
+        if schemas.AdminPermissions(current_admin.permissions).is_allowed(permission):
+            return current_admin
+        raise HTTPException(status_code=403, detail="This admin doesn't have enough privileges")
 
-def get_current_active_admin_admin_access(
-    current_admin: models.Admin = Depends(get_current_admin),
-) -> models.Admin:
-    if schemas.AdminPermissions(current_admin.permissions).is_allowed("admin"):
-        return current_admin
-    raise HTTPException(status_code=403, detail="This admin doesn't have enough privileges")
-
-
-def get_current_active_admin_school_access(
-    current_admin: models.Admin = Depends(get_current_admin),
-) -> models.Admin:
-    if schemas.AdminPermissions(current_admin.permissions).is_allowed("school"):
-        return current_admin
-    raise HTTPException(status_code=403, detail="This admin doesn't have enough privileges")
+    return inner
 
 
 def get_current_active_superuser(
