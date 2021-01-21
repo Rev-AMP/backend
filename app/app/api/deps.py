@@ -50,7 +50,7 @@ def get_current_admin(db: Session = Depends(get_db), token: str = Depends(reusab
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if not crud.user.check_admin(user):
-        raise HTTPException(status_code=400, detail="User is not an administrator")
+        raise HTTPException(status_code=403, detail="User is not an administrator")
     if admin := crud.admin.get(db, id=user.id):
         return admin
     raise HTTPException(status_code=404, detail="Admin object not found")
