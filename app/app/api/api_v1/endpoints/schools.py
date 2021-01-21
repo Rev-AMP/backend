@@ -75,6 +75,7 @@ def read_school_by_id(
                     status_code=403,
                     detail="The school with this ID does not exist in the system",
                 )
+
     raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
 
 

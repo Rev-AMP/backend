@@ -101,8 +101,13 @@ def remove_admin(
     Delete admin i.e. demote user
     """
 
-    # update user object
+    # Update user object to change is_admin attribute
     if current_user := crud.user.get(db, admin_in.user_id):
+        if current_user.type != "professor":
+            raise HTTPException(
+                status_code=400,
+                detail="Only professors can be demoted!",
+            )
         crud.user.update(db, db_obj=current_user, obj_in={'is_admin': False})
     else:
         raise HTTPException(
@@ -110,7 +115,7 @@ def remove_admin(
             detail="This user does not exist!",
         )
 
-    # delete admin object
+    # Delete admin object
     if crud.admin.get(db, admin_in.user_id):
         return crud.admin.remove(db, id=admin_in.user_id)
     else:
