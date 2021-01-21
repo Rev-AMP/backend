@@ -27,7 +27,7 @@ def create_admin(
     *,
     db: Session = Depends(deps.get_db),
     admin_in: schemas.AdminCreate,
-    current_superuser: models.User = Depends(deps.get_current_active_superuser),
+    current_superuser: models.User = Depends(deps.get_current_active_admin_admin_access),
 ) -> Any:
     """
     Create new admin.
@@ -75,7 +75,7 @@ def update_admin(
     *,
     db: Session = Depends(deps.get_db),
     admin_in: schemas.AdminUpdate,
-    current_superuser: models.User = Depends(deps.get_current_active_superuser),
+    current_superuser: models.User = Depends(deps.get_current_active_admin_admin_access),
 ) -> Any:
     """
     Update admin.
@@ -95,7 +95,7 @@ def remove_admin(
     *,
     db: Session = Depends(deps.get_db),
     admin_in: schemas.AdminRemove,
-    current_superuser: models.User = Depends(deps.get_current_active_superuser),
+    current_superuser: models.User = Depends(deps.get_current_active_admin_admin_access),
 ) -> Any:
     """
     Delete admin i.e. demote user
