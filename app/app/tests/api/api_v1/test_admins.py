@@ -100,7 +100,7 @@ def test_update_admin_nonadmin(client: TestClient, superuser_token_headers: dict
 
 
 def test_remove_admin(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
-    user = create_random_user(db, type="admin")
+    user = create_random_user(db, type="professor", is_admin=True)
     admin_id = user.id
     data = {"user_id": admin_id}
     r = client.delete(
