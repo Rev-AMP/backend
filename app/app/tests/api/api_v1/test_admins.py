@@ -46,7 +46,7 @@ def test_create_admin_existing_nonadmin(client: TestClient, superuser_token_head
     db.refresh(user)
     assert 200 <= r.status_code < 300
     assert user
-    assert user.is_admin
+    assert crud.user.check_admin(user)
     assert "user_id" in created_admin
     assert "permissions" in created_admin
 
@@ -64,7 +64,7 @@ def test_create_admin_existing_student(client: TestClient, superuser_token_heade
     db.refresh(user)
     assert 400 <= r.status_code < 500
     assert user
-    assert not user.is_admin
+    assert not crud.user.check_admin(user)
     assert "user_id" not in created_admin
 
 
@@ -95,7 +95,7 @@ def test_update_admin_nonadmin(client: TestClient, superuser_token_headers: dict
     assert 400 <= r.status_code < 500
     db.refresh(user)
     assert user
-    assert not user.is_admin
+    assert not crud.user.check_admin(user)
     assert 'user_id' not in updated_admin
 
 
@@ -111,7 +111,7 @@ def test_remove_admin(client: TestClient, superuser_token_headers: dict, db: Ses
     db.refresh(user)
     assert 200 <= r.status_code < 300
     assert user
-    assert not user.is_admin
+    assert not crud.user.check_admin(user)
     assert not crud.admin.get(db, id=admin_id)
 
 
@@ -127,7 +127,7 @@ def test_remove_admin_nonadmin(client: TestClient, superuser_token_headers: dict
     db.refresh(user)
     assert 400 <= r.status_code < 500
     assert user
-    assert not user.is_admin
+    assert not crud.user.check_admin(user)
 
 
 def test_remove_admin_nonuser(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
