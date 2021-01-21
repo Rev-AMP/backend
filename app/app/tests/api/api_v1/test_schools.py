@@ -55,8 +55,9 @@ def test_get_school_superuser(client: TestClient, superuser_token_headers: Dict[
 
 def test_get_school_admin(client: TestClient, db: Session) -> None:
     school = create_random_school(db)
+    admin = create_random_user(db, "admin", permissions=4)
     admin_user_token_headers = authentication_token_from_email(
-        client=client, db=db, email=random_email(), user_type="admin"
+        client=client, db=db, email=admin.email, user_type="admin"
     )
     r = client.get(f"{settings.API_V1_STR}/schools/{school.id}", headers=admin_user_token_headers)
     assert 200 <= r.status_code < 300
