@@ -37,6 +37,25 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusabl
     return user
 
 
+def get_current_admin(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> models.Admin:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
+        token_data = schemas.TokenPayload(**payload)
+    except (jwt.JWTError, ValidationError):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
+        )
+    user = crud.user.get(db, id=token_data.sub)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not user.is_admin:
+        raise HTTPException(status_code=400, detail="User is not an administrator")
+    if admin := crud.admin.get(db, id=user.id):
+        return admin
+    raise HTTPException(status_code=404, detail="Admin object not found")
+
+
 def get_current_active_user(
     current_user: models.User = Depends(get_current_user),
 ) -> models.User:
@@ -54,33 +73,27 @@ def get_current_active_admin(
 
 
 def get_current_active_admin_user_access(
-    current_user: models.User = Depends(get_current_user),
-) -> models.User:
-    if crud.user.check_admin(current_user):
-        if admin := crud.admin.get(Depends(get_db), current_user.id):
-            if schemas.AdminPermissions(admin.permissions).is_allowed("user"):
-                return current_user
-    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    current_admin: models.Admin = Depends(get_current_admin),
+) -> models.Admin:
+    if schemas.AdminPermissions(current_admin.permissions).is_allowed("user"):
+        return current_admin
+    raise HTTPException(status_code=403, detail="This admin doesn't have enough privileges")
 
 
 def get_current_active_admin_admin_access(
-    current_user: models.User = Depends(get_current_user),
-) -> models.User:
-    if crud.user.check_admin(current_user):
-        if admin := crud.admin.get(Depends(get_db), current_user.id):
-            if schemas.AdminPermissions(admin.permissions).is_allowed("admin"):
-                return current_user
-    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    current_admin: models.Admin = Depends(get_current_admin),
+) -> models.Admin:
+    if schemas.AdminPermissions(current_admin.permissions).is_allowed("admin"):
+        return current_admin
+    raise HTTPException(status_code=403, detail="This admin doesn't have enough privileges")
 
 
 def get_current_active_admin_school_access(
-    current_user: models.User = Depends(get_current_user),
-) -> models.User:
-    if crud.user.check_admin(current_user):
-        if admin := crud.admin.get(Depends(get_db), current_user.id):
-            if schemas.AdminPermissions(admin.permissions).is_allowed("school"):
-                return current_user
-    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    current_admin: models.Admin = Depends(get_current_admin),
+) -> models.Admin:
+    if schemas.AdminPermissions(current_admin.permissions).is_allowed("school"):
+        return current_admin
+    raise HTTPException(status_code=403, detail="This admin doesn't have enough privileges")
 
 
 def get_current_active_superuser(

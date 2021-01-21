@@ -14,7 +14,7 @@ router = APIRouter()
 @router.get("/", response_model=schemas.Admin)
 def get_admin(
     db: Session = Depends(deps.get_db),
-    current_admin: models.User = Depends(deps.get_current_active_admin),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin),
 ) -> Any:
     """
     Get current admin
@@ -27,7 +27,7 @@ def create_admin(
     *,
     db: Session = Depends(deps.get_db),
     admin_in: schemas.AdminCreate,
-    current_superuser: models.User = Depends(deps.get_current_active_admin_admin_access),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_admin_access),
 ) -> Any:
     """
     Create new admin.
@@ -75,14 +75,14 @@ def update_admin(
     *,
     db: Session = Depends(deps.get_db),
     admin_in: schemas.AdminUpdate,
-    current_superuser: models.User = Depends(deps.get_current_active_admin_admin_access),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_admin_access),
 ) -> Any:
     """
     Update admin.
     """
 
-    if current_admin := crud.admin.get(db, admin_in.user_id):
-        return crud.admin.update(db, db_obj=current_admin, obj_in=admin_in)
+    if admin := crud.admin.get(db, admin_in.user_id):
+        return crud.admin.update(db, db_obj=admin, obj_in=admin_in)
 
     raise HTTPException(
         status_code=404,
@@ -95,7 +95,7 @@ def remove_admin(
     *,
     db: Session = Depends(deps.get_db),
     admin_in: schemas.AdminRemove,
-    current_superuser: models.User = Depends(deps.get_current_active_admin_admin_access),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_admin_access),
 ) -> Any:
     """
     Delete admin i.e. demote user

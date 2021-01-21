@@ -18,7 +18,7 @@ def read_users(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    current_user: models.User = Depends(deps.get_current_active_admin_user_access),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_user_access),
 ) -> Any:
     """
     Retrieve users.
@@ -32,7 +32,7 @@ def create_user(
     *,
     db: Session = Depends(deps.get_db),
     user_in: schemas.UserCreate,
-    current_user: models.User = Depends(deps.get_current_active_admin_user_access),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_user_access),
 ) -> Any:
     """
     Create new user.
@@ -134,7 +134,7 @@ def update_user(
     db: Session = Depends(deps.get_db),
     user_id: int,
     user_in: schemas.UserUpdate,
-    current_user: models.User = Depends(deps.get_current_active_admin_user_access),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_user_access),
 ) -> Any:
     """
     Update a user.
