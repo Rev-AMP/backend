@@ -29,14 +29,14 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.refresh(db_obj)
 
         # Ensure user gets the appropriate permissions depending on type
-        if obj_in.type == 'admin':
+        if obj_in.type == 'superuser':
+            admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=-1))
+        elif obj_in.type == 'admin' or obj_in.is_admin:
             admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=0))
         elif obj_in.type == 'professor':
             pass
         elif obj_in.type == 'student':
             pass
-        elif obj_in.type == 'superuser':
-            admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=-1))
 
         return db_obj
 
