@@ -37,6 +37,14 @@ def create_user(
     """
     Create new user.
     """
+
+    if current_admin_user := crud.user.get(db, current_admin.user_id):
+        if user_in.type == "superuser" and current_admin_user.type != "superuser":
+            raise HTTPException(
+                status_code=403,
+                detail="Only superusers can create more superusers.",
+            )
+
     # Check if the user already exists; raise HTTPException with error code 400 if it does
     user = crud.user.get_by_email(db, email=user_in.email)
     if user:

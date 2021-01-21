@@ -81,6 +81,30 @@ def test_create_user_by_normal_user(client: TestClient, normal_user_token_header
     assert 400 <= r.status_code < 500
 
 
+def test_create_superuser_by_superuser(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
+    username = random_email()
+    password = random_lower_string()
+    data = {"email": username, "password": password, "type": "superuser"}
+    r = client.post(
+        f"{settings.API_V1_STR}/users/",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert r.status_code == 200
+
+
+def test_create_superuser_by_normal_admin(client: TestClient, admin_user_token_headers: Dict[str, str]) -> None:
+    username = random_email()
+    password = random_lower_string()
+    data = {"email": username, "password": password, "type": "superuser"}
+    r = client.post(
+        f"{settings.API_V1_STR}/users/",
+        headers=admin_user_token_headers,
+        json=data,
+    )
+    assert r.status_code == 403
+
+
 def test_retrieve_users(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
     create_random_user(db, type="superuser")
     create_random_user(db, type="superuser")
