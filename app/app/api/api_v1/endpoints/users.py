@@ -39,7 +39,7 @@ def create_user(
     """
 
     if current_admin_user := crud.user.get(db, current_admin.user_id):
-        if user_in.type == "superuser" and current_admin_user.type != "superuser":
+        if user_in.type == "superuser" and not crud.user.is_superuser(current_admin_user):
             raise HTTPException(
                 status_code=403,
                 detail="Only superusers can create more superusers.",
