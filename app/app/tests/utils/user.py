@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.core.config import settings
 from app.models import User
-from app.schemas import UserCreate, UserUpdate
+from app.schemas import AdminUpdate, UserCreate, UserUpdate
 from app.tests.utils.utils import random_email, random_lower_string
 
 
@@ -20,17 +20,26 @@ def user_authentication_headers(*, client: TestClient, email: str, password: str
     return headers
 
 
-def create_random_user(db: Session, type: str, school: Optional[int] = None) -> User:
+def create_random_user(
+    db: Session, type: str, is_admin: bool = False, school: Optional[int] = None, permissions: Optional[int] = None
+) -> User:
     """
     :param db: SQLAlchemy Session object pointing to the project database
     :param type: Type of user to create
+    :param is_admin: True if user is an auxilary admin, else False
     :param school: School that the user belongs to (optional)
+    :param permissions: permissions to be set if user is an admin
     :return: User object created from random values and given type
     """
     email = random_email()
     password = random_lower_string()
-    user_in = UserCreate(email=email, password=password, type=type, school=school)
-    return crud.user.create(db=db, obj_in=user_in)
+    user_in = UserCreate(email=email, password=password, type=type, is_admin=is_admin, school=school)
+    user = crud.user.create(db=db, obj_in=user_in)
+    if crud.user.check_admin(user) and permissions:
+        if admin := crud.admin.get(db, user.id):
+            admin_in = AdminUpdate(user_id=user.id, permissions=permissions)
+            crud.admin.update(db=db, db_obj=admin, obj_in=admin_in)
+    return user
 
 
 def authentication_token_from_email(

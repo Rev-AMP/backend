@@ -68,6 +68,7 @@ class Settings(BaseSettings):
         return bool(values.get("SMTP_HOST") and values.get("SMTP_PORT") and values.get("EMAILS_FROM_EMAIL"))
 
     EMAIL_TEST_USER: EmailStr = "test@example.com"  # type: ignore
+    EMAIL_TEST_ADMIN: EmailStr = "admin-test@example.com"  # type: ignore
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
 

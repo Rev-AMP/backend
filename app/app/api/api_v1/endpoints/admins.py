@@ -14,7 +14,7 @@ router = APIRouter()
 @router.get("/", response_model=schemas.Admin)
 def get_admin(
     db: Session = Depends(deps.get_db),
-    current_admin: models.User = Depends(deps.get_current_active_admin),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin),
 ) -> Any:
     """
     Get current admin
@@ -27,7 +27,7 @@ def create_admin(
     *,
     db: Session = Depends(deps.get_db),
     admin_in: schemas.AdminCreate,
-    current_superuser: models.User = Depends(deps.get_current_active_superuser),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("admin")),
 ) -> Any:
     """
     Create new admin.
@@ -75,14 +75,14 @@ def update_admin(
     *,
     db: Session = Depends(deps.get_db),
     admin_in: schemas.AdminUpdate,
-    current_superuser: models.User = Depends(deps.get_current_active_superuser),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("admin")),
 ) -> Any:
     """
     Update admin.
     """
 
-    if current_admin := crud.admin.get(db, admin_in.user_id):
-        return crud.admin.update(db, db_obj=current_admin, obj_in=admin_in)
+    if admin := crud.admin.get(db, admin_in.user_id):
+        return crud.admin.update(db, db_obj=admin, obj_in=admin_in)
 
     raise HTTPException(
         status_code=404,
@@ -95,14 +95,19 @@ def remove_admin(
     *,
     db: Session = Depends(deps.get_db),
     admin_in: schemas.AdminRemove,
-    current_superuser: models.User = Depends(deps.get_current_active_superuser),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("admin")),
 ) -> Any:
     """
     Delete admin i.e. demote user
     """
 
-    # update user object
+    # Update user object to change is_admin attribute
     if current_user := crud.user.get(db, admin_in.user_id):
+        if current_user.type != "professor":
+            raise HTTPException(
+                status_code=400,
+                detail="Only professors can be demoted!",
+            )
         crud.user.update(db, db_obj=current_user, obj_in={'is_admin': False})
     else:
         raise HTTPException(
@@ -110,7 +115,7 @@ def remove_admin(
             detail="This user does not exist!",
         )
 
-    # delete admin object
+    # Delete admin object
     if crud.admin.get(db, admin_in.user_id):
         return crud.admin.remove(db, id=admin_in.user_id)
     else:
