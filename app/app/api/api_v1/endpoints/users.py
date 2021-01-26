@@ -123,7 +123,7 @@ def read_user_by_id(
         return user
 
     # Raise exception if fetched User is not the current_user and the current_user is not a superuser
-    if crud.user.check_admin(current_user):
+    if current_user.is_admin:
         if admin := crud.admin.get(db, current_user.id):
             if schemas.AdminPermissions(admin.permissions).is_allowed("admin"):
                 if user:

@@ -49,7 +49,7 @@ def get_current_admin(db: Session = Depends(get_db), token: str = Depends(reusab
     user = crud.user.get(db, id=token_data.sub)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    if not crud.user.check_admin(user):
+    if not user.is_admin:
         raise HTTPException(status_code=403, detail="User is not an administrator")
     if admin := crud.admin.get(db, id=user.id):
         return admin
@@ -67,7 +67,7 @@ def get_current_active_user(
 def get_current_active_admin(
     current_user: models.User = Depends(get_current_user),
 ) -> models.User:
-    if crud.user.check_admin(current_user):
+    if current_user.is_admin:
         return current_user
     raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
 

@@ -60,13 +60,11 @@ def read_school_by_id(
     # Fetch School with the corresponding id from db
     school = crud.school.get(db, id=school_id)
 
-    # TODO: check the perms of admin, or if user belongs to the school
-    # Raise exception if fetched School is not the current_user and the current_user is not a superuser
-    # Raise exception if fetched User is not the current_user and the current_user is not a superuser
+    # Raise exception if the current_user doesn't belong to the fetched School and the current_user doesn't have perms
     if current_user.school == school_id:
         return school
 
-    if crud.user.check_admin(current_user):
+    if current_user.is_admin:
         if admin := crud.admin.get(db, current_user.id):
             if schemas.AdminPermissions(admin.permissions).is_allowed("school"):
                 if school:
