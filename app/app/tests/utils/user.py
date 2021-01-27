@@ -35,7 +35,7 @@ def create_random_user(
     password = random_lower_string()
     user_in = UserCreate(email=email, password=password, type=type, is_admin=is_admin, school=school)
     user = crud.user.create(db=db, obj_in=user_in)
-    if crud.user.check_admin(user) and permissions:
+    if user.is_admin and permissions:
         if admin := crud.admin.get(db, user.id):
             admin_in = AdminUpdate(user_id=user.id, permissions=permissions)
             crud.admin.update(db=db, db_obj=admin, obj_in=admin_in)

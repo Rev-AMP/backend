@@ -20,7 +20,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             full_name=obj_in.full_name,
             type=obj_in.type,
             profile_picture=obj_in.profile_picture,
-            is_admin=obj_in.is_admin,
+            is_admin=obj_in.is_admin or obj_in.type in ('admin', 'superuser'),
             school=obj_in.school,
         )
         db.add(db_obj)
@@ -61,9 +61,6 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     def is_active(self, user: User) -> bool:
         return user.is_active
-
-    def check_admin(self, user: User) -> bool:
-        return user.type == "admin" or user.is_admin
 
     def is_superuser(self, user: User) -> bool:
         return user.type == "superuser"
