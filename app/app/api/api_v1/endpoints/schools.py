@@ -33,12 +33,18 @@ def create_school(
     """
     Create new school.
     """
-    # Check if the school already exists; raise HTTPException with error code 400 if it does
-    school = crud.school.get_by_name(db, name=school_in.name)
-    if school:
+    # Check if the school already exists; raise HTTPException with error code 409 if it does
+    if crud.school.get_by_name(db, name=school_in.name):
         raise HTTPException(
             status_code=409,
-            detail="The user with this name already exists in the system.",
+            detail="A school with this name already exists in the system.",
+        )
+
+    # Check if a school with this head already exists; raise HTTPException with error code 409 if it does
+    if crud.school.get_by_head(db, head=school_in.head):
+        raise HTTPException(
+            status_code=409,
+            detail="A school with this head already exists in the system.",
         )
 
     # Create new school

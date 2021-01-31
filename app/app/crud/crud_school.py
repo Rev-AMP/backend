@@ -11,6 +11,9 @@ class CRUDSchool(CRUDBase[School, SchoolCreate, SchoolUpdate]):
     def get_by_name(self, db: Session, *, name: str) -> Optional[School]:
         return db.query(School).filter(School.name == name).first()
 
+    def get_by_head(self, db: Session, *, head: str) -> Optional[School]:
+        return db.query(School).filter(School.head == head).first()
+
     def get_all_students(self, db: Session, *, school_id: int) -> List[User]:
         return db.query(User).filter(User.type == "student").filter(User.school == school_id).all()
 
