@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 
 # Shared properties
@@ -13,6 +13,16 @@ class SchoolBase(BaseModel):
 class SchoolCreate(SchoolBase):
     name: str
     head: str
+
+    @validator('name')
+    def name_not_empty(cls, name: str) -> None:
+        if not name:
+            raise ValueError("Name must not be empty!")
+
+    @validator('head')
+    def head_not_empty(cls, head: str) -> None:
+        if not head:
+            raise ValueError("Head name must not be empty!")
 
 
 # Properties to receive via API on update
