@@ -155,7 +155,7 @@ def update_user(
     if not user:
         raise HTTPException(
             status_code=404,
-            detail="The user with this username does not exist in the system",
+            detail="The user with this id does not exist in the system",
         )
 
     # Save updated object based on given UserUpdate object in db
@@ -182,3 +182,9 @@ def update_user_profile_picture(
             copyfileobj(image.file, buffer)
 
         return crud.user.update(db, db_obj=user, obj_in=schemas.UserUpdate(profile_picture=filename))
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="The user with this id does not exist in the system",
+        )
