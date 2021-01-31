@@ -15,14 +15,16 @@ class SchoolCreate(SchoolBase):
     head: str
 
     @validator('name')
-    def name_not_empty(cls, name: str) -> None:
+    def name_not_empty(cls, name: str) -> str:
         if not name:
             raise ValueError("Name must not be empty!")
+        return name
 
     @validator('head')
-    def head_not_empty(cls, head: str) -> None:
+    def head_not_empty(cls, head: str) -> str:
         if not head:
             raise ValueError("Head name must not be empty!")
+        return head
 
 
 # Properties to receive via API on update
