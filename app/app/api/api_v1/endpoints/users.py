@@ -1,6 +1,8 @@
+from shutil import copyfileobj
 from typing import Any, List
+from uuid import uuid4
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, File, HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
@@ -153,10 +155,36 @@ def update_user(
     if not user:
         raise HTTPException(
             status_code=404,
-            detail="The user with this username does not exist in the system",
+            detail="The user with this id does not exist in the system",
         )
 
     # Save updated object based on given UserUpdate object in db
     user = crud.user.update(db, db_obj=user, obj_in=user_in)
 
     return user
+
+
+@router.put("/{user_id}/profile_picture", response_model=schemas.User)
+def update_user_profile_picture(
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: int,
+    image: UploadFile = File(...),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("user")),
+) -> Any:
+    """
+    Update a user's profile picture
+    """
+
+    if user := crud.user.get(db, user_id):
+        filename = str(uuid4())
+        with open(f'./profile_pictures/{filename}', 'wb') as buffer:
+            copyfileobj(image.file, buffer)
+
+        return crud.user.update(db, db_obj=user, obj_in=schemas.UserUpdate(profile_picture=filename))
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="The user with this id does not exist in the system",
+        )
