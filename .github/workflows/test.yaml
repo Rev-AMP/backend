@@ -30,7 +30,7 @@ jobs:
           PROJECT_NAME=Epic ERP
           SECRET_KEY=$(openssl rand -hex 32)
           FIRST_SUPERUSER=admin@revamp.ci.env
-          FIRST_SUPERUSER_PASSWORD=$(openssl rand -hex 32)
+          FIRST_SUPERUSER_PASSWORD=F01bc9165d5b7a67d58fDd38dafdc9ac
           SMTP_HOST=
           SENTRY_DSN=
           # Database configuration - set postgres for CI
