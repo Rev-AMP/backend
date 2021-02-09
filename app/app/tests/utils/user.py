@@ -7,7 +7,7 @@ from app import crud
 from app.core.config import settings
 from app.models import User
 from app.schemas import AdminUpdate, UserCreate, UserUpdate
-from app.tests.utils.utils import random_email, random_lower_string
+from app.tests.utils.utils import random_email, random_password
 
 
 def user_authentication_headers(*, client: TestClient, email: str, password: str) -> Dict[str, str]:
@@ -32,7 +32,7 @@ def create_random_user(
     :return: User object created from random values and given type
     """
     email = random_email()
-    password = random_lower_string()
+    password = random_password()
     user_in = UserCreate(email=email, password=password, type=type, is_admin=is_admin, school=school)
     user = crud.user.create(db=db, obj_in=user_in)
     if user.is_admin and permissions:
@@ -50,7 +50,7 @@ def authentication_token_from_email(
 
     If the user doesn't exist it is created first.
     """
-    password = random_lower_string()
+    password = random_password()
     user = crud.user.get_by_email(db, email=email)
     if not user:
         user_in_create = UserCreate(email=email, password=password, type=user_type, school=school)

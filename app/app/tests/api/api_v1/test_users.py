@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.core.config import settings
 from app.tests.utils.user import create_random_user
-from app.tests.utils.utils import random_email, random_lower_string
+from app.tests.utils.utils import random_email, random_password
 
 
 def test_get_users_superuser_me(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
@@ -30,7 +30,7 @@ def test_get_users_normal_user_me(client: TestClient, normal_user_token_headers:
 
 def test_create_user_new_email(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
     username = random_email()
-    password = random_lower_string()
+    password = random_password()
     data = {"email": username, "password": password, "type": "superuser"}
     r = client.post(
         f"{settings.API_V1_STR}/users/",
@@ -59,7 +59,7 @@ def test_get_existing_user(client: TestClient, superuser_token_headers: dict, db
 
 def test_create_user_existing_username(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
     user = create_random_user(db=db, type="superuser")
-    data = {"email": user.email, "password": random_lower_string(), "type": "superuser"}
+    data = {"email": user.email, "password": random_password(), "type": "superuser"}
     r = client.post(
         f"{settings.API_V1_STR}/users/",
         headers=superuser_token_headers,
@@ -72,7 +72,7 @@ def test_create_user_existing_username(client: TestClient, superuser_token_heade
 
 def test_create_user_by_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str]) -> None:
     username = random_email()
-    password = random_lower_string()
+    password = random_password()
     data = {"email": username, "password": password, "type": "superuser"}
     r = client.post(
         f"{settings.API_V1_STR}/users/",
@@ -84,7 +84,7 @@ def test_create_user_by_normal_user(client: TestClient, normal_user_token_header
 
 def test_create_superuser_by_superuser(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
     username = random_email()
-    password = random_lower_string()
+    password = random_password()
     data = {"email": username, "password": password, "type": "superuser"}
     r = client.post(
         f"{settings.API_V1_STR}/users/",
@@ -96,7 +96,7 @@ def test_create_superuser_by_superuser(client: TestClient, superuser_token_heade
 
 def test_create_superuser_by_normal_admin(client: TestClient, admin_user_token_headers: Dict[str, str]) -> None:
     username = random_email()
-    password = random_lower_string()
+    password = random_password()
     data = {"email": username, "password": password, "type": "superuser"}
     r = client.post(
         f"{settings.API_V1_STR}/users/",
