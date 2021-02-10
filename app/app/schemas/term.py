@@ -5,21 +5,21 @@ from pydantic import BaseModel
 
 # Shared properties
 class TermBase(BaseModel):
+    name: Optional[str] = None
     year_id: Optional[int] = None
     start_date: Optional[str] = None
     end_date: Optional[str] = None
-    current_Term_term: Optional[int] = None
-    term_number: Optional[int] = None
+    current_year_term: Optional[int] = None
     has_electives: Optional[bool] = False
     is_active: Optional[bool] = True
 
 
 # Properties to receive via API on creation
 class TermCreate(TermBase):
-    Term_id: int
+    name: str
+    year_id: int
     start_date: str
-    current_Term_term: int
-    term_number: int
+    current_year_term: int
     has_electives: bool
 
 
