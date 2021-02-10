@@ -26,8 +26,8 @@ class TermCreate(TermBase):
 # Properties to receive via API on update
 class TermUpdate(TermBase):
     pass
-    
-    
+
+
 class TermInDBBase(TermBase):
     id: Optional[int] = None
 
