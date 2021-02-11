@@ -87,6 +87,8 @@ def test_update_year_nonexisting(client: TestClient, superuser_token_headers: Di
 
 def test_update_year(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     year = create_random_year(db)
+    assert year.start_year
+    assert year.end_year
     data = {'start_year': year.start_year - 1, 'end_year': year.end_year - 1, 'is_active': not year.is_active}
     r = client.put(f"{settings.API_V1_STR}/years/{year.id}", headers=superuser_token_headers, json=data)
     fetched_year = r.json()

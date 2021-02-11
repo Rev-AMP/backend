@@ -29,6 +29,7 @@ def test_update_year(db: Session) -> None:
 
 def test_by_school(db: Session) -> None:
     year = create_random_year(db)
+    assert year.school_id
     fetched_year = crud.year.get_by_school(db, school_id=year.school_id)[-1]
     assert fetched_year
     assert fetched_year.id == year.id
@@ -36,6 +37,7 @@ def test_by_school(db: Session) -> None:
 
 def test_by_start_year(db: Session) -> None:
     year = create_random_year(db)
+    assert year.start_year
     fetched_year = crud.year.get_by_start(db, start_year=year.start_year)[-1]
     assert fetched_year
     assert fetched_year.id == year.id
@@ -43,6 +45,7 @@ def test_by_start_year(db: Session) -> None:
 
 def test_by_end_year(db: Session) -> None:
     year = create_random_year(db)
+    assert year.end_year
     fetched_year = crud.year.get_by_end(db, end_year=year.end_year)[-1]
     assert fetched_year
     assert fetched_year.id == year.id
