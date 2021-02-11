@@ -9,8 +9,10 @@ from app.schemas import YearCreate, YearUpdate
 
 class CRUDYear(CRUDBase[Year, YearCreate, YearUpdate]):
     def get_by_details(self, db: Session, *, school_id: int, start_year: int, end_year: int) -> Optional[Year]:
-        return db.query(Year).filter(
-            Year.school_id == school_id and Year.start_year == start_year and Year.end_year == end_year
+        return (
+            db.query(Year)
+            .filter(Year.school_id == school_id and Year.start_year == start_year and Year.end_year == end_year)
+            .first()
         )
 
     def get_by_school(self, db: Session, *, school_id: int) -> List[Year]:
