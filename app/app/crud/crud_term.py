@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from sqlalchemy.types import Date
 
 from sqlalchemy.orm import Session
@@ -9,8 +9,8 @@ from app.schemas import TermCreate, TermUpdate
 
 
 class CRUDTerm(CRUDBase[Term, TermCreate, TermUpdate]):
-    def get_by_name(self, db: Session, *, name: str) -> Optional[Term]:
-        return db.query(Term).filter(Term.name == name)
+    def get_by_name(self, db: Session, *, name: str) -> List[Term]:
+        return db.query(Term).filter(Term.name == name).all()
 
     def get_by_year(self, db: Session, *, year_id: int) -> List[Term]:
         return db.query(Term).filter(Term.year_id == year_id).all()
