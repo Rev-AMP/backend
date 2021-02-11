@@ -12,13 +12,7 @@ def create_random_school(db: Session, name: Optional[str] = None, head: Optional
     """
     Create a random school, or based on given inputs
     """
-    if not name:
-        name = random_lower_string()
 
-    if not head and head is not None:
-        head = random_lower_string()
-
-    school_in = SchoolCreate(name=name, head=head)
-    school = crud.school.create(db=db, obj_in=school_in)
-
-    return school
+    return crud.school.create(
+        db=db, obj_in=SchoolCreate(name=name or random_lower_string(), head=head or random_lower_string())
+    )
