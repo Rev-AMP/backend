@@ -39,7 +39,7 @@ class AdminPermissions:
         'admin': 'CRUD operations on admins',
         'school': 'CRUD operations on schools',
         'year': 'CRUD operations on years',
-        'trimester': 'CRUD operations on trimesters',
+        'term': 'CRUD operations on terms',
         'course': 'CRUD operations on courses',
         'cbcs': 'CRUD operations on CBCS',
     }
@@ -51,7 +51,7 @@ class AdminPermissions:
             'admin': 1,
             'school': 2,
             'year': 3,
-            'trimester': 4,
+            'term': 4,
             'course': 5,
             'cbcs': 6,
         }
