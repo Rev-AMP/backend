@@ -1,8 +1,7 @@
 from typing import Optional
 
-from sqlalchemy.types import Date
-
 from pydantic import BaseModel
+from sqlalchemy.types import Date
 
 
 # Shared properties
