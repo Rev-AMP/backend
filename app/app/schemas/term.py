@@ -19,7 +19,7 @@ class TermBase(BaseModel):
 class TermCreate(TermBase):
     name: str
     year_id: int
-    start_date: str
+    start_date: Date
     current_year_term: int
     has_electives: bool
 
