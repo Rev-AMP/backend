@@ -34,6 +34,7 @@ class TermInDBBase(TermBase):
 
     class Config:
         orm_mode = True
+        arbitrary_types_allowed = True
 
 
 # Additional properties to return via API
