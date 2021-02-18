@@ -24,7 +24,7 @@ def upgrade():
     sa.Column('start_year', sa.Integer(), nullable=True),
     sa.Column('end_year', sa.Integer(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['school_id'], ['school.id'], ),
+    sa.ForeignKeyConstraint(['school_id'], ['school.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_year_end_year'), 'year', ['end_year'], unique=False)
