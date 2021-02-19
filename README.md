@@ -1,5 +1,10 @@
 ![REVAMP](https://media.rev-amp.tech/logo/revamp_transparent.png)
 
+[![API](https://img.shields.io/website?label=API&style=for-the-badge&url=https%3A%2F%2Fimg.shields.io%2Fwebsite%2Fhttps%2Fbackend.rev-amp.tech)](https://backend.rev-amp.tech/redoc)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rev-amp/backend/Run%20linting%20checks%20and%20tests?label=Tests&style=for-the-badge)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
+<!---![GitHub](https://img.shields.io/github/license/rev-amp/backend?style=for-the-badge))--->
+
 A reliable, effecient and versatile Academics management system.
 
 ## Backend Requirements
