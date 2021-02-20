@@ -13,31 +13,32 @@ class UserBase(BaseModel):
     is_admin: bool = False
     school: Optional[int] = None
 
+    @validator('type')
+    def valid_type(cls, user_type: Optional[str]) -> Optional[str]:
+        if user_type and user_type not in ("superuser", "student", "professor", "admin"):
+            raise ValueError("Invalid user type!")
+        return user_type
+
+    @validator('password')
+    def valid_password(cls, password: Optional[str]) -> Optional[str]:
+        if password:
+            if len(password) < 8:
+                raise ValueError("Password must contain atleast 8 characters!")
+            digit_count = sum(c.isdigit() for c in password)
+            lower_count = sum(c.islower() for c in password)
+            upper_count = sum(c.isupper() for c in password)
+            if digit_count < 1 or lower_count < 1 or upper_count < 1:
+                raise ValueError(
+                    "Password must contain atleast 1 each of upper case letters, lower case letters, and digits"
+                )
+        return password
+
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
     email: EmailStr
     password: str
     type: str
-
-    @validator('type')
-    def valid_type(cls, user_type: str) -> str:
-        if user_type not in ("superuser", "student", "professor", "admin"):
-            raise ValueError("Invalid user type!")
-        return user_type
-
-    @validator('password')
-    def valid_password(cls, password: str) -> str:
-        if len(password) < 8:
-            raise ValueError("Password must contain atleast 8 characters!")
-        digit_count = sum(c.isdigit() for c in password)
-        lower_count = sum(c.islower() for c in password)
-        upper_count = sum(c.isupper() for c in password)
-        if digit_count < 1 or lower_count < 1 or upper_count < 1:
-            raise ValueError(
-                "Password must contain atleast 1 each of upper case letters, lower case letters, and digits"
-            )
-        return password
 
 
 # Properties to receive via API on update
