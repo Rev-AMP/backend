@@ -19,7 +19,7 @@ class UserBase(BaseModel):
             raise ValueError("Invalid user type!")
         return user_type
 
-    @validator('password')
+    @validator('password', check_fields=False)
     def valid_password(cls, password: Optional[str]) -> Optional[str]:
         if password:
             if len(password) < 8:
