@@ -26,7 +26,7 @@ def upgrade():
     sa.Column('end_date', sa.Date(), nullable=True),
     sa.Column('has_electives', sa.Boolean(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['year_id'], ['year.id'], ),
+    sa.ForeignKeyConstraint(['year_id'], ['year.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('year_id', 'current_year_term')
     )
     op.create_index(op.f('ix_term_end_date'), 'term', ['end_date'], unique=False)
