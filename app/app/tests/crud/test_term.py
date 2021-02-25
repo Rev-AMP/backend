@@ -23,7 +23,7 @@ def test_get_by_year_term(db: Session) -> None:
     term = create_random_term(db=db)
     assert term.year_id
     assert term.current_year_term
-    fetched_term = crud.term.get_by_year_term(db=db, year_id=term.year_id, current_year_term=term.current_year_term)[-1]
+    fetched_term = crud.term.get_by_year_term(db=db, year_id=term.year_id, current_year_term=term.current_year_term)
     assert fetched_term
     assert fetched_term.id == term.id
 
