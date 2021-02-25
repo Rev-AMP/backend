@@ -1,7 +1,7 @@
+from datetime import date
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
-from sqlalchemy.types import Date
 
 from app.crud.base import CRUDBase
 from app.models import Term
@@ -10,7 +10,14 @@ from app.schemas import TermCreate, TermUpdate
 
 class CRUDTerm(CRUDBase[Term, TermCreate, TermUpdate]):
     def get_by_details(
-        self, db: Session, *, name: str, year_id: int, current_year_term: int, start_date: Date, end_date: Optional[Date]
+        self,
+        db: Session,
+        *,
+        name: str,
+        year_id: int,
+        current_year_term: int,
+        start_date: date,
+        end_date: Optional[date]
     ) -> Optional[Term]:
         return (
             db.query(Term)
@@ -33,10 +40,10 @@ class CRUDTerm(CRUDBase[Term, TermCreate, TermUpdate]):
     def get_by_year(self, db: Session, *, year_id: int) -> List[Term]:
         return db.query(Term).filter(Term.year_id == year_id).all()
 
-    def get_by_start(self, db: Session, *, start_date: Date) -> List[Term]:
+    def get_by_start(self, db: Session, *, start_date: date) -> List[Term]:
         return db.query(Term).filter(Term.start_date == start_date).all()
 
-    def get_by_end(self, db: Session, *, end_date: Date) -> List[Term]:
+    def get_by_end(self, db: Session, *, end_date: date) -> List[Term]:
         return db.query(Term).filter(Term.end_date == end_date).all()
 
 

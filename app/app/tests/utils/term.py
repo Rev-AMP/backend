@@ -1,4 +1,4 @@
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
 from random import randint
 from typing import Optional
 
@@ -8,8 +8,8 @@ from app import crud
 from app.models import Term
 from app.schemas import TermCreate
 
-from .year import create_random_year
 from .utils import random_lower_string
+from .year import create_random_year
 
 
 def create_random_term(
