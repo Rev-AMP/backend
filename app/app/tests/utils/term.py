@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from random import randint
 from typing import Optional
 
@@ -36,7 +36,7 @@ def create_random_term(
             year_id=year_id,
             current_year_term=current_year_term or randint(1, 4),
             start_date=start_date or datetime.now().date(),
-            end_date=end_date or datetime.now().date(),
+            end_date=end_date or (datetime.now() + timedelta(days=90)).date(),
             has_electives=has_electives,
             is_active=is_active,
         ),
