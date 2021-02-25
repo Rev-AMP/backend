@@ -14,6 +14,9 @@ class TermBase(BaseModel):
     has_electives: Optional[bool] = False
     is_active: Optional[bool] = True
 
+    class Config:
+        arbitrary_types_allowed = True
+
 
 # Properties to receive via API on creation
 class TermCreate(TermBase):
@@ -34,7 +37,6 @@ class TermInDBBase(TermBase):
 
     class Config:
         orm_mode = True
-        arbitrary_types_allowed = True
 
 
 # Additional properties to return via API
