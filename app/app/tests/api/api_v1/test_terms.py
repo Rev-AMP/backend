@@ -54,8 +54,8 @@ def test_create_term(client: TestClient, superuser_token_headers: Dict[str, str]
     data = {
         'name': name,
         'year_id': year_id,
-        'start_date': start_date,
-        'end_date': end_date,
+        'start_date': start_date.isoformat(),
+        'end_date': end_date.isoformat(),
         'current_year_term': current_year_term,
         'has_electives': has_electives,
     }
@@ -85,8 +85,8 @@ def test_create_term_existing(client: TestClient, superuser_token_headers: Dict[
     data = {
         'name': term.name,
         'year_id': term.year_id,
-        'start_date': term.start_date,
-        'end_date': term.end_date,
+        'start_date': term.start_date.isoformat(),
+        'end_date': term.end_date.isoformat(),
         'current_year_term': term.current_year_term,
     }
     r = client.post(f"{settings.API_V1_STR}/terms/", headers=superuser_token_headers, json=data)
@@ -108,9 +108,11 @@ def test_update_term(client: TestClient, superuser_token_headers: Dict[str, str]
     term = create_random_term(db=db)
     assert term.start_date
     assert term.end_date
+    start_date = term.start_date - timedelta(days=6 * 30)
+    end_date = term.end_date - timedelta(days=6 * 30)
     data = {
-        'start_date': term.start_date - timedelta(days=6 * 30),
-        'end_date': term.end_date - timedelta(days=6 * 30),
+        'start_date': start_date.isoformat(),
+        'end_date': end_date.isoformat(),
         'is_active': not term.is_active,
     }
     r = client.put(f"{settings.API_V1_STR}/terms/{term.id}", headers=superuser_token_headers, json=data)
