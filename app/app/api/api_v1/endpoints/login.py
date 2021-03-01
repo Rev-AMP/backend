@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import Any
 
 from fastapi import APIRouter, Body, Depends, HTTPException
@@ -7,9 +6,7 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
-from app.core import security
-from app.core.config import settings
-from app.core.security import get_password_hash
+from app.core.security import create_tokens, get_password_hash
 from app.utils import (
     generate_password_reset_token,
     send_reset_password_email,
@@ -24,22 +21,12 @@ def login_access_token(db: Session = Depends(deps.get_db), form_data: OAuth2Pass
     """
     OAuth2 compatible token login, get an access token for future requests
     """
-    user = crud.user.authenticate(db, email=form_data.username, password=form_data.password)
-    if not user:
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
-    elif not crud.user.is_active(user):
+
+    if user := crud.user.authenticate(db, email=form_data.username, password=form_data.password):
+        if crud.user.is_active(user):
+            return create_tokens(user.id)
         raise HTTPException(status_code=400, detail="Inactive user")
-
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRES_MINUTES)
-
-    access_token = security.create_access_token(user.id, expires_delta=access_token_expires)
-    refresh_token = security.create_refresh_token(user.id, expires_delta=refresh_token_expires)
-
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-    }
+    raise HTTPException(status_code=401, detail="Incorrect email or password")
 
 
 @router.post("/login/refresh-token", response_model=schemas.Token)
@@ -50,21 +37,9 @@ def login_refresh_token(
     OAuth2 compatible token login, get an access token for future requests
     """
     if user := crud.user.get(db, current_user.id):
-
-        if not crud.user.is_active(user):
-            raise HTTPException(status_code=400, detail="Inactive user")
-
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-        refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRES_MINUTES)
-
-        access_token = security.create_access_token(user.id, expires_delta=access_token_expires)
-        refresh_token = security.create_refresh_token(user.id, expires_delta=refresh_token_expires)
-
-        return {
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-        }
-
+        if crud.user.is_active(user):
+            return create_tokens(user.id)
+        raise HTTPException(status_code=400, detail="Inactive user")
     raise HTTPException(status_code=401, detail="Incorrect refresh token")
 
 
