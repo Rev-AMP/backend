@@ -56,16 +56,14 @@ def recover_password(email: str, db: Session = Depends(deps.get_db)) -> Any:
     """
     Password Recovery
     """
-    user = crud.user.get_by_email(db, email=email)
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="The user with this username does not exist in the system.",
-        )
-    password_reset_token = generate_password_reset_token(email=email)
-    send_reset_password_email(email_to=user.email, email=email, token=password_reset_token)
-    return {"msg": "Password recovery email sent"}
+    if user := crud.user.get_by_email(db, email=email):
+        password_reset_token = generate_password_reset_token(email=email)
+        send_reset_password_email(email_to=user.email, email=email, token=password_reset_token)
+        return {"msg": "Password recovery email sent"}
+    raise HTTPException(
+        status_code=404,
+        detail="The user with this username does not exist in the system.",
+    )
 
 
 @router.post("/reset-password/", response_model=schemas.Msg)
@@ -77,19 +75,17 @@ def reset_password(
     """
     Reset password
     """
-    email = verify_password_reset_token(token)
-    if not email:
-        raise HTTPException(status_code=400, detail="Invalid token")
-    user = crud.user.get_by_email(db, email=email)
-    if not user:
+    if email := verify_password_reset_token(token):
+        if user := crud.user.get_by_email(db, email=email):
+            if crud.user.is_active(user):
+                hashed_password = get_password_hash(new_password)
+                user.hashed_password = hashed_password
+                db.add(user)
+                db.commit()
+                return {"msg": "Password updated successfully"}
+            raise HTTPException(status_code=400, detail="Inactive user")
         raise HTTPException(
             status_code=404,
             detail="The user with this username does not exist in the system.",
         )
-    elif not crud.user.is_active(user):
-        raise HTTPException(status_code=400, detail="Inactive user")
-    hashed_password = get_password_hash(new_password)
-    user.hashed_password = hashed_password
-    db.add(user)
-    db.commit()
-    return {"msg": "Password updated successfully"}
+    raise HTTPException(status_code=400, detail="Invalid token")
