@@ -29,11 +29,43 @@ def login_access_token(db: Session = Depends(deps.get_db), form_data: OAuth2Pass
         raise HTTPException(status_code=401, detail="Incorrect email or password")
     elif not crud.user.is_active(user):
         raise HTTPException(status_code=400, detail="Inactive user")
+
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRES_MINUTES)
+
+    access_token = security.create_access_token(user.id, expires_delta=access_token_expires)
+    refresh_token = security.create_refresh_token(user.id, expires_delta=refresh_token_expires)
+
     return {
-        "access_token": security.create_access_token(user.id, expires_delta=access_token_expires),
-        "token_type": "bearer",
+        "access_token": access_token,
+        "refresh_token": refresh_token,
     }
+
+
+@router.post("/login/refresh-token", response_model=schemas.Token)
+def login_refresh_token(
+    db: Session = Depends(deps.get_db), current_user: models.User = Depends(deps.get_current_user_refresh)
+) -> Any:
+    """
+    OAuth2 compatible token login, get an access token for future requests
+    """
+    if user := crud.user.get(db, current_user.id):
+
+        if not crud.user.is_active(user):
+            raise HTTPException(status_code=400, detail="Inactive user")
+
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRES_MINUTES)
+
+        access_token = security.create_access_token(user.id, expires_delta=access_token_expires)
+        refresh_token = security.create_refresh_token(user.id, expires_delta=refresh_token_expires)
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+
+    raise HTTPException(status_code=401, detail="Incorrect refresh token")
 
 
 @router.post("/login/test-token", response_model=schemas.User)
