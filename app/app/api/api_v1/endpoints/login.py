@@ -39,7 +39,7 @@ def login_refresh_token(
     if user := crud.user.get(db, current_user.id):
         if crud.user.is_active(user):
             return create_tokens(user.id)
-        raise HTTPException(status_code=403 detail="Inactive user")
+        raise HTTPException(status_code=403, detail="Inactive user")
     raise HTTPException(status_code=401, detail="Incorrect refresh token")
 
 
