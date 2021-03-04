@@ -36,10 +36,10 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusabl
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    user = crud.user.get(db, id=token_data.sub)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+
+    if user := crud.user.get(db, id=token_data.sub):
+        return user
+    raise HTTPException(status_code=404, detail="User not found")
 
 
 def get_current_user_refresh(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> models.User:
@@ -56,10 +56,10 @@ def get_current_user_refresh(db: Session = Depends(get_db), token: str = Depends
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    user = crud.user.get(db, id=token_data.sub)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+
+    if user := crud.user.get(db, id=token_data.sub):
+        return user
+    raise HTTPException(status_code=404, detail="User not found")
 
 
 def get_current_admin(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> models.Admin:
@@ -71,22 +71,22 @@ def get_current_admin(db: Session = Depends(get_db), token: str = Depends(reusab
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    user = crud.user.get(db, id=token_data.sub)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    if not user.is_admin:
+
+    if user := crud.user.get(db, id=token_data.sub):
+        if user.is_admin:
+            if admin := crud.admin.get(db, id=user.id):
+                return admin
+            raise HTTPException(status_code=404, detail="Admin object not found")
         raise HTTPException(status_code=403, detail="User is not an administrator")
-    if admin := crud.admin.get(db, id=user.id):
-        return admin
-    raise HTTPException(status_code=404, detail="Admin object not found")
+    raise HTTPException(status_code=404, detail="User not found")
 
 
 def get_current_active_user(
     current_user: models.User = Depends(get_current_user),
 ) -> models.User:
-    if not crud.user.is_active(current_user):
-        raise HTTPException(status_code=409, detail="Inactive user")
-    return current_user
+    if crud.user.is_active(current_user):
+        return current_user
+    raise HTTPException(status_code=409, detail="Inactive user")
 
 
 def get_current_active_admin(
@@ -113,6 +113,6 @@ def get_current_active_admin_with_permission(permission: str) -> Callable:
 def get_current_active_superuser(
     current_user: models.User = Depends(get_current_user),
 ) -> models.User:
-    if not crud.user.is_superuser(current_user):
-        raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
-    return current_user
+    if crud.user.is_superuser(current_user):
+        return current_user
+    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
