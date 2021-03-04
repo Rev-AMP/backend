@@ -25,7 +25,7 @@ def login_access_token(db: Session = Depends(deps.get_db), form_data: OAuth2Pass
     if user := crud.user.authenticate(db, email=form_data.username, password=form_data.password):
         if crud.user.is_active(user):
             return create_tokens(user.id)
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=403, detail="Inactive user")
     raise HTTPException(status_code=401, detail="Incorrect email or password")
 
 
@@ -39,7 +39,7 @@ def login_refresh_token(
     if user := crud.user.get(db, current_user.id):
         if crud.user.is_active(user):
             return create_tokens(user.id)
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=403 detail="Inactive user")
     raise HTTPException(status_code=401, detail="Incorrect refresh token")
 
 
