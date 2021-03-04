@@ -129,7 +129,7 @@ def test_update_profile_picture_superuser(
     r = client.put(
         f"{settings.API_V1_STR}/users/{user.id}/profile_picture",
         headers=superuser_token_headers,
-        files={'image': ('profile_picture.png', open('/tmp/profile_picture.png', 'rb').read())},
+        files={'image': ('profile_picture.png', open('/tmp/profile_picture.png', 'rb').read(), 'image/png')},
     )
     updated_user = r.json()
     assert r.status_code == 200
