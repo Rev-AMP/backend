@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.core.config import settings
-from app.tests.utils.user import create_random_user
+from app.tests.utils.user import authentication_token_from_email, create_random_user
 from app.tests.utils.utils import random_email, random_password
 
 
@@ -129,6 +129,57 @@ def test_update_profile_picture_superuser(
     r = client.put(
         f"{settings.API_V1_STR}/users/{user.id}/profile_picture",
         headers=superuser_token_headers,
+        files={'image': ('profile_picture.png', open('/tmp/profile_picture.png', 'rb').read(), 'image/png')},
+    )
+    updated_user = r.json()
+    assert r.status_code == 200
+    assert updated_user['profile_picture']
+    assert isfile(f"profile_pictures/{updated_user['profile_picture']}")
+
+
+def test_update_profile_picture_superuser_pdf(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    user = create_random_user(db, type="student")
+    response = client.get("https://raw.githubusercontent.com/mGalarnyk/datasciencecoursera/master/HelloWorld.md")
+    with open('/tmp/hello_world.md', 'wb') as f:
+        f.write(response.content)
+    assert user.profile_picture is None
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user.id}/profile_picture",
+        headers=superuser_token_headers,
+        files={'image': ('hello_world.md', open('/tmp/hello_world.md', 'rb').read(), 'text/markdown')},
+    )
+    assert r.status_code == 415
+
+
+def test_update_profile_picture_normal_user(
+    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+) -> None:
+    user = create_random_user(db, type="student")
+    response = client.get("https://media.rev-amp.tech/logo/revamp.png")
+    with open('/tmp/profile_picture.png', 'wb') as f:
+        f.write(response.content)
+    assert user.profile_picture is None
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user.id}/profile_picture",
+        headers=normal_user_token_headers,
+        files={'image': ('profile_picture.png', open('/tmp/profile_picture.png', 'rb').read(), 'image/png')},
+    )
+    assert r.status_code == 403
+
+
+def test_update_profile_picture_normal_user_self(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    user = create_random_user(db, type="student")
+    response = client.get("https://media.rev-amp.tech/logo/revamp.png")
+    with open('/tmp/profile_picture.png', 'wb') as f:
+        f.write(response.content)
+    assert user.profile_picture is None
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user.id}/profile_picture",
+        headers=authentication_token_from_email(client=client, email=user.email, db=db),
         files={'image': ('profile_picture.png', open('/tmp/profile_picture.png', 'rb').read(), 'image/png')},
     )
     updated_user = r.json()
