@@ -137,18 +137,18 @@ def test_update_profile_picture_superuser(
     assert isfile(f"profile_pictures/{updated_user['profile_picture']}")
 
 
-def test_update_profile_picture_superuser_pdf(
+def test_update_profile_picture_superuser_not_image(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
     user = create_random_user(db, type="student")
-    response = client.get("https://raw.githubusercontent.com/mGalarnyk/datasciencecoursera/master/HelloWorld.md")
-    with open('/tmp/hello_world.md', 'wb') as f:
+    response = client.get("https://files.rev-amp.tech/README.md")
+    with open('/tmp/README.md', 'wb') as f:
         f.write(response.content)
     assert user.profile_picture is None
     r = client.put(
         f"{settings.API_V1_STR}/users/{user.id}/profile_picture",
         headers=superuser_token_headers,
-        files={'image': ('hello_world.md', open('/tmp/hello_world.md', 'rb').read(), 'text/markdown')},
+        files={'image': ('README.md', open('/tmp/README.md', 'rb').read(), 'text/markdown')},
     )
     assert r.status_code == 415
 
