@@ -14,7 +14,7 @@ def read_schools(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
 ) -> Any:
     """
     Retrieve schools.
@@ -28,7 +28,7 @@ def create_school(
     *,
     db: Session = Depends(deps.get_db),
     school_in: schemas.SchoolCreate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
 ) -> Any:
     """
     Create new school.
@@ -89,7 +89,7 @@ def update_school(
     db: Session = Depends(deps.get_db),
     school_id: int,
     school_in: schemas.SchoolUpdate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
 ) -> Any:
     """
     Update a school.
@@ -114,7 +114,7 @@ def get_students(
     *,
     db: Session = Depends(deps.get_db),
     school_id: int,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
 ) -> Any:
     """
     Get all students belonging to a school.
@@ -127,7 +127,7 @@ def get_professors(
     *,
     db: Session = Depends(deps.get_db),
     school_id: int,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
 ) -> Any:
     """
     Get all students belonging to a school.
