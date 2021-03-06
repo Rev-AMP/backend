@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
-from app.core.security import create_tokens, get_password_hash
+from app.core.security import create_token, get_password_hash
 from app.utils import (
     generate_password_reset_token,
     send_reset_password_email,
@@ -24,7 +24,7 @@ def login_access_token(db: Session = Depends(deps.get_db), form_data: OAuth2Pass
 
     if user := crud.user.authenticate(db, email=form_data.username, password=form_data.password):
         if crud.user.is_active(user):
-            return create_tokens(user.id)
+            return create_token(user.id)
         raise HTTPException(status_code=403, detail="Inactive user")
     raise HTTPException(status_code=401, detail="Incorrect email or password")
 
@@ -38,7 +38,7 @@ def login_refresh_token(
     """
     if user := crud.user.get(db, current_user.id):
         if crud.user.is_active(user):
-            return create_tokens(user.id)
+            return create_token(user.id)
         raise HTTPException(status_code=403, detail="Inactive user")
     raise HTTPException(status_code=401, detail="Incorrect refresh token")
 

@@ -15,8 +15,10 @@ def test_get_tokens(client: TestClient) -> None:
     assert r.status_code == 200
     assert "access_token" in tokens
     assert "refresh_token" in tokens
+    assert "expiry" in tokens
     assert tokens["access_token"]
     assert tokens["refresh_token"]
+    assert tokens["expiry"]
 
 
 def test_use_access_token(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
@@ -38,5 +40,7 @@ def test_use_refresh_token(client: TestClient, superuser_refresh_token_headers: 
     assert r.status_code == 200
     assert "access_token" in tokens
     assert "refresh_token" in tokens
+    assert "expiry" in tokens
     assert tokens["access_token"]
     assert tokens["refresh_token"]
+    assert tokens["expiry"]
