@@ -14,7 +14,7 @@ def read_years(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
+    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
 ) -> Any:
     """
     Retrieve years
@@ -27,7 +27,7 @@ def read_year_by_id(
     *,
     db: Session = Depends(deps.get_db),
     year_id: int,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
+    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
 ) -> Any:
     """
     Retrieve years
@@ -42,7 +42,7 @@ def create_year(
     *,
     db: Session = Depends(deps.get_db),
     year_in: schemas.YearCreate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
+    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
 ) -> Any:
 
     if crud.year.get_by_details(
@@ -62,7 +62,7 @@ def update_year(
     db: Session = Depends(deps.get_db),
     year_id: int,
     year_in: schemas.YearUpdate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
+    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
 ) -> Any:
     if year := crud.year.get(db, year_id):
         return crud.year.update(db, db_obj=year, obj_in=year_in)
@@ -74,7 +74,7 @@ def delete_year(
     *,
     db: Session = Depends(deps.get_db),
     year_id: int,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
+    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
 ) -> Any:
     if crud.year.get(db, year_id):
         return crud.year.remove(db, id=year_id)
