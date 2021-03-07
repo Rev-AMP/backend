@@ -1,7 +1,7 @@
 """cascade delete school and user based foreign keys
 
 Revision ID: eb2d83538c3a
-Revises: 7b2f235b8ffe
+Revises: 6ea84c37e13e
 Create Date: 2021-03-07 17:54:17.211449
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'eb2d83538c3a'
-down_revision = '7b2f235b8ffe'
+down_revision = '6ea84c37e13e'
 branch_labels = None
 depends_on = None
 
