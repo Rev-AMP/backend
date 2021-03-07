@@ -46,7 +46,7 @@ def create_year(
 ) -> Any:
 
     if crud.year.get_by_details(
-        db, school_id=year_in.school_id, start_year=year_in.start_year, end_year=year_in.end_year
+        db, name=year_in.name, school_id=year_in.school_id, start_year=year_in.start_year, end_year=year_in.end_year
     ):
         raise HTTPException(
             status_code=409,

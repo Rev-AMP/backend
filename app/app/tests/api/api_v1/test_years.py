@@ -9,6 +9,7 @@ from app import crud
 from app.core.config import settings
 from app.schemas.users.admin import AdminPermissions
 from app.tests.utils.user import authentication_token_from_email, create_random_user
+from app.tests.utils.utils import random_lower_string
 from app.tests.utils.year import create_random_school, create_random_year
 
 
@@ -18,6 +19,8 @@ def test_get_all_years(client: TestClient, superuser_token_headers: Dict[str, st
     assert 200 <= r.status_code < 300
     results = r.json()
     assert results
+    assert results[0]['id'] == year.id
+    assert results[0]['name'] == year.name
     assert results[0]['school_id'] == year.school_id
     assert results[0]['start_year'] == year.start_year
     assert results[0]['end_year'] == year.end_year
@@ -30,6 +33,7 @@ def test_get_year_existing(client: TestClient, superuser_token_headers: Dict[str
     fetched_year = r.json()
     assert fetched_year
     assert fetched_year['id'] == year.id
+    assert fetched_year['name'] == year.name
     assert fetched_year['start_year'] == year.start_year
     assert fetched_year['end_year'] == year.end_year
     assert fetched_year['is_active'] and year.is_active
@@ -46,7 +50,9 @@ def test_create_year(client: TestClient, superuser_token_headers: Dict[str, str]
     school_id = create_random_school(db).id
     start_year = datetime.now().year
     end_year = start_year + 1
+    name = random_lower_string()
     data = {
+        'name': name,
         'school_id': school_id,
         'start_year': start_year,
         'end_year': end_year,
@@ -54,8 +60,10 @@ def test_create_year(client: TestClient, superuser_token_headers: Dict[str, str]
     r = client.post(f"{settings.API_V1_STR}/years/", headers=superuser_token_headers, json=data)
     assert 200 <= r.status_code < 300
     created_year = r.json()
-    year = crud.year.get_by_details(db, school_id=school_id, start_year=start_year, end_year=end_year)
+    year = crud.year.get_by_details(db, name=name, school_id=school_id, start_year=start_year, end_year=end_year)
     assert year
+    assert created_year['id'] == year.id
+    assert created_year['name'] == year.name == name
     assert created_year['school_id'] == year.school_id == school_id
     assert created_year['start_year'] == year.start_year == start_year
     assert created_year['end_year'] == year.end_year == end_year
@@ -65,6 +73,7 @@ def test_create_year(client: TestClient, superuser_token_headers: Dict[str, str]
 def test_create_year_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     year = create_random_year(db)
     data = {
+        'name': year.name,
         'school_id': year.school_id,
         'start_year': year.start_year,
         'end_year': year.end_year,
@@ -94,6 +103,7 @@ def test_update_year(client: TestClient, superuser_token_headers: Dict[str, str]
     fetched_year = r.json()
     assert fetched_year
     assert fetched_year['id'] == year.id
+    assert fetched_year['name'] == year.name
     assert fetched_year['start_year'] == year.start_year - 1
     assert fetched_year['end_year'] == year.end_year - 1
     assert fetched_year['is_active'] != year.is_active
