@@ -1,7 +1,7 @@
 """added term model
 
 Revision ID: f0d919cf23f6
-Revises: 7b2f235b8ffe
+Revises: eb2d83538c3a
 Create Date: 2021-02-12 18:14:45.543917
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'f0d919cf23f6'
-down_revision = '7b2f235b8ffe'
+down_revision = 'eb2d83538c3a'
 branch_labels = None
 depends_on = None
 
