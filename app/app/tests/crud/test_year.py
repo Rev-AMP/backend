@@ -27,6 +27,14 @@ def test_update_year(db: Session) -> None:
     assert updated_year.is_active
 
 
+def test_by_name(db: Session) -> None:
+    year = create_random_year(db)
+    assert year.name
+    fetched_year = crud.year.get_by_name(db, name=year.name)
+    assert fetched_year
+    assert fetched_year.id == year.id
+
+
 def test_by_school(db: Session) -> None:
     year = create_random_year(db)
     assert year.school_id

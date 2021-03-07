@@ -6,10 +6,17 @@ from pydantic import BaseModel, validator
 
 # Shared properties
 class YearBase(BaseModel):
+    name: Optional[str] = None
     school_id: Optional[int] = None
     start_year: Optional[int] = None
     end_year: Optional[int] = None
     is_active: Optional[bool] = True
+
+    @validator('name')
+    def name_not_empty(cls, name: str) -> str:
+        if not name:
+            raise ValueError("Name must not be empty!")
+        return name
 
     @validator('start_year')
     def validate_start_year(cls, start_year: Optional[int]) -> Optional[int]:
@@ -34,6 +41,7 @@ class YearBase(BaseModel):
 
 # Properties to receive via API on creation
 class YearCreate(YearBase):
+    name: str
     school_id: int
     start_year: int
     end_year: int
