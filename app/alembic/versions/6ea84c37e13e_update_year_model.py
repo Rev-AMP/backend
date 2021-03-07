@@ -1,7 +1,7 @@
 """update year model
 
 Revision ID: 6ea84c37e13e
-Revises: 7b2f235b8ffe
+Revises: bacefdad7004
 Create Date: 2021-03-07 18:28:06.956510
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
 revision = '6ea84c37e13e'
-down_revision = '7b2f235b8ffe'
+down_revision = 'bacefdad7004'
 branch_labels = None
 depends_on = None
 
