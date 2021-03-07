@@ -20,4 +20,4 @@ class User(Base):
     is_active = Column(Boolean(), default=True)
     is_admin = Column(Boolean(), default=False)
     type = Column(ENUM("superuser", "student", "professor", "admin", name="user_type"), nullable=False)
-    school = Column(Integer, ForeignKey(f'{School.__table__.name}.id'), index=True, nullable=True)
+    school = Column(Integer, ForeignKey(f'{School.__table__.name}.id', ondelete='CASCADE'), index=True, nullable=True)
