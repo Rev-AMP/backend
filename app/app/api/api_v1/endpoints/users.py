@@ -1,6 +1,4 @@
-from shutil import copyfileobj
 from typing import Any, List
-from uuid import uuid4
 
 from fastapi import APIRouter, Body, Depends, File, HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
@@ -10,7 +8,7 @@ from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.api import deps
 from app.core.config import settings
-from app.utils import send_new_account_email
+from app.utils import save_image, send_new_account_email
 
 router = APIRouter()
 
@@ -180,13 +178,10 @@ def update_user_profile_picture(
         and schemas.AdminPermissions(admin.permissions).is_allowed("user")
     ):
         if image.content_type not in ("image/png", "image/jpeg"):
-            raise HTTPException(status_code=415, detail="Profile Pictures can only be png or jpg images")
+            raise HTTPException(status_code=415, detail="Profile pictures can only be PNG or JPG images")
 
         if user := crud.user.get(db, user_id):
-            filename = f"{uuid4()}.{image.content_type.replace('image/', '')}"
-            with open(f'./profile_pictures/{filename}', 'wb') as buffer:
-                copyfileobj(image.file, buffer)
-
+            filename = save_image(image)
             return crud.user.update(db, db_obj=user, obj_in=schemas.UserUpdate(profile_picture=filename))
 
         raise HTTPException(

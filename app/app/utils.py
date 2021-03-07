@@ -1,10 +1,13 @@
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
+from shutil import copyfileobj
 from typing import Any, Dict, Optional
+from uuid import uuid4
 
 import emails
 from emails.template import JinjaTemplate
+from fastapi import UploadFile
 from jose import jwt
 
 from app.core.config import settings
@@ -125,3 +128,10 @@ def verify_password_reset_token(token: str) -> Optional[str]:
         return decoded_token["email"]
     except jwt.JWTError:
         return None
+
+
+def save_image(image: UploadFile) -> str:
+    filename = f"{uuid4()}.{image.content_type.replace('image/', '')}"
+    with open(f'./profile_pictures/{filename}', 'wb') as buffer:
+        copyfileobj(image.file, buffer)
+    return filename
