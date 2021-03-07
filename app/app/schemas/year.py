@@ -13,8 +13,8 @@ class YearBase(BaseModel):
     is_active: Optional[bool] = True
 
     @validator('name')
-    def name_not_empty(cls, name: str) -> str:
-        if not name:
+    def name_not_empty(cls, name: Optional[str]) -> Optional[str]:
+        if name is not None and name == "":
             raise ValueError("Name must not be empty!")
         return name
 
