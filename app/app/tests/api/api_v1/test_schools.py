@@ -139,3 +139,17 @@ def test_get_all_professors(client: TestClient, superuser_token_headers: Dict[st
     assert fetched_students[0]['type'] == school_student.type
     assert fetched_students[0]['is_admin'] == school_student.is_admin
     assert fetched_students[0]['profile_picture'] == school_student.profile_picture
+
+
+def test_delete_school(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    school = create_random_school(db)
+    r = client.delete(f"{settings.API_V1_STR}/schools/{school.id}", headers=superuser_token_headers)
+    assert r.status_code == 200
+    deleted_school = crud.school.get(db, school.id)
+    assert deleted_school is None
+
+
+def test_delete_school_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    last_school_id = crud.school.get_multi(db)[-1].id
+    r = client.delete(f"{settings.API_V1_STR}/schools/{last_school_id + 1}", headers=superuser_token_headers)
+    assert r.status_code == 404
