@@ -133,3 +133,15 @@ def get_professors(
     Get all students belonging to a school.
     """
     return crud.school.get_all_professors(db, school_id=school_id)
+
+
+@router.delete("/{school_id}")
+def delete_school(
+    *,
+    db: Session = Depends(deps.get_db),
+    school_id: int,
+    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+) -> Any:
+    if crud.school.get(db, school_id):
+        return crud.school.remove(db, id=school_id)
+    raise HTTPException(status_code=404, detail="The school with this ID does not exist in the system!")

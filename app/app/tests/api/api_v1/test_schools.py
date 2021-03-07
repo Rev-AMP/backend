@@ -6,6 +6,7 @@ from starlette.testclient import TestClient
 
 from app import crud
 from app.core.config import settings
+from app.models import School
 from app.tests.utils.school import create_random_school
 from app.tests.utils.user import authentication_token_from_email, create_random_user
 from app.tests.utils.utils import random_email, random_lower_string
@@ -139,3 +140,17 @@ def test_get_all_professors(client: TestClient, superuser_token_headers: Dict[st
     assert fetched_students[0]['type'] == school_student.type
     assert fetched_students[0]['is_admin'] == school_student.is_admin
     assert fetched_students[0]['profile_picture'] == school_student.profile_picture
+
+
+def test_delete_school(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    school = create_random_school(db)
+    r = client.delete(f"{settings.API_V1_STR}/schools/{school.id}", headers=superuser_token_headers)
+    assert r.status_code == 200
+    deleted_school = crud.school.get(db, school.id)
+    assert deleted_school is None
+
+
+def test_delete_school_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    last_school_id = db.query(School).order_by(School.id.desc()).first().id
+    r = client.delete(f"{settings.API_V1_STR}/schools/{last_school_id + 1}", headers=superuser_token_headers)
+    assert r.status_code == 404
