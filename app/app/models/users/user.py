@@ -15,7 +15,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     full_name = Column(String(100), index=True)
     email = Column(String(100), unique=True, index=True, nullable=False)
-    profile_picture = Column(String(36), default=None, nullable=True)
+    profile_picture = Column(String(41), default=None, nullable=True)
     hashed_password = Column(String(100), nullable=False)
     is_active = Column(Boolean(), default=True)
     is_admin = Column(Boolean(), default=False)

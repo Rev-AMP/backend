@@ -1,6 +1,4 @@
-from shutil import copyfileobj
 from typing import Any, List
-from uuid import uuid4
 
 from fastapi import APIRouter, Body, Depends, File, HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
@@ -10,7 +8,7 @@ from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.api import deps
 from app.core.config import settings
-from app.utils import send_new_account_email
+from app.utils import save_image, send_new_account_email
 
 router = APIRouter()
 
@@ -170,21 +168,25 @@ def update_user_profile_picture(
     db: Session = Depends(deps.get_db),
     user_id: int,
     image: UploadFile = File(...),
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("user")),
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Update a user's profile picture
     """
+    if current_user.id == user_id or (
+        (admin := crud.admin.get(db, current_user.id))
+        and schemas.AdminPermissions(admin.permissions).is_allowed("user")
+    ):
+        if image.content_type not in ("image/png", "image/jpeg"):
+            raise HTTPException(status_code=415, detail="Profile pictures can only be PNG or JPG images")
 
-    if user := crud.user.get(db, user_id):
-        filename = str(uuid4())
-        with open(f'./profile_pictures/{filename}', 'wb') as buffer:
-            copyfileobj(image.file, buffer)
+        if user := crud.user.get(db, user_id):
+            filename = save_image(image)
+            return crud.user.update(db, db_obj=user, obj_in=schemas.UserUpdate(profile_picture=filename))
 
-        return crud.user.update(db, db_obj=user, obj_in=schemas.UserUpdate(profile_picture=filename))
-
-    if not user:
         raise HTTPException(
             status_code=404,
             detail="The user with this id does not exist in the system",
         )
+
+    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
