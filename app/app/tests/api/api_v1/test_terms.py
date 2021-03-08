@@ -19,10 +19,10 @@ def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, st
     assert 200 <= r.status_code < 300
     results = r.json()
     assert results
-    assert results[0]['name'] == term.name
-    assert results[0]['year_id'] == term.year_id
-    assert results[0]['start_date'] == term.start_date.isoformat()
-    assert results[0]['end_date'] == term.end_date.isoformat()
+    assert results[-1]['name'] == term.name
+    assert results[-1]['year_id'] == term.year_id
+    assert results[-1]['start_date'] == term.start_date.isoformat()
+    assert results[-1]['end_date'] == term.end_date.isoformat()
 
 
 def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
