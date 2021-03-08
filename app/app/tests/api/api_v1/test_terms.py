@@ -7,7 +7,6 @@ from starlette.testclient import TestClient
 
 from app import crud
 from app.core.config import settings
-from app.models import Term
 from app.schemas.users.admin import AdminPermissions
 from app.tests.utils.user import authentication_token_from_email, create_random_user
 from app.tests.utils.term import create_random_year, create_random_term
@@ -39,7 +38,7 @@ def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str
 
 
 def test_get_term_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_term_id = db.query(Term).order_by(Term.id.desc()).first().id
+    last_term_id = crud.term.get_multi(db)[-1].id
     r = client.get(f"{settings.API_V1_STR}/terms/{last_term_id+1}", headers=superuser_token_headers)
     assert r.status_code == 404
 
@@ -99,7 +98,7 @@ def test_get_term_normal_user(client: TestClient, normal_user_token_headers: Dic
 
 
 def test_update_term_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_term_id = db.query(Term).order_by(Term.id.desc()).first().id
+    last_term_id = crud.term.get_multi(db)[-1].id
     r = client.put(f"{settings.API_V1_STR}/terms/{last_term_id + 1}", headers=superuser_token_headers, json={})
     assert r.status_code == 404
 
@@ -153,6 +152,6 @@ def test_delete_term(client: TestClient, superuser_token_headers: Dict[str, str]
 
 
 def test_delete_term_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_term_id = db.query(Term).order_by(Term.id.desc()).first().id
+    last_term_id = crud.term.get_multi(db)[-1].id
     r = client.delete(f"{settings.API_V1_STR}/terms/{last_term_id+1}", headers=superuser_token_headers)
     assert r.status_code == 404
