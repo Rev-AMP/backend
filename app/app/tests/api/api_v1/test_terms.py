@@ -21,8 +21,8 @@ def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, st
     assert results
     assert results[0]['name'] == term.name
     assert results[0]['year_id'] == term.year_id
-    assert results[0]['start_date'] == term.start_date
-    assert results[0]['end_date'] == term.end_date
+    assert results[0]['start_date'] == term.start_date.isoformat()
+    assert results[0]['end_date'] == term.end_date.isoformat()
 
 
 def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -32,8 +32,8 @@ def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str
     fetched_term = r.json()
     assert fetched_term
     assert fetched_term['id'] == term.id
-    assert fetched_term['start_date'] == term.start_date
-    assert fetched_term['end_date'] == term.end_date
+    assert fetched_term['start_date'] == term.start_date.isoformat()
+    assert fetched_term['end_date'] == term.end_date.isoformat()
     assert fetched_term['is_active'] and term.is_active
 
 
@@ -72,10 +72,10 @@ def test_create_term(client: TestClient, superuser_token_headers: Dict[str, str]
     assert fetched_term
     assert created_term['name'] == fetched_term.name == name
     assert created_term['year_id'] == fetched_term.year_id == year_id
-    assert created_term['start_date'] == fetched_term.start_date == start_date
-    assert created_term['end_date'] == fetched_term.end_date == end_date
+    assert created_term['start_date'] == fetched_term.start_date.isoformat() == start_date.isoformat()
+    assert created_term['end_date'] == fetched_term.end_date.isoformat() == end_date.isoformat()
     assert created_term['current_year_term'] == fetched_term.current_year_term == current_year_term
-    assert created_term['has_electives'] and fetched_term.has_electives
+    assert created_term['has_electives'] == fetched_term.has_electives
     assert created_term['is_active'] and fetched_term.is_active
 
 
@@ -87,6 +87,7 @@ def test_create_term_existing(client: TestClient, superuser_token_headers: Dict[
         'start_date': term.start_date.isoformat(),
         'end_date': term.end_date.isoformat(),
         'current_year_term': term.current_year_term,
+        'has_electives': term.has_electives,
     }
     r = client.post(f"{settings.API_V1_STR}/terms/", headers=superuser_token_headers, json=data)
     assert r.status_code == 409
@@ -118,8 +119,8 @@ def test_update_term(client: TestClient, superuser_token_headers: Dict[str, str]
     fetched_term = r.json()
     assert fetched_term
     assert fetched_term['id'] == term.id
-    assert fetched_term['start_date'] == term.start_date - timedelta(days=6 * 30)
-    assert fetched_term['end_date'] == term.end_date - timedelta(days=6 * 30)
+    assert fetched_term['start_date'] == (term.start_date - timedelta(days=6 * 30)).isoformat()
+    assert fetched_term['end_date'] == (term.end_date - timedelta(days=6 * 30)).isoformat()
     assert fetched_term['is_active'] != term.is_active
 
 
