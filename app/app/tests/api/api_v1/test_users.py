@@ -264,6 +264,21 @@ def test_update_profile_picture_superuser(
     assert isfile(f"profile_pictures/{updated_user['profile_picture']}")
 
 
+def test_update_profile_picture_superuser_non_existent_user(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    user_id = crud.user.get_multi(db)[-1].id + 1
+    response = client.get("https://media.rev-amp.tech/logo/revamp.png")
+    with open('/tmp/profile_picture.png', 'wb') as f:
+        f.write(response.content)
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user_id}/profile_picture",
+        headers=superuser_token_headers,
+        files={'image': ('profile_picture.png', open('/tmp/profile_picture.png', 'rb').read(), 'image/png')},
+    )
+    assert r.status_code == 404
+
+
 def test_update_profile_picture_superuser_not_image(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
