@@ -203,6 +203,48 @@ def test_read_user_normal_user(client: TestClient, normal_user_token_headers: Di
     assert r.status_code == 403
 
 
+def test_update_user_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    user = create_random_user(db, type="student")
+    full_name = random_lower_string()
+    data = {"full_name": full_name}
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user.id}",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert r.status_code == 200
+    updated_user = r.json()
+    db.refresh(user)
+    assert updated_user["id"] == user.id
+    assert updated_user["full_name"] == user.full_name == full_name
+
+
+def test_update_non_existentuser_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    user_id = crud.user.get_multi(db)[-1].id + 1
+    full_name = random_lower_string()
+    data = {"full_name": full_name}
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user_id}",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert r.status_code == 404
+
+
+def test_update_user_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
+    user = create_random_user(db, type="student")
+    full_name = random_lower_string()
+    email = random_email()
+    password = random_password()
+    data = {"full_name": full_name, "email": email, "password": password}
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user.id}",
+        headers=normal_user_token_headers,
+        json=data,
+    )
+    assert r.status_code == 403
+
+
 def test_update_profile_picture_superuser(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
