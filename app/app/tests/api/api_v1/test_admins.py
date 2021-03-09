@@ -33,6 +33,17 @@ def test_create_admin_existing_id(client: TestClient, superuser_token_headers: d
     assert "user_id" not in created_user
 
 
+def test_create_admin_non_existing_user(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
+    admin_id = crud.user.get_multi(db)[-1].id + 1
+    data = {"user_id": admin_id, "permissions": 0}
+    r = client.post(
+        f"{settings.API_V1_STR}/admins/",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert r.status_code == 404
+
+
 def test_create_admin_existing_nonadmin(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
     user = create_random_user(db, type="professor")
     admin_id = user.id
