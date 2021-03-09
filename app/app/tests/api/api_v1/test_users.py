@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.core.config import settings
 from app.tests.utils.user import authentication_token_from_email, create_random_user
-from app.tests.utils.utils import random_email, random_password
+from app.tests.utils.utils import random_email, random_password, random_lower_string
 
 
 def test_get_users_superuser_me(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
@@ -129,6 +129,22 @@ def test_retrieve_users(client: TestClient, superuser_token_headers: dict, db: S
     assert len(all_users) > 1
     for item in all_users:
         assert "email" in item
+
+
+def test_user_update_self(client: TestClient, db: Session) -> None:
+    user = create_random_user(db, type="student")
+    full_name = random_lower_string()
+    data = {"full_name": full_name}
+    r = client.put(
+        f"{settings.API_V1_STR}/users/me",
+        headers=authentication_token_from_email(client=client, email=user.email, db=db),
+        json=data,
+    )
+    assert r.status_code == 200
+    updated_user = r.json()
+    assert updated_user["id"] == user.id
+    assert updated_user["email"] == user.email
+    assert updated_user["full_name"] == full_name
 
 
 def test_update_profile_picture_superuser(
