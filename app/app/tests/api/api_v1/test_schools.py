@@ -60,6 +60,13 @@ def test_get_school_superuser(client: TestClient, superuser_token_headers: Dict[
     assert fetched_school['head'] == school.head
 
 
+def test_get_non_existing_school_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    school_id = crud.school.get_multi(db)[-1].id + 1
+    r = client.get(f"{settings.API_V1_STR}/schools/{school_id}", headers=superuser_token_headers)
+    print(r.json())
+    assert r.status_code == 404
+
+
 def test_get_school_admin(client: TestClient, db: Session) -> None:
     school = create_random_school(db)
     admin = create_random_user(db, "admin", permissions=4)
