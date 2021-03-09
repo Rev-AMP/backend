@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.core.config import settings
 from app.tests.utils.user import authentication_token_from_email, create_random_user
-from app.tests.utils.utils import random_email, random_password, random_lower_string
+from app.tests.utils.utils import random_email, random_lower_string, random_password
 
 
 def test_get_users_superuser_me(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
