@@ -38,7 +38,7 @@ def test_create_user_new_email(client: TestClient, superuser_token_headers: dict
         headers=superuser_token_headers,
         json=data,
     )
-    assert 200 <= r.status_code < 300
+    assert r.status_code == 200
     created_user = r.json()
     user = crud.user.get_by_email(db, email=username)
     assert user
@@ -53,7 +53,7 @@ def test_get_existing_user(client: TestClient, superuser_token_headers: dict, db
         f"{settings.API_V1_STR}/users/{user_id}",
         headers=superuser_token_headers,
     )
-    assert 200 <= r.status_code < 300
+    assert r.status_code == 200
     api_user = r.json()
     assert user.email == api_user["email"]
 
@@ -67,7 +67,7 @@ def test_create_user_existing_username(client: TestClient, superuser_token_heade
         json=data,
     )
     created_user = r.json()
-    assert 400 <= r.status_code < 500
+    assert r.status_code == 409
     assert "_id" not in created_user
 
 
@@ -80,7 +80,7 @@ def test_create_user_by_normal_user(client: TestClient, normal_user_token_header
         headers=normal_user_token_headers,
         json=data,
     )
-    assert 400 <= r.status_code < 500
+    assert r.status_code == 403
 
 
 def test_create_superuser_by_superuser(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:

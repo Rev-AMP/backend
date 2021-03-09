@@ -11,7 +11,7 @@ def test_get_existing_admin(client: TestClient, superuser_token_headers: dict, d
         f"{settings.API_V1_STR}/admins/",
         headers=superuser_token_headers,
     )
-    assert 200 <= r.status_code < 300
+    assert r.status_code == 200
     api_user = r.json()
     existing_user = crud.admin.get(db, id=1)
     assert existing_user
@@ -29,7 +29,7 @@ def test_create_admin_existing_id(client: TestClient, superuser_token_headers: d
         json=data,
     )
     created_user = r.json()
-    assert 400 <= r.status_code < 500
+    assert r.status_code == 409
     assert "user_id" not in created_user
 
 
@@ -55,7 +55,7 @@ def test_create_admin_existing_nonadmin(client: TestClient, superuser_token_head
     )
     created_admin = r.json()
     db.refresh(user)
-    assert 200 <= r.status_code < 300
+    assert r.status_code == 200
     assert user
     assert user.is_admin
     assert "user_id" in created_admin
@@ -73,7 +73,7 @@ def test_create_admin_existing_student(client: TestClient, superuser_token_heade
     )
     created_admin = r.json()
     db.refresh(user)
-    assert 400 <= r.status_code < 500
+    assert r.status_code == 400
     assert user
     assert not user.is_admin
     assert "user_id" not in created_admin
@@ -89,7 +89,7 @@ def test_update_admin(client: TestClient, superuser_token_headers: dict, db: Ses
         json=data,
     )
     updated_admin = r.json()
-    assert 200 <= r.status_code < 300
+    assert r.status_code == 200
     assert updated_admin["permissions"] == 5
 
 
@@ -103,7 +103,7 @@ def test_update_admin_nonadmin(client: TestClient, superuser_token_headers: dict
         json=data,
     )
     updated_admin = r.json()
-    assert 400 <= r.status_code < 500
+    assert r.status_code == 404
     db.refresh(user)
     assert user
     assert not user.is_admin
@@ -120,7 +120,7 @@ def test_remove_admin(client: TestClient, superuser_token_headers: dict, db: Ses
         json=data,
     )
     db.refresh(user)
-    assert 200 <= r.status_code < 300
+    assert r.status_code == 200
     assert user
     assert not user.is_admin
     assert not crud.admin.get(db, id=admin_id)
@@ -148,7 +148,7 @@ def test_remove_admin_nonadmin(client: TestClient, superuser_token_headers: dict
         json=data,
     )
     db.refresh(user)
-    assert 400 <= r.status_code < 500
+    assert r.status_code == 400
     assert user
     assert not user.is_admin
 
@@ -164,4 +164,4 @@ def test_remove_admin_nonuser(client: TestClient, superuser_token_headers: dict,
         headers=superuser_token_headers,
         json=data,
     )
-    assert 400 <= r.status_code < 500
+    assert r.status_code == 404
