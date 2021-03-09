@@ -126,6 +126,18 @@ def test_remove_admin(client: TestClient, superuser_token_headers: dict, db: Ses
     assert not crud.admin.get(db, id=admin_id)
 
 
+def test_remove_non_existent_admin(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
+    user = create_random_user(db, type="professor")
+    admin_id = user.id
+    data = {"user_id": admin_id}
+    r = client.delete(
+        f"{settings.API_V1_STR}/admins/",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert r.status_code == 404
+
+
 def test_remove_admin_nonadmin(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
     user = create_random_user(db, type="student")
     admin_id = user.id
