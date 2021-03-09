@@ -42,6 +42,13 @@ def test_create_school_existing(client: TestClient, superuser_token_headers: Dic
     assert 400 <= r.status_code < 500
 
 
+def test_create_school_duplicate_head(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    school = create_random_school(db)
+    data = {'name': random_lower_string(), 'head': school.head}
+    r = client.post(f"{settings.API_V1_STR}/schools/", headers=superuser_token_headers, json=data)
+    assert r.status_code == 409
+
+
 def test_get_school_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     school = create_random_school(db)
     r = client.get(f"{settings.API_V1_STR}/schools/{school.id}", headers=superuser_token_headers)
