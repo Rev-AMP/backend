@@ -76,7 +76,7 @@ def read_school_by_id(
                 if school:
                     return school
                 raise HTTPException(
-                    status_code=403,
+                    status_code=404,
                     detail="The school with this ID does not exist in the system",
                 )
 
