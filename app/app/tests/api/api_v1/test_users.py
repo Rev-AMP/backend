@@ -152,6 +152,57 @@ def test_user_update_me(client: TestClient, db: Session) -> None:
     assert verify_password(password, user.hashed_password)
 
 
+def test_read_user_self(client: TestClient, db: Session) -> None:
+    user = create_random_user(db, type="student")
+    r = client.get(
+        f"{settings.API_V1_STR}/users/{user.id}",
+        headers=authentication_token_from_email(client=client, email=user.email, db=db),
+    )
+    assert r.status_code == 200
+    fetched_user = r.json()
+    assert fetched_user["id"] == user.id
+    assert fetched_user["email"] == user.email
+    assert fetched_user["full_name"] == user.full_name
+    assert fetched_user["type"] == user.type
+    assert fetched_user["profile_picture"] == user.profile_picture
+    assert fetched_user["is_admin"] == user.is_admin
+    assert fetched_user["school"] == user.school
+
+
+def test_read_user_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    user = create_random_user(db, type="student")
+    r = client.get(f"{settings.API_V1_STR}/users/{user.id}", headers=superuser_token_headers)
+    assert r.status_code == 200
+    fetched_user = r.json()
+    assert fetched_user["id"] == user.id
+    assert fetched_user["email"] == user.email
+    assert fetched_user["full_name"] == user.full_name
+    assert fetched_user["type"] == user.type
+    assert fetched_user["profile_picture"] == user.profile_picture
+    assert fetched_user["is_admin"] == user.is_admin
+    assert fetched_user["school"] == user.school
+
+
+def test_read_non_existent_user_superuser(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    user_id = crud.user.get_multi(db=db)[-1].id + 1
+    r = client.get(f"{settings.API_V1_STR}/users/{user_id}", headers=superuser_token_headers)
+    assert r.status_code == 404
+
+
+def test_read_user_normal_admin(client: TestClient, admin_user_token_headers: Dict[str, str], db: Session) -> None:
+    user = create_random_user(db, type="student")
+    r = client.get(f"{settings.API_V1_STR}/users/{user.id}", headers=admin_user_token_headers)
+    assert r.status_code == 403
+
+
+def test_read_user_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
+    user = create_random_user(db, type="student")
+    r = client.get(f"{settings.API_V1_STR}/users/{user.id}", headers=normal_user_token_headers)
+    assert r.status_code == 403
+
+
 def test_update_profile_picture_superuser(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
