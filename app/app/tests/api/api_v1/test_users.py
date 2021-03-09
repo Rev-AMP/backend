@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.core.config import settings
+from app.core.security import verify_password
 from app.tests.utils.user import authentication_token_from_email, create_random_user
 from app.tests.utils.utils import random_email, random_lower_string, random_password
 
@@ -131,10 +132,12 @@ def test_retrieve_users(client: TestClient, superuser_token_headers: dict, db: S
         assert "email" in item
 
 
-def test_user_update_self(client: TestClient, db: Session) -> None:
+def test_user_update_me(client: TestClient, db: Session) -> None:
     user = create_random_user(db, type="student")
     full_name = random_lower_string()
-    data = {"full_name": full_name}
+    email = random_email()
+    password = random_password()
+    data = {"full_name": full_name, "email": email, "password": password}
     r = client.put(
         f"{settings.API_V1_STR}/users/me",
         headers=authentication_token_from_email(client=client, email=user.email, db=db),
@@ -142,9 +145,11 @@ def test_user_update_self(client: TestClient, db: Session) -> None:
     )
     assert r.status_code == 200
     updated_user = r.json()
+    db.refresh(user)
     assert updated_user["id"] == user.id
-    assert updated_user["email"] == user.email
-    assert updated_user["full_name"] == full_name
+    assert updated_user["email"] == user.email == email
+    assert updated_user["full_name"] == user.full_name == full_name
+    assert verify_password(password, user.hashed_password)
 
 
 def test_update_profile_picture_superuser(
