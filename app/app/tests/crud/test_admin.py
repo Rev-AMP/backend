@@ -29,3 +29,14 @@ def test_update_user_admin(db: Session) -> None:
     user_2 = crud.admin.get(db, id=user.id)
     assert user_2
     assert user_2.permissions == 5
+
+
+def test_update_user_admin_with_dict(db: Session) -> None:
+    user = create_random_user(db=db, type="admin")
+    admin = crud.admin.get(db, user.id)
+    assert admin
+    admin_update = {"user_id": user.id, "permissions": 5}
+    crud.admin.update(db, db_obj=admin, obj_in=admin_update)
+    user_2 = crud.admin.get(db, id=user.id)
+    assert user_2
+    assert user_2.permissions == 5
