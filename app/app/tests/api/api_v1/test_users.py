@@ -106,6 +106,19 @@ def test_create_superuser_by_normal_admin(client: TestClient, admin_user_token_h
     assert r.status_code == 403
 
 
+def test_create_superuser_by_normal_admin_with_user_perms(client: TestClient, db: Session) -> None:
+    admin_user = create_random_user(db=db, type="admin", is_admin=True, permissions=1)
+    username = random_email()
+    password = random_password()
+    data = {"email": username, "password": password, "type": "superuser"}
+    r = client.post(
+        f"{settings.API_V1_STR}/users/",
+        headers=authentication_token_from_email(client=client, email=admin_user.email, db=db),
+        json=data,
+    )
+    assert r.status_code == 403
+
+
 def test_retrieve_users(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
     create_random_user(db, type="superuser")
     create_random_user(db, type="superuser")
