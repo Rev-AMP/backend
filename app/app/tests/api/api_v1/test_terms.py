@@ -29,7 +29,7 @@ def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, st
 def test_get_all_terms_with_details(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     term = create_random_term(db=db)
     r = client.get(f"{settings.API_V1_STR}/terms/?details=true", headers=superuser_token_headers)
-    assert 200 <= r.status_code < 300
+    assert r.status_code == 200
     results = r.json()
     assert results
     assert results[-1]['name'] == term.name
