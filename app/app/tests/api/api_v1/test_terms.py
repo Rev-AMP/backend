@@ -26,6 +26,23 @@ def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, st
         assert results[-1]['end_date'] == term.end_date.isoformat()
 
 
+def test_get_all_terms_with_details(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    term = create_random_term(db=db)
+    r = client.get(f"{settings.API_V1_STR}/terms/?details=true", headers=superuser_token_headers)
+    assert 200 <= r.status_code < 300
+    results = r.json()
+    assert results
+    assert results[-1]['name'] == term.name
+    assert results[-1]['year_id'] == term.year_id
+    assert results[-1]['start_date'] == term.start_date.isoformat()
+    if term.end_date:
+        assert results[-1]['end_date'] == term.end_date.isoformat()
+    if year := crud.year.get(db, term.year_id):
+        assert results[-1]['year_name'] == year.name
+        if school := crud.school.get(db, year.school_id):
+            assert results[-1]['school_name'] == school.name
+
+
 def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     term = create_random_term(db=db)
     r = client.get(f"{settings.API_V1_STR}/terms/{term.id}", headers=superuser_token_headers)

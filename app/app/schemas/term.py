@@ -38,7 +38,8 @@ class TermInDBBase(TermBase):
 
 # Additional properties to return via API
 class Term(TermInDBBase):
-    pass
+    school_name: Optional[str] = None
+    year_name: Optional[str] = None
 
 
 # Additional properties stored in DB

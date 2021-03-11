@@ -1,6 +1,7 @@
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
@@ -14,9 +15,23 @@ def read_terms(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
+    details: bool = False,
     _: models.Admin = Depends(deps.get_current_active_admin_with_permission("term")),
 ) -> Any:
-    return crud.term.get_multi(db, skip=skip, limit=limit)
+    terms = crud.term.get_multi(db, skip=skip, limit=limit)
+
+    if details:
+        terms_with_details = []
+        for term_details in terms:
+            term = schemas.Term(**jsonable_encoder(term_details))
+            if year := crud.year.get(db, term_details.year_id):
+                term.year_name = year.name
+                if school := crud.school.get(db, year.school_id):
+                    term.school_name = school.name
+            terms_with_details.append(term)
+        return terms_with_details
+
+    return terms
 
 
 @router.get("/{term_id}", response_model=schemas.Term)
