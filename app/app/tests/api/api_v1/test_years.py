@@ -26,6 +26,21 @@ def test_get_all_years(client: TestClient, superuser_token_headers: Dict[str, st
     assert results[-1]['end_year'] == year.end_year
 
 
+def test_get_all_years_with_details(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    year = create_random_year(db)
+    r = client.get(f"{settings.API_V1_STR}/years/?details=true", headers=superuser_token_headers)
+    assert r.status_code == 200
+    results = r.json()
+    assert results
+    assert results[-1]['id'] == year.id
+    assert results[-1]['name'] == year.name
+    assert results[-1]['school_id'] == year.school_id
+    assert results[-1]['start_year'] == year.start_year
+    assert results[-1]['end_year'] == year.end_year
+    if school := crud.school.get(db, year.school_id):
+        assert results[-1]["school_name"] == school.name
+
+
 def test_get_year_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     year = create_random_year(db)
     r = client.get(f"{settings.API_V1_STR}/years/{year.id}", headers=superuser_token_headers)

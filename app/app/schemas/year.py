@@ -61,7 +61,7 @@ class YearInDBBase(YearBase):
 
 # Additional properties to return via API
 class Year(YearInDBBase):
-    pass
+    school_name: Optional[str] = None
 
 
 # Additional properties stored in DB

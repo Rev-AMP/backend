@@ -1,6 +1,7 @@
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
@@ -14,12 +15,24 @@ def read_years(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
+    details: bool = False,
     _: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
 ) -> Any:
     """
     Retrieve years
     """
-    return crud.year.get_multi(db, skip=skip, limit=limit)
+    years = crud.year.get_multi(db, skip=skip, limit=limit)
+
+    if details:
+        years_with_details = []
+        for year_details in years:
+            year = schemas.Year(**jsonable_encoder(year_details))
+            if school := crud.school.get(db, year_details.school_id):
+                year.school_name = school.name
+            years_with_details.append(year)
+        return years_with_details
+
+    return years
 
 
 @router.get("/{year_id}", response_model=schemas.Year)
