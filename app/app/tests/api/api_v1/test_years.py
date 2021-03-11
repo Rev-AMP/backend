@@ -16,7 +16,7 @@ from app.tests.utils.year import create_random_school, create_random_year
 def test_get_all_years(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     year = create_random_year(db)
     r = client.get(f"{settings.API_V1_STR}/years/", headers=superuser_token_headers)
-    assert 200 <= r.status_code < 300
+    assert r.status_code == 200
     results = r.json()
     assert results
     assert results[-1]['id'] == year.id
@@ -58,7 +58,7 @@ def test_create_year(client: TestClient, superuser_token_headers: Dict[str, str]
         'end_year': end_year,
     }
     r = client.post(f"{settings.API_V1_STR}/years/", headers=superuser_token_headers, json=data)
-    assert 200 <= r.status_code < 300
+    assert r.status_code == 200
     created_year = r.json()
     year = crud.year.get_by_details(db, name=name, school_id=school_id, start_year=start_year, end_year=end_year)
     assert year
@@ -100,6 +100,7 @@ def test_update_year(client: TestClient, superuser_token_headers: Dict[str, str]
     assert year.end_year
     data = {'start_year': year.start_year - 1, 'end_year': year.end_year - 1, 'is_active': not year.is_active}
     r = client.put(f"{settings.API_V1_STR}/years/{year.id}", headers=superuser_token_headers, json=data)
+    assert r.status_code == 200
     fetched_year = r.json()
     assert fetched_year
     assert fetched_year['id'] == year.id

@@ -16,7 +16,7 @@ from app.tests.utils.utils import random_lower_string
 def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     term = create_random_term(db=db)
     r = client.get(f"{settings.API_V1_STR}/terms/", headers=superuser_token_headers)
-    assert 200 <= r.status_code < 300
+    assert r.status_code == 200
     results = r.json()
     assert results
     assert results[-1]['name'] == term.name
@@ -29,7 +29,7 @@ def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, st
 def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     term = create_random_term(db=db)
     r = client.get(f"{settings.API_V1_STR}/terms/{term.id}", headers=superuser_token_headers)
-    assert 200 <= r.status_code < 300
+    assert r.status_code == 200
     fetched_term = r.json()
     assert fetched_term
     assert fetched_term['id'] == term.id
@@ -61,7 +61,7 @@ def test_create_term(client: TestClient, superuser_token_headers: Dict[str, str]
         'has_electives': has_electives,
     }
     r = client.post(f"{settings.API_V1_STR}/terms/", headers=superuser_token_headers, json=data)
-    assert 200 <= r.status_code < 300
+    assert r.status_code == 200
     created_term = r.json()
     fetched_term = crud.term.get_by_details(
         db=db,

@@ -68,7 +68,6 @@ def update_user_me(
     password: str = Body(None),
     full_name: str = Body(None),
     email: EmailStr = Body(None),
-    profile_picture: str = Body(None),
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
@@ -85,8 +84,6 @@ def update_user_me(
         user_in.full_name = full_name
     if email is not None:
         user_in.email = email
-    if profile_picture is not None:
-        user_in.profile_picture = profile_picture
 
     # Use the object to update user in db
     user = crud.user.update(db, db_obj=current_user, obj_in=user_in)
@@ -133,7 +130,7 @@ def read_user_by_id(
                     detail="The user with this ID does not exist in the system",
                 )
 
-    raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
 
 
 @router.put("/{user_id}", response_model=schemas.User)
