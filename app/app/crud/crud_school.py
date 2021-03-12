@@ -15,10 +15,10 @@ class CRUDSchool(CRUDBase[School, SchoolCreate, SchoolUpdate]):
         return db.query(School).filter(School.head == head).first()
 
     def get_all_students(self, db: Session, *, school_id: int) -> List[User]:
-        return db.query(User).filter(User.type == "student").filter(User.school == school_id).all()
+        return db.query(User).filter(User.type == "student").filter(User.school_id == school_id).all()
 
     def get_all_professors(self, db: Session, *, school_id: int) -> List[User]:
-        return db.query(User).filter(User.type == "professor").filter(User.school == school_id).all()
+        return db.query(User).filter(User.type == "professor").filter(User.school_id == school_id).all()
 
 
 school = CRUDSchool(School)

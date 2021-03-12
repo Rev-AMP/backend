@@ -166,7 +166,7 @@ def test_read_user_self(client: TestClient, db: Session) -> None:
     assert fetched_user["type"] == user.type
     assert fetched_user["profile_picture"] == user.profile_picture
     assert fetched_user["is_admin"] == user.is_admin
-    assert fetched_user["school"] == user.school
+    assert fetched_user["school_id"] == user.school_id
 
 
 def test_read_user_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -180,7 +180,7 @@ def test_read_user_superuser(client: TestClient, superuser_token_headers: Dict[s
     assert fetched_user["type"] == user.type
     assert fetched_user["profile_picture"] == user.profile_picture
     assert fetched_user["is_admin"] == user.is_admin
-    assert fetched_user["school"] == user.school
+    assert fetched_user["school_id"] == user.school_id
 
 
 def test_read_non_existent_user_superuser(
