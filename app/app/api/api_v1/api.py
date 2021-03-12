@@ -1,6 +1,15 @@
 from fastapi import APIRouter
 
-from app.api.api_v1.endpoints import admins, courses, login, schools, terms, users, utils, years
+from app.api.api_v1.endpoints import (
+    admins,
+    courses,
+    login,
+    schools,
+    terms,
+    users,
+    utils,
+    years,
+)
 
 api_router = APIRouter()
 api_router.include_router(admins.router, prefix="/admins", tags=["admins"])

@@ -93,9 +93,7 @@ def test_update_course(client: TestClient, superuser_token_headers: Dict[str, st
     course = create_random_course(db)
     assert course.name
     name = random_lower_string()
-    data = {
-        'name': name
-    }
+    data = {'name': name}
     r = client.put(f"{settings.API_V1_STR}/courses/{course.id}", headers=superuser_token_headers, json=data)
     fetched_course = r.json()
     assert fetched_course
