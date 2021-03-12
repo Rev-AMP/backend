@@ -3,8 +3,11 @@ from typing import Optional
 
 from pydantic import BaseModel, validator
 
+from app.schemas import School
 
 # Shared properties
+
+
 class YearBase(BaseModel):
     name: Optional[str] = None
     school_id: Optional[int] = None
@@ -61,7 +64,7 @@ class YearInDBBase(YearBase):
 
 # Additional properties to return via API
 class Year(YearInDBBase):
-    school_name: Optional[str] = None
+    school: Optional[School]
 
 
 # Additional properties stored in DB

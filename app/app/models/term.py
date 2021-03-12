@@ -1,4 +1,5 @@
 from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 from app.models.year import Year
@@ -13,3 +14,5 @@ class Term(Base):
     end_date = Column(Date, index=True, nullable=True)
     has_electives = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
+
+    year = relationship('Year')

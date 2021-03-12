@@ -3,8 +3,10 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-
 # Shared properties
+from app.schemas.year import Year
+
+
 class TermBase(BaseModel):
     name: Optional[str] = None
     year_id: Optional[int] = None
@@ -38,8 +40,7 @@ class TermInDBBase(TermBase):
 
 # Additional properties to return via API
 class Term(TermInDBBase):
-    school_name: Optional[str] = None
-    year_name: Optional[str] = None
+    year: Optional[Year]
 
 
 # Additional properties stored in DB
