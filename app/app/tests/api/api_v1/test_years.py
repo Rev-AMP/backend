@@ -2,6 +2,7 @@ from datetime import datetime
 from random import randint
 from typing import Dict
 
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
@@ -37,8 +38,8 @@ def test_get_all_years_with_details(client: TestClient, superuser_token_headers:
     assert results[-1]['school_id'] == year.school_id
     assert results[-1]['start_year'] == year.start_year
     assert results[-1]['end_year'] == year.end_year
-    if school := crud.school.get(db, year.school_id):
-        assert results[-1]["school_name"] == school.name
+    school = jsonable_encoder(year.school)
+    assert results[-1]["school"] == school
 
 
 def test_get_year_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:

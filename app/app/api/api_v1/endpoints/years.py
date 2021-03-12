@@ -20,7 +20,6 @@ def read_years(
     Retrieve years
     """
     years = crud.year.get_multi(db, skip=skip, limit=limit)
-
     return years
 
 

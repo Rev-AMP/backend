@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from random import choice, randint
 from typing import Dict
 
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
@@ -37,10 +38,10 @@ def test_get_all_terms_with_details(client: TestClient, superuser_token_headers:
     assert results[-1]['start_date'] == term.start_date.isoformat()
     if term.end_date:
         assert results[-1]['end_date'] == term.end_date.isoformat()
-    if year := crud.year.get(db, term.year_id):
-        assert results[-1]['year_name'] == year.name
-        if school := crud.school.get(db, year.school_id):
-            assert results[-1]['school_name'] == school.name
+    print(jsonable_encoder(term.year))
+    year = jsonable_encoder(term.year)
+    year['school'] = jsonable_encoder(term.year.school)
+    assert results[-1]['year'] == year
 
 
 def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
