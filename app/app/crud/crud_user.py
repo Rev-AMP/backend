@@ -20,7 +20,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             full_name=obj_in.full_name,
             type=obj_in.type,
             is_admin=obj_in.is_admin or obj_in.type in ('admin', 'superuser'),
-            school=obj_in.school,
+            school_id=obj_in.school_id,
         )
         db.add(db_obj)
 

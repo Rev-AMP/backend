@@ -2,8 +2,10 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, validator
 
-
 # Shared properties
+from app.schemas.school import School
+
+
 class UserBase(BaseModel):
     email: Optional[EmailStr] = None
     is_active: Optional[bool] = True
@@ -11,7 +13,7 @@ class UserBase(BaseModel):
     full_name: Optional[str] = None
     profile_picture: Optional[str] = None
     is_admin: bool = False
-    school: Optional[int] = None
+    school_id: Optional[int] = None
 
     @validator('type')
     def valid_type(cls, user_type: Optional[str]) -> Optional[str]:
@@ -55,7 +57,7 @@ class UserInDBBase(UserBase):
 
 # Additional properties to return via API
 class User(UserInDBBase):
-    pass
+    school: Optional[School]
 
 
 # Additional properties stored in DB

@@ -1,5 +1,6 @@
 import decouple
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 from app.models import School
 
@@ -20,4 +21,7 @@ class User(Base):
     is_active = Column(Boolean(), default=True)
     is_admin = Column(Boolean(), default=False)
     type = Column(ENUM("superuser", "student", "professor", "admin", name="user_type"), nullable=False)
-    school = Column(Integer, ForeignKey(f'{School.__table__.name}.id', ondelete='CASCADE'), index=True, nullable=True)
+    school_id = Column(
+        Integer, ForeignKey(f'{School.__table__.name}.id', ondelete='CASCADE'), index=True, nullable=True
+    )
+    school = relationship("School")
