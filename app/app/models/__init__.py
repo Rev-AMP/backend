@@ -1,3 +1,4 @@
+from .course import Course
 from .school import School
 from .term import Term
 from .users.admin import Admin
