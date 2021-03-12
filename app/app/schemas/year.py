@@ -5,9 +5,8 @@ from pydantic import BaseModel, validator
 
 from app.schemas import School
 
+
 # Shared properties
-
-
 class YearBase(BaseModel):
     name: Optional[str] = None
     school_id: Optional[int] = None

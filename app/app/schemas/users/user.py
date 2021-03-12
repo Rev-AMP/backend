@@ -2,10 +2,10 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, validator
 
-# Shared properties
 from app.schemas.school import School
 
 
+# Shared properties
 class UserBase(BaseModel):
     email: Optional[EmailStr] = None
     is_active: Optional[bool] = True
