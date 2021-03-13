@@ -87,7 +87,7 @@ def test_get_school_admin(client: TestClient, db: Session) -> None:
 def test_get_school_valid_student(client: TestClient, db: Session) -> None:
     school = create_random_school(db)
     admin_user_token_headers = authentication_token_from_email(
-        client=client, db=db, email=random_email(), school=school.id
+        client=client, db=db, email=random_email(), school_id=school.id
     )
     r = client.get(f"{settings.API_V1_STR}/schools/{school.id}", headers=admin_user_token_headers)
     assert r.status_code == 200
@@ -129,7 +129,7 @@ def test_update_school_nonexisting(client: TestClient, superuser_token_headers: 
 
 def test_get_all_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     school = create_random_school(db)
-    school_student = create_random_user(db=db, type="student", school=school.id)
+    school_student = create_random_user(db=db, type="student", school_id=school.id)
     r = client.get(f"{settings.API_V1_STR}/schools/{school.id}/students", headers=superuser_token_headers)
     assert r.status_code == 200
     fetched_students = r.json()
@@ -144,7 +144,7 @@ def test_get_all_students(client: TestClient, superuser_token_headers: Dict[str,
 
 def test_get_all_professors(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     school = create_random_school(db)
-    school_student = create_random_user(db=db, type="professor", school=school.id)
+    school_student = create_random_user(db=db, type="professor", school_id=school.id)
     r = client.get(f"{settings.API_V1_STR}/schools/{school.id}/professors", headers=superuser_token_headers)
     assert r.status_code == 200
     fetched_students = r.json()

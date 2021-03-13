@@ -67,7 +67,7 @@ def read_school_by_id(
     school = crud.school.get(db, id=school_id)
 
     # Raise exception if the current_user doesn't belong to the fetched School and the current_user doesn't have perms
-    if current_user.school == school_id:
+    if current_user.school_id == school_id:
         return school
 
     if current_user.is_admin:

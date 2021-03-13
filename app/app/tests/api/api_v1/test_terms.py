@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from random import choice, randint
 from typing import Dict
 
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
@@ -24,6 +25,23 @@ def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, st
     assert results[-1]['start_date'] == term.start_date.isoformat()
     if term.end_date:
         assert results[-1]['end_date'] == term.end_date.isoformat()
+
+
+def test_get_all_terms_with_details(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    term = create_random_term(db=db)
+    r = client.get(f"{settings.API_V1_STR}/terms/?details=true", headers=superuser_token_headers)
+    assert r.status_code == 200
+    results = r.json()
+    assert results
+    assert results[-1]['name'] == term.name
+    assert results[-1]['year_id'] == term.year_id
+    assert results[-1]['start_date'] == term.start_date.isoformat()
+    if term.end_date:
+        assert results[-1]['end_date'] == term.end_date.isoformat()
+    print(jsonable_encoder(term.year))
+    year = jsonable_encoder(term.year)
+    year['school'] = jsonable_encoder(term.year.school)
+    assert results[-1]['year'] == year
 
 
 def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:

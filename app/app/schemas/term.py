@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from app.schemas.year import Year
+
 
 # Shared properties
 class TermBase(BaseModel):
@@ -38,7 +40,7 @@ class TermInDBBase(TermBase):
 
 # Additional properties to return via API
 class Term(TermInDBBase):
-    pass
+    year: Optional[Year]
 
 
 # Additional properties stored in DB

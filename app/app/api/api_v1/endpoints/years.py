@@ -19,7 +19,8 @@ def read_years(
     """
     Retrieve years
     """
-    return crud.year.get_multi(db, skip=skip, limit=limit)
+    years = crud.year.get_multi(db, skip=skip, limit=limit)
+    return years
 
 
 @router.get("/{year_id}", response_model=schemas.Year)
