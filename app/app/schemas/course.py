@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, validator
 
-from app.schemas import Term
+from app.schemas.term import Term
 
 
 # shared properties
