@@ -6,7 +6,7 @@ from app.core.security import get_password_hash, verify_password
 from app.crud import admin
 from app.crud.base import CRUDBase
 from app.models import User
-from app.schemas import AdminCreate, UserCreate, UserUpdate
+from app.schemas import AdminCreate, AdminUpdate, UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -48,6 +48,22 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             hashed_password = get_password_hash(password)
             del update_data["password"]
             update_data["hashed_password"] = hashed_password
+
+        if type_ := update_data.get('type'):
+            if db_obj.type in ('admin', 'superuser') and type_ not in ('admin', 'superuser'):
+                admin.remove(db, id=db_obj.id)
+            elif type_ == 'admin' and db_obj.type != 'admin':
+                if db_obj.type == 'superuser' and (admin_obj := admin.get(db, db_obj.id)):
+                    admin.update(db, db_obj=admin_obj, obj_in=AdminUpdate(user_id=db_obj.id, permissions=0))
+                else:
+                    admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=0))
+
+            elif type_ == 'superuser' and db_obj.type != 'superuser':
+                if db_obj.type == 'admin' and (admin_obj := admin.get(db, db_obj.id)):
+                    admin.update(db, db_obj=admin_obj, obj_in=AdminUpdate(user_id=db_obj.id, permissions=-1))
+                else:
+                    admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=-1))
+
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
