@@ -247,6 +247,28 @@ def test_update_user_normal_user(client: TestClient, normal_user_token_headers: 
     assert r.status_code == 403
 
 
+def test_update_nonpromotable_user(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    user = create_random_user(db, type="superuser")
+    data = {"type": "admin"}
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user.id}",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert r.status_code == 400
+
+
+def test_update_nonpromoteable_role(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    user = create_random_user(db, type="professor")
+    data = {"type": "superuser"}
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user.id}",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert r.status_code == 400
+
+
 def test_update_profile_picture_superuser(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:

@@ -2,8 +2,11 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from .user import User
 
 # Shared properties
+
+
 class AdminBase(BaseModel):
     user_id: Optional[int] = None
     permissions: Optional[int] = 0
@@ -28,6 +31,8 @@ class AdminRemove(AdminBase):
 
 # Additional properties to return through API
 class Admin(AdminBase):
+    user: Optional[User]
+
     class Config:
         orm_mode = True
 
