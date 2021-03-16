@@ -1,6 +1,5 @@
 from typing import Dict
 
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
@@ -9,7 +8,7 @@ from app.core.config import settings
 from app.schemas.users.admin import AdminPermissions
 from app.tests.utils.course import create_random_course, create_random_term
 from app.tests.utils.user import authentication_token_from_email, create_random_user
-from app.tests.utils.utils import random_lower_string
+from app.tests.utils.utils import random_lower_string, to_json
 
 
 def test_get_all_courses(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -32,7 +31,7 @@ def test_get_all_courses_with_details(client: TestClient, superuser_token_header
     assert results[-1]['name'] == course.name
     assert results[-1]['code'] == course.code
     assert results[-1]['term_id'] == course.term_id
-    term = jsonable_encoder(course.term)
+    term = to_json(course.term)
     assert results[-1]['term'] == term
 
 
