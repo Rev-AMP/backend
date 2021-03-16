@@ -318,7 +318,7 @@ def test_update_profile_picture_superuser(
 def test_update_profile_picture_superuser_non_existent_user(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
-    user_id = crud.user.get_multi(db)[-1].id + 1
+    user_id = sorted([user.id for user in crud.user.get_multi(db)])[-1] + 1
     response = client.get("https://media.rev-amp.tech/logo/revamp.png")
     with open('/tmp/profile_picture.png', 'wb') as f:
         f.write(response.content)
