@@ -20,17 +20,6 @@ def test_get_all_courses(client: TestClient, superuser_token_headers: Dict[str, 
     assert results[-1]['name'] == course.name
     assert results[-1]['code'] == course.code
     assert results[-1]['term_id'] == course.term_id
-
-
-def test_get_all_courses_with_details(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    course = create_random_course(db)
-    r = client.get(f"{settings.API_V1_STR}/courses/?details=true", headers=superuser_token_headers)
-    assert r.status_code == 200
-    results = r.json()
-    assert results
-    assert results[-1]['name'] == course.name
-    assert results[-1]['code'] == course.code
-    assert results[-1]['term_id'] == course.term_id
     term = to_json(course.term)
     assert results[-1]['term'] == term
 
