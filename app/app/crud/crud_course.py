@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -12,15 +12,6 @@ class CRUDCourse(CRUDBase[Course, CourseCreate, CourseUpdate]):
         return (
             db.query(Course).filter(Course.name == name and Course.code == code and Course.term_id == term_id).first()
         )
-
-    def get_by_name(self, db: Session, *, name: str) -> Optional[Course]:
-        return db.query(Course).filter(Course.name == name).first()
-
-    def get_by_code(self, db: Session, *, code: str) -> List[Course]:
-        return db.query(Course).filter(Course.code == code).all()
-
-    def get_by_term(self, db: Session, *, term_id: int) -> List[Course]:
-        return db.query(Course).filter(Course.term_id == term_id).all()
 
 
 course = CRUDCourse(Course)

@@ -36,27 +36,3 @@ def test_course_by_details(db: Session) -> None:
     )
     assert fetched_course
     assert fetched_course.id == course.id
-
-
-def test_course_by_name(db: Session) -> None:
-    course = create_random_course(db)
-    assert course.name
-    fetched_course = crud.course.get_by_name(db, name=course.name)
-    assert fetched_course
-    assert fetched_course.id == course.id
-
-
-def test_course_by_code(db: Session) -> None:
-    course = create_random_course(db)
-    assert course.code
-    fetched_course = crud.course.get_by_code(db, code=course.code)[-1]
-    assert fetched_course
-    assert fetched_course.id == course.id
-
-
-def test_course_by_term(db: Session) -> None:
-    course = create_random_course(db)
-    assert course.term_id
-    fetched_course = crud.course.get_by_term(db, term_id=course.term_id)[-1]
-    assert fetched_course
-    assert fetched_course.id == course.id
