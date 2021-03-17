@@ -49,11 +49,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             del update_data["password"]
             update_data["hashed_password"] = hashed_password
 
-        if type_ := update_data.get('type'):
-            if db_obj.type == 'admin' and type_ == 'professor':
-                admin.remove(db, id=db_obj.id)
-            elif db_obj.type == 'professor' and type_ == 'admin':
+        if is_admin := update_data.get('is_admin'):
+            if is_admin and not db_obj.is_admin:
                 admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=0))
+            else:
+                admin.remove(db, id=db_obj.id)
 
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 

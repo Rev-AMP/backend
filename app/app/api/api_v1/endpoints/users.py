@@ -148,16 +148,12 @@ def update_user(
 
     if user := crud.user.get(db, id=user_id):
         if user_in.type:
-            if user.type not in ('admin', 'professor'):
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"A {user.type}'s role cannot be changed!",
-                )
-            if user_in.type not in ('admin', 'professor'):
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"A {user.type}'s role cannot be changed to {user_in.type}",
-                )
+            raise HTTPException(status_code=400, detail="User roles cannot be changed")
+        if user_in.is_admin is not None and user.type != 'professor':
+            raise HTTPException(
+                status_code=400,
+                detail=f"A {user.type} cannot have admin roles changed!",
+            )
 
         return crud.user.update(db, db_obj=user, obj_in=user_in)
 

@@ -271,7 +271,7 @@ def test_update_nonpromoteable_role(client: TestClient, superuser_token_headers:
 
 def test_promote_professor(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="professor")
-    data = {"type": "admin"}
+    data = {"is_admin": True}
     r = client.put(
         f"{settings.API_V1_STR}/users/{user.id}",
         headers=superuser_token_headers,
@@ -285,15 +285,13 @@ def test_promote_professor(client: TestClient, superuser_token_headers: Dict[str
 
 def test_demote_admin(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="admin")
-    data = {"type": "professor"}
+    data = {"is_admin": False}
     r = client.put(
         f"{settings.API_V1_STR}/users/{user.id}",
         headers=superuser_token_headers,
         json=data,
     )
-    assert r.status_code == 200
-    admin = crud.admin.get(db, id=user.id)
-    assert admin is None
+    assert r.status_code == 400
 
 
 def test_update_profile_picture_superuser(
