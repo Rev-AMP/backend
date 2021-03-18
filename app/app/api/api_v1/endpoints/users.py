@@ -1,7 +1,6 @@
 from typing import Any, List
 
 from fastapi import APIRouter, Body, Depends, File, HTTPException, UploadFile
-from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
 
@@ -74,8 +73,7 @@ def update_user_me(
     Update own user.
     """
     # Create a UserUpdate object to update info in
-    current_user_data = jsonable_encoder(current_user)
-    user_in = schemas.UserUpdate(**current_user_data)
+    user_in = schemas.UserUpdate()
 
     # Update info given
     if password is not None:
@@ -93,7 +91,6 @@ def update_user_me(
 
 @router.get("/me", response_model=schemas.User)
 def read_user_me(
-    _: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
@@ -146,17 +143,22 @@ def update_user(
     """
 
     # Fetch existing User object from db
-    user = crud.user.get(db, id=user_id)
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="The user with this id does not exist in the system",
-        )
 
-    # Save updated object based on given UserUpdate object in db
-    user = crud.user.update(db, db_obj=user, obj_in=user_in)
+    if user := crud.user.get(db, id=user_id):
+        if user_in.type:
+            raise HTTPException(status_code=400, detail="User roles cannot be changed")
+        if user_in.is_admin is not None and user.type != 'professor':
+            raise HTTPException(
+                status_code=400,
+                detail=f"A {user.type} cannot have admin roles changed!",
+            )
 
-    return user
+        return crud.user.update(db, db_obj=user, obj_in=user_in)
+
+    raise HTTPException(
+        status_code=404,
+        detail="The user with this id does not exist in the system",
+    )
 
 
 @router.put("/{user_id}/profile_picture", response_model=schemas.User)

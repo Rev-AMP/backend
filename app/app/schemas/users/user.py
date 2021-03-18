@@ -12,7 +12,7 @@ class UserBase(BaseModel):
     type: Optional[str] = None
     full_name: Optional[str] = None
     profile_picture: Optional[str] = None
-    is_admin: bool = False
+    is_admin: Optional[bool] = None
     school_id: Optional[int] = None
 
     @validator('type')
@@ -41,6 +41,7 @@ class UserCreate(UserBase):
     email: EmailStr
     password: str
     type: str
+    is_admin: bool = False
 
 
 # Properties to receive via API on update

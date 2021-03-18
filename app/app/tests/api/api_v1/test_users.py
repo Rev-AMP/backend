@@ -247,6 +247,53 @@ def test_update_user_normal_user(client: TestClient, normal_user_token_headers: 
     assert r.status_code == 403
 
 
+def test_update_nonpromotable_user(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    user = create_random_user(db, type="superuser")
+    data = {"type": "admin"}
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user.id}",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert r.status_code == 400
+
+
+def test_update_nonpromoteable_role(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    user = create_random_user(db, type="professor")
+    data = {"type": "superuser"}
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user.id}",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert r.status_code == 400
+
+
+def test_promote_professor(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    user = create_random_user(db, type="professor")
+    data = {"is_admin": True}
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user.id}",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert r.status_code == 200
+    admin = crud.admin.get(db, id=user.id)
+    assert admin
+    assert admin.permissions == 0
+
+
+def test_demote_admin(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    user = create_random_user(db, type="admin")
+    data = {"is_admin": False}
+    r = client.put(
+        f"{settings.API_V1_STR}/users/{user.id}",
+        headers=superuser_token_headers,
+        json=data,
+    )
+    assert r.status_code == 400
+
+
 def test_update_profile_picture_superuser(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
@@ -269,7 +316,7 @@ def test_update_profile_picture_superuser(
 def test_update_profile_picture_superuser_non_existent_user(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
-    user_id = crud.user.get_multi(db)[-1].id + 1
+    user_id = sorted([user.id for user in crud.user.get_multi(db)])[-1] + 1
     response = client.get("https://media.rev-amp.tech/logo/revamp.png")
     with open('/tmp/profile_picture.png', 'wb') as f:
         f.write(response.content)

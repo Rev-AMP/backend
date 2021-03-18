@@ -44,10 +44,18 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
+
         if password := update_data.get("password"):
             hashed_password = get_password_hash(password)
             del update_data["password"]
             update_data["hashed_password"] = hashed_password
+
+        if is_admin := update_data.get('is_admin') is not None:
+            if is_admin and not db_obj.is_admin:
+                admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=0))
+            else:
+                admin.remove(db, id=db_obj.id)
+
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
