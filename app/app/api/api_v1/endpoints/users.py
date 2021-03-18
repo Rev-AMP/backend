@@ -1,7 +1,6 @@
 from typing import Any, List
 
 from fastapi import APIRouter, Body, Depends, File, HTTPException, UploadFile
-from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
 
@@ -74,8 +73,7 @@ def update_user_me(
     Update own user.
     """
     # Create a UserUpdate object to update info in
-    current_user_data = jsonable_encoder(current_user)
-    user_in = schemas.UserUpdate(**current_user_data)
+    user_in = schemas.UserUpdate()
 
     # Update info given
     if password is not None:
