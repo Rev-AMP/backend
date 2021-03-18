@@ -49,7 +49,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             del update_data["password"]
             update_data["hashed_password"] = hashed_password
 
-        if is_admin := update_data.get('is_admin'):
+        if is_admin := update_data.get('is_admin') is not None:
             if is_admin and not db_obj.is_admin:
                 admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=0))
             else:
