@@ -17,9 +17,9 @@ def test_get_all_schools(client: TestClient, superuser_token_headers: Dict[str, 
     assert r.status_code == 200
     results = r.json()
     assert results
-    assert results[0]['id'] == school.id
-    assert results[0]['name'] == school.name
-    assert results[0]['head'] == school.head
+    assert results[-1]['id'] == school.id
+    assert results[-1]['name'] == school.name
+    assert results[-1]['head'] == school.head
 
 
 def test_create_school(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:

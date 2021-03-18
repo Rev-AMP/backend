@@ -186,7 +186,7 @@ def test_read_user_superuser(client: TestClient, superuser_token_headers: Dict[s
 def test_read_non_existent_user_superuser(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
-    user_id = crud.user.get_multi(db=db)[-1].id + 1
+    user_id = sorted([user.id for user in crud.user.get_multi(db=db)])[-1] + 1
     r = client.get(f"{settings.API_V1_STR}/users/{user_id}", headers=superuser_token_headers)
     assert r.status_code == 404
 

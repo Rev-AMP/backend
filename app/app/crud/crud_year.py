@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -21,18 +21,6 @@ class CRUDYear(CRUDBase[Year, YearCreate, YearUpdate]):
             )
             .first()
         )
-
-    def get_by_name(self, db: Session, *, name: str) -> Year:
-        return db.query(Year).filter(Year.name == name).first()
-
-    def get_by_school(self, db: Session, *, school_id: int) -> List[Year]:
-        return db.query(Year).filter(Year.school_id == school_id).all()
-
-    def get_by_start(self, db: Session, *, start_year: int) -> List[Year]:
-        return db.query(Year).filter(Year.start_year == start_year).all()
-
-    def get_by_end(self, db: Session, *, end_year: int) -> List[Year]:
-        return db.query(Year).filter(Year.end_year == end_year).all()
 
 
 year = CRUDYear(Year)

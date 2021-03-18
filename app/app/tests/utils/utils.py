@@ -1,8 +1,10 @@
 import random
 import string
-from typing import Dict
+from datetime import date
+from typing import Any, Dict
 
 from fastapi.testclient import TestClient
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from app.core.config import settings
 
@@ -33,3 +35,23 @@ def get_superuser_token_headers(client: TestClient, type_: str = 'access') -> Di
     a_token = tokens["access_token"] if type_ == 'access' else tokens["refresh_token"]
     headers = {"Authorization": f"Bearer {a_token}"}
     return headers
+
+
+def to_json(obj: Any) -> Dict:
+    has_relation = len(obj.__mapper__.relationships.items()) > 0
+
+    result = {}
+    for attr, column in obj.__mapper__.c.items():
+        result[column.key] = value.isoformat() if isinstance(value := getattr(obj, attr), date) else value
+
+    if has_relation:
+        for attr, relation in obj.__mapper__.relationships.items():
+            value = getattr(obj, attr)
+
+            if value is None:
+                result[relation.key] = None
+            elif isinstance(value.__class__, DeclarativeMeta):
+                result[relation.key] = to_json(value)
+            else:
+                result[relation.key] = [to_json(i) for i in value]
+    return result

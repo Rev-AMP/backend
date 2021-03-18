@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from random import choice, randint
 from typing import Dict
 
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
@@ -11,7 +10,7 @@ from app.core.config import settings
 from app.schemas.users.admin import AdminPermissions
 from app.tests.utils.term import create_random_term, create_random_year
 from app.tests.utils.user import authentication_token_from_email, create_random_user
-from app.tests.utils.utils import random_lower_string
+from app.tests.utils.utils import random_lower_string, to_json
 
 
 def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -38,9 +37,7 @@ def test_get_all_terms_with_details(client: TestClient, superuser_token_headers:
     assert results[-1]['start_date'] == term.start_date.isoformat()
     if term.end_date:
         assert results[-1]['end_date'] == term.end_date.isoformat()
-    print(jsonable_encoder(term.year))
-    year = jsonable_encoder(term.year)
-    year['school'] = jsonable_encoder(term.year.school)
+    year = to_json(term.year)
     assert results[-1]['year'] == year
 
 

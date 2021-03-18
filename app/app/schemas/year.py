@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, validator
 
-from app.schemas import School
+from app.schemas.school import School
 
 
 # Shared properties

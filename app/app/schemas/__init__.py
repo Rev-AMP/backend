@@ -1,3 +1,4 @@
+from .course import Course, CourseCreate, CourseUpdate
 from .msg import Msg
 from .school import School, SchoolCreate, SchoolUpdate
 from .term import Term, TermCreate, TermInDB, TermUpdate

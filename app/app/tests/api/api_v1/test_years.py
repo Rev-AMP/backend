@@ -2,7 +2,6 @@ from datetime import datetime
 from random import randint
 from typing import Dict
 
-from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
@@ -10,7 +9,7 @@ from app import crud
 from app.core.config import settings
 from app.schemas.users.admin import AdminPermissions
 from app.tests.utils.user import authentication_token_from_email, create_random_user
-from app.tests.utils.utils import random_lower_string
+from app.tests.utils.utils import random_lower_string, to_json
 from app.tests.utils.year import create_random_school, create_random_year
 
 
@@ -38,7 +37,7 @@ def test_get_all_years_with_details(client: TestClient, superuser_token_headers:
     assert results[-1]['school_id'] == year.school_id
     assert results[-1]['start_year'] == year.start_year
     assert results[-1]['end_year'] == year.end_year
-    school = jsonable_encoder(year.school)
+    school = to_json(year.school)
     assert results[-1]["school"] == school
 
 
