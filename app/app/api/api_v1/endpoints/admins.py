@@ -1,3 +1,4 @@
+import logging
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -64,13 +65,16 @@ def update_admin(
     *,
     db: Session = Depends(deps.get_db),
     admin_in: schemas.AdminUpdate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("admin")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("admin")),
 ) -> Any:
     """
     Update admin.
     """
 
     if admin := crud.admin.get(db, admin_in.user_id):
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating Admin {admin.user_id} ({admin.user.email}) to {admin_in.__dict__}"
+        )
         return crud.admin.update(db, db_obj=admin, obj_in=admin_in)
 
     raise HTTPException(

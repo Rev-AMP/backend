@@ -1,3 +1,4 @@
+import logging
 from typing import Any, List
 
 from fastapi import APIRouter, Body, Depends, File, HTTPException, UploadFile
@@ -136,7 +137,7 @@ def update_user(
     db: Session = Depends(deps.get_db),
     user_id: int,
     user_in: schemas.UserUpdate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("user")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("user")),
 ) -> Any:
     """
     Update a user.
@@ -152,7 +153,9 @@ def update_user(
                 status_code=400,
                 detail=f"A {user.type} cannot have admin roles changed!",
             )
-
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating User {user.id} ({user.email}) to {user_in.__dict__}"
+        )
         return crud.user.update(db, db_obj=user, obj_in=user_in)
 
     raise HTTPException(
