@@ -73,7 +73,8 @@ def update_admin(
 
     if admin := crud.admin.get(db, admin_in.user_id):
         logging.info(
-            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating Admin {admin.user_id} ({admin.user.email}) to {admin_in.__dict__}"
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating Admin {admin.user_id}"
+            f"({admin.user.email}) to {admin_in.__dict__}"
         )
         return crud.admin.update(db, db_obj=admin, obj_in=admin_in)
 

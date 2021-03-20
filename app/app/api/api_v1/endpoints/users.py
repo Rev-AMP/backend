@@ -154,7 +154,8 @@ def update_user(
                 detail=f"A {user.type} cannot have admin roles changed!",
             )
         logging.info(
-            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating User {user.id} ({user.email}) to {user_in.__dict__}"
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating User {user.id} ({user.email}) to"
+            f"{user_in.__dict__}"
         )
         return crud.user.update(db, db_obj=user, obj_in=user_in)
 
