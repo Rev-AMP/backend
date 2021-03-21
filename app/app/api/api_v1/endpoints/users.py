@@ -54,6 +54,7 @@ def create_user(
         )
 
     # Create new user
+    logging.info(f"Admin {current_admin.user_id} ({current_admin.user.email}) is creating User {user_in.__dict__}")
     user = crud.user.create(db, obj_in=user_in)
     if settings.EMAILS_ENABLED and user_in.email:
         send_new_account_email(email_to=user_in.email, username=user_in.email, password=user_in.password)
@@ -83,6 +84,8 @@ def update_user_me(
         user_in.full_name = full_name
     if email is not None:
         user_in.email = email
+
+    logging.info(f"User {current_user.id} ({current_user.email}) is updating themselves to {user_in.__dict__}")
 
     # Use the object to update user in db
     user = crud.user.update(db, db_obj=current_user, obj_in=user_in)

@@ -1,3 +1,4 @@
+import logging
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -43,7 +44,7 @@ def create_year(
     *,
     db: Session = Depends(deps.get_db),
     year_in: schemas.YearCreate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
 ) -> Any:
 
     if crud.year.get_by_details(
@@ -53,7 +54,7 @@ def create_year(
             status_code=409,
             detail="The year with these details already exists in the system!",
         )
-
+    logging.info(f"Admin {current_admin.user_id} ({current_admin.user.email}) is creating Year {year_in.__dict__}")
     return crud.year.create(db, obj_in=year_in)
 
 
@@ -63,9 +64,13 @@ def update_year(
     db: Session = Depends(deps.get_db),
     year_id: int,
     year_in: schemas.YearUpdate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
 ) -> Any:
     if year := crud.year.get(db, year_id):
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating Year {year.id} ({year.name}) to"
+            f"{year_in.__dict__}"
+        )
         return crud.year.update(db, db_obj=year, obj_in=year_in)
     raise HTTPException(status_code=404, detail="The year with this ID does not exist in the system!")
 
@@ -75,8 +80,11 @@ def delete_year(
     *,
     db: Session = Depends(deps.get_db),
     year_id: int,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
 ) -> Any:
-    if crud.year.get(db, year_id):
+    if year := crud.year.get(db, year_id):
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is deleting Year {year.id} ({year.name})"
+        )
         return crud.year.remove(db, id=year_id)
     raise HTTPException(status_code=404, detail="The year with this ID does not exist in the system!")

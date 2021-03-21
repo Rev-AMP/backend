@@ -1,3 +1,4 @@
+import logging
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -37,7 +38,7 @@ def create_term(
     *,
     db: Session = Depends(deps.get_db),
     term_in: schemas.TermCreate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("term")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("term")),
 ) -> Any:
 
     if crud.term.get_by_details(
@@ -52,6 +53,7 @@ def create_term(
             status_code=409,
             detail="The term with these details already exists in the system!",
         )
+    logging.info(f"Admin {current_admin.user_id} ({current_admin.user.email}) is creating Term {term_in.__dict__}")
 
     return crud.term.create(db, obj_in=term_in)
 
@@ -62,9 +64,13 @@ def update_term(
     db: Session = Depends(deps.get_db),
     term_id: int,
     term_in: schemas.TermUpdate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("term")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("term")),
 ) -> Any:
     if term := crud.term.get(db, term_id):
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating Term {term.id} ({term.name}) to"
+            f" {term_in.__dict__}"
+        )
         return crud.term.update(db, db_obj=term, obj_in=term_in)
     raise HTTPException(status_code=404, detail="The term with this ID does not exist in the system!")
 
@@ -74,8 +80,11 @@ def delete_term(
     *,
     db: Session = Depends(deps.get_db),
     term_id: int,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("term")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("term")),
 ) -> Any:
-    if crud.term.get(db, term_id):
+    if term := crud.term.get(db, term_id):
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is deleting Term {term.id} ({term.id})"
+        )
         return crud.term.remove(db, id=term_id)
     raise HTTPException(status_code=404, detail="The term with this ID does not exist in the system!")
