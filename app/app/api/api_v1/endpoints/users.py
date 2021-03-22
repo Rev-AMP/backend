@@ -188,6 +188,10 @@ def update_user_profile_picture(
 
         if user := crud.user.get(db, user_id):
             filename = save_image(image)
+            logging.info(
+                f"User {current_user.id} ({current_user.email}) has updated their profile picture from"
+                f"{current_user.profile_picture} to {filename}"
+            )
             return crud.user.update(db, db_obj=user, obj_in=schemas.UserUpdate(profile_picture=filename))
 
         raise HTTPException(
