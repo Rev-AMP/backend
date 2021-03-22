@@ -8,7 +8,12 @@ from app import crud
 from app.core.config import settings
 from app.core.security import verify_password
 from app.tests.utils.user import authentication_token_from_email, create_random_user
-from app.tests.utils.utils import random_email, random_lower_string, random_password
+from app.tests.utils.utils import (
+    random_email,
+    random_lower_string,
+    random_password,
+    to_json,
+)
 
 
 def test_get_users_superuser_me(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
@@ -160,13 +165,7 @@ def test_read_user_self(client: TestClient, db: Session) -> None:
     )
     assert r.status_code == 200
     fetched_user = r.json()
-    assert fetched_user["id"] == user.id
-    assert fetched_user["email"] == user.email
-    assert fetched_user["full_name"] == user.full_name
-    assert fetched_user["type"] == user.type
-    assert fetched_user["profile_picture"] == user.profile_picture
-    assert fetched_user["is_admin"] == user.is_admin
-    assert fetched_user["school_id"] == user.school_id
+    assert fetched_user == {key: value for key, value in to_json(user).items() if key in fetched_user.keys()}
 
 
 def test_read_user_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -174,13 +173,7 @@ def test_read_user_superuser(client: TestClient, superuser_token_headers: Dict[s
     r = client.get(f"{settings.API_V1_STR}/users/{user.id}", headers=superuser_token_headers)
     assert r.status_code == 200
     fetched_user = r.json()
-    assert fetched_user["id"] == user.id
-    assert fetched_user["email"] == user.email
-    assert fetched_user["full_name"] == user.full_name
-    assert fetched_user["type"] == user.type
-    assert fetched_user["profile_picture"] == user.profile_picture
-    assert fetched_user["is_admin"] == user.is_admin
-    assert fetched_user["school_id"] == user.school_id
+    assert fetched_user == {key: value for key, value in to_json(user).items() if key in fetched_user.keys()}
 
 
 def test_read_non_existent_user_superuser(

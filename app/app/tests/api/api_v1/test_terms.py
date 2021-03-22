@@ -19,26 +19,7 @@ def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, st
     assert r.status_code == 200
     results = r.json()
     assert results
-    assert results[-1]['name'] == term.name
-    assert results[-1]['year_id'] == term.year_id
-    assert results[-1]['start_date'] == term.start_date.isoformat()
-    if term.end_date:
-        assert results[-1]['end_date'] == term.end_date.isoformat()
-
-
-def test_get_all_terms_with_details(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    term = create_random_term(db=db)
-    r = client.get(f"{settings.API_V1_STR}/terms/?details=true", headers=superuser_token_headers)
-    assert r.status_code == 200
-    results = r.json()
-    assert results
-    assert results[-1]['name'] == term.name
-    assert results[-1]['year_id'] == term.year_id
-    assert results[-1]['start_date'] == term.start_date.isoformat()
-    if term.end_date:
-        assert results[-1]['end_date'] == term.end_date.isoformat()
-    year = to_json(term.year)
-    assert results[-1]['year'] == year
+    assert results[-1] == to_json(term)
 
 
 def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -47,11 +28,7 @@ def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str
     assert r.status_code == 200
     fetched_term = r.json()
     assert fetched_term
-    assert fetched_term['id'] == term.id
-    assert fetched_term['start_date'] == term.start_date.isoformat()
-    if term.end_date:
-        assert fetched_term['end_date'] == term.end_date.isoformat()
-    assert fetched_term['is_active'] and term.is_active
+    assert fetched_term == to_json(term)
 
 
 def test_get_term_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -87,14 +64,8 @@ def test_create_term(client: TestClient, superuser_token_headers: Dict[str, str]
         end_date=end_date,
     )
     assert fetched_term
-    assert created_term['name'] == fetched_term.name == name
-    assert created_term['year_id'] == fetched_term.year_id == year_id
-    assert created_term['start_date'] == fetched_term.start_date.isoformat() == start_date.isoformat()
-    if fetched_term.end_date:
-        assert created_term['end_date'] == fetched_term.end_date.isoformat() == end_date.isoformat()
-    assert created_term['current_year_term'] == fetched_term.current_year_term == current_year_term
-    assert created_term['has_electives'] == fetched_term.has_electives
-    assert created_term['is_active'] and fetched_term.is_active
+    assert created_term == to_json(fetched_term)
+    assert data == {key: value for key, value in created_term.items() if key in data.keys()}
 
 
 def test_create_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
