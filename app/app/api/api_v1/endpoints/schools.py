@@ -1,10 +1,12 @@
+import logging
 from typing import Any, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
+from app.exceptions import ConflictException, ForbiddenException, NotFoundException
 
 router = APIRouter()
 
@@ -28,26 +30,25 @@ def create_school(
     *,
     db: Session = Depends(deps.get_db),
     school_in: schemas.SchoolCreate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
 ) -> Any:
     """
     Create new school.
     """
-    # Check if the school already exists; raise HTTPException with error code 409 if it does
+    # Check if the school already exists; raise Exception with error code 409 if it does
     if crud.school.get_by_name(db, name=school_in.name):
-        raise HTTPException(
-            status_code=409,
+        raise ConflictException(
             detail="A school with this name already exists in the system.",
         )
 
-    # Check if a school with this head already exists; raise HTTPException with error code 409 if it does
+    # Check if a school with this head already exists; raise Exception with error code 409 if it does
     if crud.school.get_by_head(db, head=school_in.head):
-        raise HTTPException(
-            status_code=409,
+        raise ConflictException(
             detail="A school with this head already exists in the system.",
         )
 
     # Create new school
+    logging.info(f"Admin {current_admin.user_id} ({current_admin.user.email}) is creating School {school_in.__dict__}")
     school = crud.school.create(db, obj_in=school_in)
 
     return school
@@ -75,12 +76,11 @@ def read_school_by_id(
             if schemas.AdminPermissions(admin.permissions).is_allowed("school"):
                 if school:
                     return school
-                raise HTTPException(
-                    status_code=404,
+                raise NotFoundException(
                     detail="The school with this ID does not exist in the system",
                 )
 
-    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    raise ForbiddenException(detail="The user doesn't have enough privileges")
 
 
 @router.put("/{school_id}", response_model=schemas.School)
@@ -89,7 +89,7 @@ def update_school(
     db: Session = Depends(deps.get_db),
     school_id: int,
     school_in: schemas.SchoolUpdate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
 ) -> Any:
     """
     Update a school.
@@ -98,15 +98,17 @@ def update_school(
     # Fetch existing school object from db
     school = crud.school.get(db, id=school_id)
     if not school:
-        raise HTTPException(
-            status_code=404,
+        raise NotFoundException(
             detail="The school with this ID does not exist in the system",
         )
 
-    # Save updated object based on given SchoolUpdate object in db
-    school = crud.school.update(db, db_obj=school, obj_in=school_in)
+    logging.info(
+        f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating School {school.id} "
+        f"({school.name}) to {school_in.__dict__}"
+    )
 
-    return school
+    # Save updated object based on given SchoolUpdate object in db
+    return crud.school.update(db, db_obj=school, obj_in=school_in)
 
 
 @router.get("/{school_id}/students", response_model=List[schemas.User])
@@ -140,8 +142,11 @@ def delete_school(
     *,
     db: Session = Depends(deps.get_db),
     school_id: int,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
 ) -> Any:
-    if crud.school.get(db, school_id):
+    if school := crud.school.get(db, school_id):
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is deleting School {school.id} ({school.name})"
+        )
         return crud.school.remove(db, id=school_id)
-    raise HTTPException(status_code=404, detail="The school with this ID does not exist in the system!")
+    raise NotFoundException(detail="The school with this ID does not exist in the system!")

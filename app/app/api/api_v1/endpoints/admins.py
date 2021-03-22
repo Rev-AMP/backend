@@ -1,10 +1,12 @@
+import logging
 from typing import Any, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
+from app.exceptions import ForbiddenException, NotFoundException
 
 router = APIRouter()
 
@@ -51,12 +53,11 @@ def read_admin_by_id(
     if schemas.AdminPermissions(current_admin.permissions).is_allowed("admin"):
         if admin:
             return admin
-        raise HTTPException(
-            status_code=404,
+        raise NotFoundException(
             detail="The admin with this ID does not exist in the system",
         )
 
-    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    raise ForbiddenException(detail="The user doesn't have enough privileges")
 
 
 @router.put("/", response_model=schemas.Admin)
@@ -64,16 +65,19 @@ def update_admin(
     *,
     db: Session = Depends(deps.get_db),
     admin_in: schemas.AdminUpdate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("admin")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("admin")),
 ) -> Any:
     """
     Update admin.
     """
 
     if admin := crud.admin.get(db, admin_in.user_id):
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating Admin {admin.user_id}"
+            f"({admin.user.email}) to {admin_in.__dict__}"
+        )
         return crud.admin.update(db, db_obj=admin, obj_in=admin_in)
 
-    raise HTTPException(
-        status_code=404,
+    raise NotFoundException(
         detail="This admin does not exist!",
     )

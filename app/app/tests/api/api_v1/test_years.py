@@ -19,26 +19,7 @@ def test_get_all_years(client: TestClient, superuser_token_headers: Dict[str, st
     assert r.status_code == 200
     results = r.json()
     assert results
-    assert results[-1]['id'] == year.id
-    assert results[-1]['name'] == year.name
-    assert results[-1]['school_id'] == year.school_id
-    assert results[-1]['start_year'] == year.start_year
-    assert results[-1]['end_year'] == year.end_year
-
-
-def test_get_all_years_with_details(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    year = create_random_year(db)
-    r = client.get(f"{settings.API_V1_STR}/years/?details=true", headers=superuser_token_headers)
-    assert r.status_code == 200
-    results = r.json()
-    assert results
-    assert results[-1]['id'] == year.id
-    assert results[-1]['name'] == year.name
-    assert results[-1]['school_id'] == year.school_id
-    assert results[-1]['start_year'] == year.start_year
-    assert results[-1]['end_year'] == year.end_year
-    school = to_json(year.school)
-    assert results[-1]["school"] == school
+    assert results[-1] == to_json(year)
 
 
 def test_get_year_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -47,11 +28,7 @@ def test_get_year_existing(client: TestClient, superuser_token_headers: Dict[str
     assert r.status_code == 200
     fetched_year = r.json()
     assert fetched_year
-    assert fetched_year['id'] == year.id
-    assert fetched_year['name'] == year.name
-    assert fetched_year['start_year'] == year.start_year
-    assert fetched_year['end_year'] == year.end_year
-    assert fetched_year['is_active'] and year.is_active
+    assert fetched_year == to_json(year)
 
 
 def test_get_year_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -77,12 +54,8 @@ def test_create_year(client: TestClient, superuser_token_headers: Dict[str, str]
     created_year = r.json()
     year = crud.year.get_by_details(db, name=name, school_id=school_id, start_year=start_year, end_year=end_year)
     assert year
-    assert created_year['id'] == year.id
-    assert created_year['name'] == year.name == name
-    assert created_year['school_id'] == year.school_id == school_id
-    assert created_year['start_year'] == year.start_year == start_year
-    assert created_year['end_year'] == year.end_year == end_year
-    assert created_year['is_active'] and year.is_active
+    assert created_year == to_json(year)
+    assert data == {key: value for key, value in created_year.items() if key in data.keys()}
 
 
 def test_create_year_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:

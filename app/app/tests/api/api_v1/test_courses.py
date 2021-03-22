@@ -17,11 +17,7 @@ def test_get_all_courses(client: TestClient, superuser_token_headers: Dict[str, 
     assert r.status_code == 200
     results = r.json()
     assert results
-    assert results[-1]['name'] == course.name
-    assert results[-1]['code'] == course.code
-    assert results[-1]['term_id'] == course.term_id
-    term = to_json(course.term)
-    assert results[-1]['term'] == term
+    assert results[-1] == to_json(course)
 
 
 def test_get_course_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -30,10 +26,7 @@ def test_get_course_existing(client: TestClient, superuser_token_headers: Dict[s
     assert r.status_code == 200
     fetched_course = r.json()
     assert fetched_course
-    assert fetched_course['id'] == course.id
-    assert fetched_course['name'] == course.name
-    assert fetched_course['code'] == course.code
-    assert fetched_course['term_id'] == course.term_id
+    assert fetched_course == to_json(course)
 
 
 def test_get_course_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -61,9 +54,8 @@ def test_create_course(client: TestClient, superuser_token_headers: Dict[str, st
         term_id=term_id,
     )
     assert fetched_course
-    assert created_course['name'] == fetched_course.name == name
-    assert created_course['code'] == fetched_course.code == code
-    assert created_course['term_id'] == fetched_course.term_id == term_id
+    assert created_course == to_json(fetched_course)
+    assert data == {key: value for key, value in created_course.items() if key in data.keys()}
 
 
 def test_create_course_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:

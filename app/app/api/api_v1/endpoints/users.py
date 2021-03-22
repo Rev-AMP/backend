@@ -1,12 +1,20 @@
+import logging
 from typing import Any, List
 
-from fastapi import APIRouter, Body, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Body, Depends, File, UploadFile
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
 from app.core.config import settings
+from app.exceptions import (
+    BadRequestException,
+    ConflictException,
+    ForbiddenException,
+    NotFoundException,
+    UnsupportedMediaTypeException,
+)
 from app.utils import save_image, send_new_account_email
 
 router = APIRouter()
@@ -39,20 +47,19 @@ def create_user(
 
     if current_admin_user := crud.user.get(db, current_admin.user_id):
         if user_in.type == "superuser" and not crud.user.is_superuser(current_admin_user):
-            raise HTTPException(
-                status_code=403,
+            raise ForbiddenException(
                 detail="Only superusers can create more superusers.",
             )
 
-    # Check if the user already exists; raise HTTPException with error code 400 if it does
+    # Check if the user already exists; raise Exception with error code 409 if it does
     user = crud.user.get_by_email(db, email=user_in.email)
     if user:
-        raise HTTPException(
-            status_code=409,
+        raise ConflictException(
             detail="The user with this email already exists in the system.",
         )
 
     # Create new user
+    logging.info(f"Admin {current_admin.user_id} ({current_admin.user.email}) is creating User {user_in.__dict__}")
     user = crud.user.create(db, obj_in=user_in)
     if settings.EMAILS_ENABLED and user_in.email:
         send_new_account_email(email_to=user_in.email, username=user_in.email, password=user_in.password)
@@ -82,6 +89,8 @@ def update_user_me(
         user_in.full_name = full_name
     if email is not None:
         user_in.email = email
+
+    logging.info(f"User {current_user.id} ({current_user.email}) is updating themselves to {user_in.__dict__}")
 
     # Use the object to update user in db
     user = crud.user.update(db, db_obj=current_user, obj_in=user_in)
@@ -122,12 +131,11 @@ def read_user_by_id(
             if schemas.AdminPermissions(admin.permissions).is_allowed("admin"):
                 if user:
                     return user
-                raise HTTPException(
-                    status_code=404,
+                raise NotFoundException(
                     detail="The user with this ID does not exist in the system",
                 )
 
-    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    raise ForbiddenException(detail="The user doesn't have enough privileges")
 
 
 @router.put("/{user_id}", response_model=schemas.User)
@@ -136,7 +144,7 @@ def update_user(
     db: Session = Depends(deps.get_db),
     user_id: int,
     user_in: schemas.UserUpdate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("user")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("user")),
 ) -> Any:
     """
     Update a user.
@@ -146,17 +154,18 @@ def update_user(
 
     if user := crud.user.get(db, id=user_id):
         if user_in.type:
-            raise HTTPException(status_code=400, detail="User roles cannot be changed")
+            raise BadRequestException(detail="User roles cannot be changed")
         if user_in.is_admin is not None and user.type != 'professor':
-            raise HTTPException(
-                status_code=400,
+            raise BadRequestException(
                 detail=f"A {user.type} cannot have admin roles changed!",
             )
-
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating User {user.id} ({user.email}) to"
+            f"{user_in.__dict__}"
+        )
         return crud.user.update(db, db_obj=user, obj_in=user_in)
 
-    raise HTTPException(
-        status_code=404,
+    raise NotFoundException(
         detail="The user with this id does not exist in the system",
     )
 
@@ -177,15 +186,18 @@ def update_user_profile_picture(
         and schemas.AdminPermissions(admin.permissions).is_allowed("user")
     ):
         if image.content_type not in ("image/png", "image/jpeg"):
-            raise HTTPException(status_code=415, detail="Profile pictures can only be PNG or JPG images")
+            raise UnsupportedMediaTypeException(detail="Profile pictures can only be PNG or JPG images")
 
         if user := crud.user.get(db, user_id):
             filename = save_image(image)
+            logging.info(
+                f"User {current_user.id} ({current_user.email}) has updated their profile picture from"
+                f"{current_user.profile_picture} to {filename}"
+            )
             return crud.user.update(db, db_obj=user, obj_in=schemas.UserUpdate(profile_picture=filename))
 
-        raise HTTPException(
-            status_code=404,
+        raise NotFoundException(
             detail="The user with this id does not exist in the system",
         )
 
-    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    raise ForbiddenException(detail="The user doesn't have enough privileges")

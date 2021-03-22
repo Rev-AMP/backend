@@ -1,10 +1,12 @@
+import logging
 from typing import Any, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
+from app.exceptions import ConflictException, NotFoundException
 
 router = APIRouter()
 
@@ -28,7 +30,7 @@ def read_course_by_id(
 ) -> Any:
     if course := crud.course.get(db, id=course_id):
         return course
-    raise HTTPException(status_code=404, detail="The course with this ID does not exist!")
+    raise NotFoundException(detail="The course with this ID does not exist!")
 
 
 @router.post("/", response_model=schemas.Course)
@@ -36,15 +38,15 @@ def create_course(
     *,
     db: Session = Depends(deps.get_db),
     course_in: schemas.CourseCreate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
 ) -> Any:
 
     if crud.course.get_by_details(db, name=course_in.name, code=course_in.code, term_id=course_in.term_id):
-        raise HTTPException(
-            status_code=409,
+        raise ConflictException(
             detail="The course with these details already exists in the system!",
         )
 
+    logging.info(f"Admin {current_admin.user_id} ({current_admin.user.email}) is creating Course {course_in.__dict__}")
     return crud.course.create(db, obj_in=course_in)
 
 
@@ -54,11 +56,15 @@ def update_course(
     db: Session = Depends(deps.get_db),
     course_id: int,
     course_in: schemas.CourseUpdate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
 ) -> Any:
     if course := crud.course.get(db, id=course_id):
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating Course {course.id}({course.name}) "
+            f"to {course_in.__dict__}"
+        )
         return crud.course.update(db, db_obj=course, obj_in=course_in)
-    raise HTTPException(status_code=404, detail="The course with this ID does not exist in the system!")
+    raise NotFoundException(detail="The course with this ID does not exist in the system!")
 
 
 @router.delete("/{course_id}")
@@ -66,8 +72,11 @@ def delete_course(
     *,
     db: Session = Depends(deps.get_db),
     course_id: int,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
 ) -> Any:
-    if crud.course.get(db, id=course_id):
+    if course := crud.course.get(db, id=course_id):
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is deleting Course {course.id} ({course.name})"
+        )
         return crud.course.remove(db, id=course_id)
-    raise HTTPException(status_code=404, detail="The course with this ID does not exist in the system!")
+    raise NotFoundException(detail="The course with this ID does not exist in the system!")

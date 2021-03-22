@@ -1,10 +1,12 @@
+import logging
 from typing import Any, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
+from app.exceptions import ConflictException, NotFoundException
 
 router = APIRouter()
 
@@ -35,7 +37,7 @@ def read_year_by_id(
     """
     if year := crud.year.get(db, year_id):
         return year
-    raise HTTPException(status_code=404, detail="The year with this ID does not exist!")
+    raise NotFoundException(detail="The year with this ID does not exist!")
 
 
 @router.post("/", response_model=schemas.Year)
@@ -43,17 +45,16 @@ def create_year(
     *,
     db: Session = Depends(deps.get_db),
     year_in: schemas.YearCreate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
 ) -> Any:
 
     if crud.year.get_by_details(
         db, name=year_in.name, school_id=year_in.school_id, start_year=year_in.start_year, end_year=year_in.end_year
     ):
-        raise HTTPException(
-            status_code=409,
+        raise ConflictException(
             detail="The year with these details already exists in the system!",
         )
-
+    logging.info(f"Admin {current_admin.user_id} ({current_admin.user.email}) is creating Year {year_in.__dict__}")
     return crud.year.create(db, obj_in=year_in)
 
 
@@ -63,11 +64,15 @@ def update_year(
     db: Session = Depends(deps.get_db),
     year_id: int,
     year_in: schemas.YearUpdate,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
 ) -> Any:
     if year := crud.year.get(db, year_id):
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating Year {year.id} ({year.name}) to"
+            f"{year_in.__dict__}"
+        )
         return crud.year.update(db, db_obj=year, obj_in=year_in)
-    raise HTTPException(status_code=404, detail="The year with this ID does not exist in the system!")
+    raise NotFoundException(detail="The year with this ID does not exist in the system!")
 
 
 @router.delete("/{year_id}")
@@ -75,8 +80,11 @@ def delete_year(
     *,
     db: Session = Depends(deps.get_db),
     year_id: int,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("year")),
 ) -> Any:
-    if crud.year.get(db, year_id):
+    if year := crud.year.get(db, year_id):
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is deleting Year {year.id} ({year.name})"
+        )
         return crud.year.remove(db, id=year_id)
-    raise HTTPException(status_code=404, detail="The year with this ID does not exist in the system!")
+    raise NotFoundException(detail="The year with this ID does not exist in the system!")

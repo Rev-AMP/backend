@@ -8,7 +8,7 @@ from app import crud
 from app.core.config import settings
 from app.tests.utils.school import create_random_school
 from app.tests.utils.user import authentication_token_from_email, create_random_user
-from app.tests.utils.utils import random_email, random_lower_string
+from app.tests.utils.utils import random_email, random_lower_string, to_json
 
 
 def test_get_all_schools(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -17,9 +17,7 @@ def test_get_all_schools(client: TestClient, superuser_token_headers: Dict[str, 
     assert r.status_code == 200
     results = r.json()
     assert results
-    assert results[-1]['id'] == school.id
-    assert results[-1]['name'] == school.name
-    assert results[-1]['head'] == school.head
+    assert results[-1] == to_json(school)
 
 
 def test_create_school(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -55,9 +53,7 @@ def test_get_school_superuser(client: TestClient, superuser_token_headers: Dict[
     assert r.status_code == 200
     fetched_school = r.json()
     assert fetched_school
-    assert fetched_school['id'] == school.id
-    assert fetched_school['name'] == school.name
-    assert fetched_school['head'] == school.head
+    assert fetched_school == to_json(school)
 
 
 def test_get_non_existing_school_superuser(
@@ -65,7 +61,6 @@ def test_get_non_existing_school_superuser(
 ) -> None:
     school_id = crud.school.get_multi(db)[-1].id + 1
     r = client.get(f"{settings.API_V1_STR}/schools/{school_id}", headers=superuser_token_headers)
-    print(r.json())
     assert r.status_code == 404
 
 
@@ -79,9 +74,7 @@ def test_get_school_admin(client: TestClient, db: Session) -> None:
     assert r.status_code == 200
     fetched_school = r.json()
     assert fetched_school
-    assert fetched_school['id'] == school.id
-    assert fetched_school['name'] == school.name
-    assert fetched_school['head'] == school.head
+    assert fetched_school == to_json(school)
 
 
 def test_get_school_valid_student(client: TestClient, db: Session) -> None:
@@ -93,9 +86,7 @@ def test_get_school_valid_student(client: TestClient, db: Session) -> None:
     assert r.status_code == 200
     fetched_school = r.json()
     assert fetched_school
-    assert fetched_school['id'] == school.id
-    assert fetched_school['name'] == school.name
-    assert fetched_school['head'] == school.head
+    assert fetched_school == to_json(school)
 
 
 def test_get_school_invalid_student(client: TestClient, db: Session) -> None:
@@ -134,12 +125,9 @@ def test_get_all_students(client: TestClient, superuser_token_headers: Dict[str,
     assert r.status_code == 200
     fetched_students = r.json()
     assert fetched_students
-    assert fetched_students[0]['id'] == school_student.id
-    assert fetched_students[0]['full_name'] == school_student.full_name
-    assert fetched_students[0]['email'] == school_student.email
-    assert fetched_students[0]['type'] == school_student.type
-    assert fetched_students[0]['is_admin'] == school_student.is_admin
-    assert fetched_students[0]['profile_picture'] == school_student.profile_picture
+    assert fetched_students[0] == {
+        key: value for key, value in to_json(school_student).items() if key in fetched_students[0].keys()
+    }
 
 
 def test_get_all_professors(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -149,12 +137,9 @@ def test_get_all_professors(client: TestClient, superuser_token_headers: Dict[st
     assert r.status_code == 200
     fetched_students = r.json()
     assert fetched_students
-    assert fetched_students[0]['id'] == school_student.id
-    assert fetched_students[0]['full_name'] == school_student.full_name
-    assert fetched_students[0]['email'] == school_student.email
-    assert fetched_students[0]['type'] == school_student.type
-    assert fetched_students[0]['is_admin'] == school_student.is_admin
-    assert fetched_students[0]['profile_picture'] == school_student.profile_picture
+    assert fetched_students[0] == {
+        key: value for key, value in to_json(school_student).items() if key in fetched_students[0].keys()
+    }
 
 
 def test_delete_school(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
