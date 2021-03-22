@@ -38,14 +38,11 @@ def get_superuser_token_headers(client: TestClient, type_: str = 'access') -> Di
 
 
 def to_json(obj: Any, show_relations: Optional[bool] = True) -> Dict:
-    if show_relations and len(obj.__mapper__.relationships.items()) == 0:
-        show_relations = False
-
     result = {}
     for attr, column in obj.__mapper__.c.items():
         result[column.key] = value.isoformat() if isinstance(value := getattr(obj, attr), date) else value
 
-    if show_relations:
+    if show_relations and len(obj.__mapper__.relationships.items()) != 0:
         for attr, relation in obj.__mapper__.relationships.items():
             value = getattr(obj, attr)
 
