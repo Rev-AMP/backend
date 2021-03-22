@@ -1,11 +1,12 @@
 import logging
 from typing import Any, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
+from app.exceptions import ConflictException, NotFoundException
 
 router = APIRouter()
 
@@ -30,7 +31,7 @@ def read_term_by_id(
 ) -> Any:
     if term := crud.term.get(db, term_id):
         return term
-    raise HTTPException(status_code=404, detail="The term with this ID does not exist!")
+    raise NotFoundException(detail="The term with this ID does not exist!")
 
 
 @router.post("/", response_model=schemas.Term)
@@ -49,8 +50,7 @@ def create_term(
         start_date=term_in.start_date,
         end_date=term_in.end_date,
     ):
-        raise HTTPException(
-            status_code=409,
+        raise ConflictException(
             detail="The term with these details already exists in the system!",
         )
     logging.info(f"Admin {current_admin.user_id} ({current_admin.user.email}) is creating Term {term_in.__dict__}")
@@ -72,7 +72,7 @@ def update_term(
             f" {term_in.__dict__}"
         )
         return crud.term.update(db, db_obj=term, obj_in=term_in)
-    raise HTTPException(status_code=404, detail="The term with this ID does not exist in the system!")
+    raise NotFoundException(detail="The term with this ID does not exist in the system!")
 
 
 @router.delete("/{term_id}")
@@ -87,4 +87,4 @@ def delete_term(
             f"Admin {current_admin.user_id} ({current_admin.user.email}) is deleting Term {term.id} ({term.id})"
         )
         return crud.term.remove(db, id=term_id)
-    raise HTTPException(status_code=404, detail="The term with this ID does not exist in the system!")
+    raise NotFoundException(detail="The term with this ID does not exist in the system!")

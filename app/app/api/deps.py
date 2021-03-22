@@ -1,6 +1,6 @@
 from typing import Callable, Generator
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
@@ -10,6 +10,12 @@ from app import crud, models, schemas
 from app.core import security
 from app.core.config import settings
 from app.db.session import SessionLocal
+from app.exceptions import (
+    BadRequestException,
+    ConflictException,
+    ForbiddenException,
+    NotFoundException,
+)
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/login/access-token")
 
@@ -27,19 +33,17 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusabl
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
         token_data = schemas.TokenPayload(**payload)
         if token_data.type != 'access':
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+            raise BadRequestException(
                 detail="Invalid token",
             )
     except (jwt.JWTError, ValidationError):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+        raise ForbiddenException(
             detail="Could not validate credentials",
         )
 
     if user := crud.user.get(db, id=token_data.sub):
         return user
-    raise HTTPException(status_code=404, detail="User not found")
+    raise NotFoundException(detail="User not found")
 
 
 def get_current_user_refresh(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> models.User:
@@ -47,19 +51,17 @@ def get_current_user_refresh(db: Session = Depends(get_db), token: str = Depends
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
         token_data = schemas.TokenPayload(**payload)
         if token_data.type != 'refresh':
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+            raise BadRequestException(
                 detail="Invalid token",
             )
     except (jwt.JWTError, ValidationError):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+        raise ForbiddenException(
             detail="Could not validate credentials",
         )
 
     if user := crud.user.get(db, id=token_data.sub):
         return user
-    raise HTTPException(status_code=404, detail="User not found")
+    raise NotFoundException(detail="User not found")
 
 
 def get_current_admin(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> models.Admin:
@@ -67,8 +69,7 @@ def get_current_admin(db: Session = Depends(get_db), token: str = Depends(reusab
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
         token_data = schemas.TokenPayload(**payload)
     except (jwt.JWTError, ValidationError):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+        raise ForbiddenException(
             detail="Could not validate credentials",
         )
 
@@ -76,9 +77,9 @@ def get_current_admin(db: Session = Depends(get_db), token: str = Depends(reusab
         if user.is_admin:
             if admin := crud.admin.get(db, id=user.id):
                 return admin
-            raise HTTPException(status_code=404, detail="Admin object not found")
-        raise HTTPException(status_code=403, detail="User is not an administrator")
-    raise HTTPException(status_code=404, detail="User not found")
+            raise NotFoundException(detail="Admin object not found")
+        raise ForbiddenException(detail="User is not an administrator")
+    raise NotFoundException(detail="User not found")
 
 
 def get_current_active_user(
@@ -86,7 +87,7 @@ def get_current_active_user(
 ) -> models.User:
     if crud.user.is_active(current_user):
         return current_user
-    raise HTTPException(status_code=409, detail="Inactive user")
+    raise ConflictException(detail="Inactive user")
 
 
 def get_current_active_admin(
@@ -94,7 +95,7 @@ def get_current_active_admin(
 ) -> models.User:
     if current_user.is_admin:
         return current_user
-    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    raise ForbiddenException(detail="The user doesn't have enough privileges")
 
 
 def get_current_active_admin_with_permission(permission: str) -> Callable:
@@ -105,7 +106,7 @@ def get_current_active_admin_with_permission(permission: str) -> Callable:
     def inner(current_admin: models.Admin = Depends(get_current_admin)) -> models.Admin:
         if schemas.AdminPermissions(current_admin.permissions).is_allowed(permission):
             return current_admin
-        raise HTTPException(status_code=403, detail="This admin doesn't have enough privileges")
+        raise ForbiddenException(detail="This admin doesn't have enough privileges")
 
     return inner
 
@@ -115,4 +116,4 @@ def get_current_active_superuser(
 ) -> models.User:
     if crud.user.is_superuser(current_user):
         return current_user
-    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    raise ForbiddenException(detail="The user doesn't have enough privileges")

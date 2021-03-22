@@ -1,12 +1,18 @@
 from typing import Any
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
 from app.core.security import create_token, get_password_hash
+from app.exceptions import (
+    BadRequestException,
+    ForbiddenException,
+    NotFoundException,
+    UnauthorizedException,
+)
 from app.utils import (
     generate_password_reset_token,
     send_reset_password_email,
@@ -25,8 +31,8 @@ def login_access_token(db: Session = Depends(deps.get_db), form_data: OAuth2Pass
     if user := crud.user.authenticate(db, email=form_data.username, password=form_data.password):
         if crud.user.is_active(user):
             return create_token(user.id)
-        raise HTTPException(status_code=403, detail="Inactive user")
-    raise HTTPException(status_code=401, detail="Incorrect email or password")
+        raise ForbiddenException(detail="Inactive user")
+    raise UnauthorizedException(detail="Incorrect email or password")
 
 
 @router.post("/login/refresh-token", response_model=schemas.Token)
@@ -39,8 +45,8 @@ def login_refresh_token(
     if user := crud.user.get(db, current_user.id):
         if crud.user.is_active(user):
             return create_token(user.id)
-        raise HTTPException(status_code=403, detail="Inactive user")
-    raise HTTPException(status_code=401, detail="Incorrect refresh token")
+        raise ForbiddenException(detail="Inactive user")
+    raise UnauthorizedException(detail="Incorrect refresh token")
 
 
 @router.post("/login/test-token", response_model=schemas.User)
@@ -60,8 +66,7 @@ def recover_password(email: str, db: Session = Depends(deps.get_db)) -> Any:
         password_reset_token = generate_password_reset_token(email=email)
         send_reset_password_email(email_to=user.email, email=email, token=password_reset_token)
         return {"msg": "Password recovery email sent"}
-    raise HTTPException(
-        status_code=404,
+    raise NotFoundException(
         detail="The user with this username does not exist in the system.",
     )
 
@@ -83,9 +88,8 @@ def reset_password(
                 db.add(user)
                 db.commit()
                 return {"msg": "Password updated successfully"}
-            raise HTTPException(status_code=400, detail="Inactive user")
-        raise HTTPException(
-            status_code=404,
+            raise BadRequestException(detail="Inactive user")
+        raise NotFoundException(
             detail="The user with this username does not exist in the system.",
         )
-    raise HTTPException(status_code=400, detail="Invalid token")
+    raise BadRequestException(detail="Invalid token")

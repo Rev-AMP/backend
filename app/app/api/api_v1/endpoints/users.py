@@ -1,13 +1,20 @@
 import logging
 from typing import Any, List
 
-from fastapi import APIRouter, Body, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Body, Depends, File, UploadFile
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
 from app.core.config import settings
+from app.exceptions import (
+    BadRequestException,
+    ConflictException,
+    ForbiddenException,
+    NotFoundException,
+    UnsupportedMediaTypeException,
+)
 from app.utils import save_image, send_new_account_email
 
 router = APIRouter()
@@ -40,16 +47,14 @@ def create_user(
 
     if current_admin_user := crud.user.get(db, current_admin.user_id):
         if user_in.type == "superuser" and not crud.user.is_superuser(current_admin_user):
-            raise HTTPException(
-                status_code=403,
+            raise ForbiddenException(
                 detail="Only superusers can create more superusers.",
             )
 
-    # Check if the user already exists; raise HTTPException with error code 400 if it does
+    # Check if the user already exists; raise Exception with error code 409 if it does
     user = crud.user.get_by_email(db, email=user_in.email)
     if user:
-        raise HTTPException(
-            status_code=409,
+        raise ConflictException(
             detail="The user with this email already exists in the system.",
         )
 
@@ -126,12 +131,11 @@ def read_user_by_id(
             if schemas.AdminPermissions(admin.permissions).is_allowed("admin"):
                 if user:
                     return user
-                raise HTTPException(
-                    status_code=404,
+                raise NotFoundException(
                     detail="The user with this ID does not exist in the system",
                 )
 
-    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    raise ForbiddenException(detail="The user doesn't have enough privileges")
 
 
 @router.put("/{user_id}", response_model=schemas.User)
@@ -150,10 +154,9 @@ def update_user(
 
     if user := crud.user.get(db, id=user_id):
         if user_in.type:
-            raise HTTPException(status_code=400, detail="User roles cannot be changed")
+            raise BadRequestException(detail="User roles cannot be changed")
         if user_in.is_admin is not None and user.type != 'professor':
-            raise HTTPException(
-                status_code=400,
+            raise BadRequestException(
                 detail=f"A {user.type} cannot have admin roles changed!",
             )
         logging.info(
@@ -162,8 +165,7 @@ def update_user(
         )
         return crud.user.update(db, db_obj=user, obj_in=user_in)
 
-    raise HTTPException(
-        status_code=404,
+    raise NotFoundException(
         detail="The user with this id does not exist in the system",
     )
 
@@ -184,7 +186,7 @@ def update_user_profile_picture(
         and schemas.AdminPermissions(admin.permissions).is_allowed("user")
     ):
         if image.content_type not in ("image/png", "image/jpeg"):
-            raise HTTPException(status_code=415, detail="Profile pictures can only be PNG or JPG images")
+            raise UnsupportedMediaTypeException(detail="Profile pictures can only be PNG or JPG images")
 
         if user := crud.user.get(db, user_id):
             filename = save_image(image)
@@ -194,9 +196,8 @@ def update_user_profile_picture(
             )
             return crud.user.update(db, db_obj=user, obj_in=schemas.UserUpdate(profile_picture=filename))
 
-        raise HTTPException(
-            status_code=404,
+        raise NotFoundException(
             detail="The user with this id does not exist in the system",
         )
 
-    raise HTTPException(status_code=403, detail="The user doesn't have enough privileges")
+    raise ForbiddenException(detail="The user doesn't have enough privileges")
