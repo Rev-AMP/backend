@@ -9,7 +9,7 @@ from app.schemas import CourseCreate, CourseUpdate
 
 class CRUDCourse(CRUDBase[Course, CourseCreate, CourseUpdate]):
     def get_by_details(
-        self, db: Session, *, name: str, course_code: str, panel_code: str, term_id: int
+        self, db: Session, *, name: str, course_code: str, panel_code: int, term_id: int
     ) -> Optional[Course]:
         return (
             db.query(Course)
