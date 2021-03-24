@@ -82,6 +82,24 @@ def get_current_admin(db: Session = Depends(get_db), token: str = Depends(reusab
     raise NotFoundException(detail="User not found")
 
 
+def get_current_student(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> models.Student:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
+        token_data = schemas.TokenPayload(**payload)
+    except (jwt.JWTError, ValidationError):
+        raise ForbiddenException(
+            detail="Could not validate credentials",
+        )
+
+    if user := crud.user.get(db, id=token_data.sub):
+        if user.type == 'student':
+            if student := crud.student.get(db, id=user.id):
+                return student
+            raise NotFoundException(detail="Student object not found")
+        raise ForbiddenException(detail="User is not a student")
+    raise NotFoundException(detail="User not found")
+
+
 def get_current_active_user(
     current_user: models.User = Depends(get_current_user),
 ) -> models.User:
