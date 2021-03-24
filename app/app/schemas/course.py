@@ -8,7 +8,9 @@ from app.schemas.term import Term
 # shared properties
 class CourseBase(BaseModel):
     name: Optional[str] = None
-    code: Optional[str] = None
+    course_code: Optional[str] = None
+    panel_code: Optional[int] = None
+    elective_code: Optional[str] = None
     term_id: Optional[int] = None
 
     @validator('name')
@@ -17,17 +19,18 @@ class CourseBase(BaseModel):
             raise ValueError("Course name must not be empty!")
         return name
 
-    @validator('code')
-    def code_not_empty(cls, code: Optional[str]) -> Optional[str]:
-        if code is not None and code == "":
+    @validator('course_code')
+    def code_not_empty(cls, course_code: Optional[str]) -> Optional[str]:
+        if course_code is not None and course_code == "":
             raise ValueError("Course code must not be empty!")
-        return code
+        return course_code
 
 
 # Properties to receive via API on creation
 class CourseCreate(CourseBase):
     name: str
-    code: str
+    course_code: str
+    panel_code: int
     term_id: int
 
 
