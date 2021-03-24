@@ -215,7 +215,7 @@ def test_update_user_superuser(client: TestClient, superuser_token_headers: Dict
 def test_update_non_existent_user_superuser(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
-    user_id = crud.user.get_multi(db)[-1].id + 2
+    user_id = sorted([user.id for user in crud.user.get_multi(db)])[-1] + 1
     full_name = random_lower_string()
     data = {"full_name": full_name}
     r = client.put(
