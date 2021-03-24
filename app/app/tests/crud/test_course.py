@@ -20,7 +20,7 @@ def test_create_course(db: Session) -> None:
     )
     assert course
     assert course.name == name
-    assert course.code == course_code
+    assert course.course_code == course_code
     assert course.panel_code == panel_code
     assert course.elective_code == elective_code
     assert course.term_id == term_id
