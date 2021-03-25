@@ -13,7 +13,7 @@ class StudentBase(BaseModel):
     @validator('user_id')
     def user_not_empty(cls, user_id: Optional[int]) -> Optional[int]:
         if user_id is None:
-            raise ValueError("Course name must not be empty!")
+            raise ValueError("User ID must not be empty!")
         if user_id == 0:
             raise ValueError("Invalid user id!")
         return user_id
