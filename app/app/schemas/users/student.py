@@ -2,6 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, validator
 
+from ..term import Term
 from .user import User
 
 
@@ -37,6 +38,7 @@ class StudentRemove(StudentBase):
 # Additional properties to return through API
 class Student(StudentBase):
     user: Optional[User]
+    term: Optional[Term]
 
     class Config:
         orm_mode = True
