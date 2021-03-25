@@ -1,3 +1,4 @@
+from random import randint
 from typing import Dict
 
 from sqlalchemy.orm import Session
@@ -37,11 +38,15 @@ def test_get_course_nonexisting(client: TestClient, superuser_token_headers: Dic
 
 def test_create_course(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     name = random_lower_string()
-    code = random_lower_string()[:20]
+    course_code = random_lower_string()[:20]
+    panel_code = randint(1, 11)
+    elective_code = random_lower_string()[:20]
     term_id = create_random_term(db).id
     data = {
         'name': name,
-        'code': code,
+        'course_code': course_code,
+        'panel_code': panel_code,
+        'elective_code': elective_code,
         'term_id': term_id,
     }
     r = client.post(f"{settings.API_V1_STR}/courses/", headers=superuser_token_headers, json=data)
@@ -50,7 +55,8 @@ def test_create_course(client: TestClient, superuser_token_headers: Dict[str, st
     fetched_course = crud.course.get_by_details(
         db,
         name=name,
-        code=code,
+        course_code=course_code,
+        panel_code=panel_code,
         term_id=term_id,
     )
     assert fetched_course
@@ -62,7 +68,8 @@ def test_create_course_existing(client: TestClient, superuser_token_headers: Dic
     course = create_random_course(db)
     data = {
         'name': course.name,
-        'code': course.code,
+        'course_code': course.course_code,
+        'panel_code': course.panel_code,
         'term_id': course.term_id,
     }
     r = client.post(f"{settings.API_V1_STR}/courses/", headers=superuser_token_headers, json=data)

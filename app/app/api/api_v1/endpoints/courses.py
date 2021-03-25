@@ -41,7 +41,13 @@ def create_course(
     current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
 ) -> Any:
 
-    if crud.course.get_by_details(db, name=course_in.name, code=course_in.code, term_id=course_in.term_id):
+    if crud.course.get_by_details(
+        db,
+        name=course_in.name,
+        course_code=course_in.course_code,
+        panel_code=course_in.panel_code,
+        term_id=course_in.term_id,
+    ):
         raise ConflictException(
             detail="The course with these details already exists in the system!",
         )
