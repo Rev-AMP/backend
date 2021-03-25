@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.tests.utils.student import create_random_student
 from app.tests.utils.term import create_random_term
 from app.tests.utils.user import authentication_token_from_email
+from app.tests.utils.utils import to_json
 
 
 def test_get_students_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -60,19 +61,18 @@ def test_update_nonexisting_student(client: TestClient, superuser_token_headers:
 
 
 def test_update_students_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    student_id = create_random_student(db).user_id
+    student = create_random_student(db)
     term_id = create_random_term(db).id
     data = {'term_id': term_id}
     r = client.put(
-        f"{settings.API_V1_STR}/students/{student_id}",
+        f"{settings.API_V1_STR}/students/{student.user_id}",
         headers=superuser_token_headers,
         json=data,
     )
     assert r.status_code == 200
     updated_student = r.json()
     assert updated_student
-    assert updated_student['user_id'] == student_id
-    assert updated_student['term_id'] == term_id
+    assert updated_student == to_json(student)
 
 
 def test_get_student_me_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -91,8 +91,8 @@ def test_get_student_me_normal_student(client: TestClient, db: Session) -> None:
     )
     assert r.status_code == 200
     fetched_student = r.json()
-    assert fetched_student['user_id'] == student.user_id
-    assert fetched_student['term_id'] == student.term_id
+    assert fetched_student
+    assert fetched_student == to_json(student)
 
 
 def test_get_student_id(client: TestClient, db: Session) -> None:
@@ -103,8 +103,8 @@ def test_get_student_id(client: TestClient, db: Session) -> None:
     )
     assert r.status_code == 200
     fetched_student = r.json()
-    assert fetched_student['user_id'] == student.user_id
-    assert fetched_student['term_id'] == student.term_id
+    assert fetched_student
+    assert fetched_student == to_json(student)
 
 
 def test_get_nonexistent_student(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -134,8 +134,7 @@ def test_get_student_me_normal_user(client: TestClient, db: Session) -> None:
     assert r.status_code == 200
     fetched_student = r.json()
     assert fetched_student
-    assert fetched_student['user_id'] == student.user_id
-    assert fetched_student['term_id'] == student.term_id
+    assert fetched_student == to_json(student)
 
 
 def test_read_student_by_id_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -146,5 +145,5 @@ def test_read_student_by_id_superuser(client: TestClient, superuser_token_header
     )
     assert r.status_code == 200
     fetched_student = r.json()
-    assert fetched_student['user_id'] == student.user_id
-    assert fetched_student['term_id'] == student.term_id
+    assert fetched_student
+    assert fetched_student == to_json(student)
