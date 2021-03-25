@@ -1,10 +1,10 @@
 from datetime import date
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
-from app.models import Term
+from app.models import Student, Term
 from app.schemas import TermCreate, TermUpdate
 
 
@@ -30,6 +30,9 @@ class CRUDTerm(CRUDBase[Term, TermCreate, TermUpdate]):
             )
             .first()
         )
+
+    def get_students_by_term(self, db: Session, *, term_id: int) -> List[Student]:
+        return db.query(Student).filter(Student.term_id == term_id).all()
 
 
 term = CRUDTerm(Term)
