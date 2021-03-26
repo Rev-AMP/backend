@@ -26,8 +26,14 @@ class StudentCreate(StudentBase):
 
 
 # Properties to receive via API on update
-class StudentUpdate(StudentBase):
-    pass
+class StudentUpdate(BaseModel):
+    term_id: int
+
+    @validator('term_id')
+    def user_not_empty(cls, term_id: int) -> int:
+        if term_id < 1:
+            raise ValueError("Invalid term id!")
+        return term_id
 
 
 # Properties to receive via API on remove
