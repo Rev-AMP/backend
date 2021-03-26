@@ -72,6 +72,7 @@ def test_update_students_superuser(client: TestClient, superuser_token_headers: 
     assert r.status_code == 200
     updated_student = r.json()
     assert updated_student
+    db.refresh(student)
     assert updated_student == {key: value for key, value in to_json(student).items() if key in updated_student.keys()}
 
 
@@ -104,6 +105,7 @@ def test_get_student_id(client: TestClient, db: Session) -> None:
     assert r.status_code == 200
     fetched_student = r.json()
     assert fetched_student
+    db.refresh(student)
     assert fetched_student == {key: value for key, value in to_json(student).items() if key in fetched_student.keys()}
 
 
