@@ -12,7 +12,6 @@ class Student(Base):
         ForeignKey(f'{User.__table__.name}.id', ondelete='CASCADE'),
         index=True,
         primary_key=True,
-        nullable=False,
     )
     user = relationship("User")
     term_id = Column(Integer, ForeignKey(f'{Term.__table__.name}.id', ondelete='CASCADE'), index=True, nullable=True)
