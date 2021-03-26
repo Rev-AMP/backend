@@ -9,7 +9,7 @@ from .user import User
 # Shared properties
 class StudentBase(BaseModel):
     user_id: Optional[int] = None
-    term_id: Optional[int]
+    term_id: Optional[int] = None
 
     @validator('user_id')
     def user_not_empty(cls, user_id: Optional[int]) -> Optional[int]:
