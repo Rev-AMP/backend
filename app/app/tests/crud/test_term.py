@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.schemas import TermUpdate
+from app.tests.utils.student import create_random_student
 from app.tests.utils.term import create_random_term
 from app.tests.utils.utils import random_lower_string
 
@@ -47,3 +48,13 @@ def test_get_by_details(db: Session) -> None:
     )
     assert fetched_term
     assert fetched_term.id == term.id
+
+
+def test_get_students(db: Session) -> None:
+    term = create_random_term(db)
+    create_random_student(db, term.id)
+    create_random_student(db, term.id)
+    students = crud.term.get_students_by_term(db, term_id=term.id)
+    assert len(students) >= 2
+    for student in students:
+        assert student.term_id == term.id

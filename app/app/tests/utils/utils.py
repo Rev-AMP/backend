@@ -53,3 +53,15 @@ def to_json(obj: Any, show_relations: Optional[bool] = True) -> Dict:
             else:
                 result[relation.key] = [to_json(i) for i in value]
     return result
+
+
+def compare_api_and_db_query_results(api_result: Dict, db_dict: Dict) -> None:
+    """
+    Compare whether the value of all the keys in the API call result are the same as the value of those keys in the DB
+    query result
+    """
+    for key, value in api_result.items():
+        if isinstance(value, dict) and isinstance(db_dict[key], dict):
+            compare_api_and_db_query_results(value, db_dict[key])
+        else:
+            assert value == db_dict[key]
