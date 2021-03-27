@@ -10,7 +10,7 @@ from app.tests.utils.user import create_random_user
 
 
 def create_random_student(db: Session, term_id: Optional[int] = None) -> Student:
-    user = create_random_user(db, type='student')
+    user = create_random_user(db, type="student")
     if term_id and crud.term.get(db, id=term_id):
         student_in = StudentUpdate(user_id=user.id, term_id=term_id)
     else:

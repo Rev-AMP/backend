@@ -23,26 +23,26 @@ def test_get_all_schools(client: TestClient, superuser_token_headers: Dict[str, 
 def test_create_school(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     name = random_lower_string()
     head = random_lower_string()
-    data = {'name': name, 'head': head}
+    data = {"name": name, "head": head}
     r = client.post(f"{settings.API_V1_STR}/schools/", headers=superuser_token_headers, json=data)
     assert r.status_code == 200
     created_school = r.json()
     school = crud.school.get_by_name(db, name=name)
     assert school
-    assert created_school['name'] == school.name == name
-    assert created_school['head'] == school.head == head
+    assert created_school["name"] == school.name == name
+    assert created_school["head"] == school.head == head
 
 
 def test_create_school_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     school = create_random_school(db)
-    data = {'name': school.name, 'head': school.head}
+    data = {"name": school.name, "head": school.head}
     r = client.post(f"{settings.API_V1_STR}/schools/", headers=superuser_token_headers, json=data)
     assert r.status_code == 409
 
 
 def test_create_school_duplicate_head(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     school = create_random_school(db)
-    data = {'name': random_lower_string(), 'head': school.head}
+    data = {"name": random_lower_string(), "head": school.head}
     r = client.post(f"{settings.API_V1_STR}/schools/", headers=superuser_token_headers, json=data)
     assert r.status_code == 409
 
@@ -99,21 +99,21 @@ def test_get_school_invalid_student(client: TestClient, db: Session) -> None:
 def test_update_school(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     school = create_random_school(db)
     new_name = random_lower_string()
-    data = {'name': new_name, 'head': school.head}
+    data = {"name": new_name, "head": school.head}
     r = client.put(f"{settings.API_V1_STR}/schools/{school.id}", headers=superuser_token_headers, json=data)
     assert r.status_code == 200
     fetched_school = r.json()
     db.refresh(school)
     assert fetched_school
-    assert fetched_school['id'] == school.id
-    assert fetched_school['name'] == school.name == new_name
-    assert fetched_school['head'] == school.head
+    assert fetched_school["id"] == school.id
+    assert fetched_school["name"] == school.name == new_name
+    assert fetched_school["head"] == school.head
 
 
 def test_update_school_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     while crud.school.get(db, id=(school_id := randint(0, 10000000))):
         pass
-    data = {'name': random_lower_string(), 'head': random_lower_string()}
+    data = {"name": random_lower_string(), "head": random_lower_string()}
     r = client.put(f"{settings.API_V1_STR}/schools/{school_id}", headers=superuser_token_headers, json=data)
     assert r.status_code == 404
 

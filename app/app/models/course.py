@@ -11,10 +11,10 @@ class Course(Base):
     course_code = Column(String(20), index=True, nullable=False)
     panel_code = Column(Integer, index=True, nullable=False)
     elective_code = Column(String(20), index=True, nullable=True)
-    term_id = Column(Integer, ForeignKey(f'{Term.__table__.name}.id', ondelete='CASCADE'), index=True, nullable=False)
+    term_id = Column(Integer, ForeignKey(f"{Term.__table__.name}.id", ondelete="CASCADE"), index=True, nullable=False)
 
-    term = relationship('Term')
+    term = relationship("Term")
 
     __table_args__ = (
-        UniqueConstraint('name', 'course_code', 'panel_code', 'term_id', name='_unique_by_name_code_term'),
+        UniqueConstraint("name", "course_code", "panel_code", "term_id", name="_unique_by_name_code_term"),
     )

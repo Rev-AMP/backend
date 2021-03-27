@@ -14,13 +14,13 @@ class SchoolCreate(SchoolBase):
     name: str
     head: str
 
-    @validator('name')
+    @validator("name")
     def name_not_empty(cls, name: str) -> str:
         if not name:
             raise ValueError("Name must not be empty!")
         return name
 
-    @validator('head')
+    @validator("head")
     def head_not_empty(cls, head: str) -> str:
         if not head:
             raise ValueError("Head name must not be empty!")

@@ -39,7 +39,7 @@ def test_get_students_normal_user(client: TestClient, normal_user_token_headers:
 def test_update_students_non_admin(client: TestClient, db: Session) -> None:
     student = create_random_student(db)
     term_id = create_random_term(db).id
-    data = {'term_id': term_id}
+    data = {"term_id": term_id}
     r = client.put(
         f"{settings.API_V1_STR}/students/{student.user_id}",
         headers=authentication_token_from_email(client=client, email=student.user.email, db=db),
@@ -51,7 +51,7 @@ def test_update_students_non_admin(client: TestClient, db: Session) -> None:
 def test_update_nonexisting_student(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     student_id = create_random_student(db).user_id
     term_id = create_random_term(db).id
-    data = {'term_id': term_id}
+    data = {"term_id": term_id}
     r = client.put(
         f"{settings.API_V1_STR}/students/{student_id + 1}",
         headers=superuser_token_headers,
@@ -63,7 +63,7 @@ def test_update_nonexisting_student(client: TestClient, superuser_token_headers:
 def test_update_students_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     student = create_random_student(db)
     term_id = create_random_term(db).id
-    data = {'term_id': term_id}
+    data = {"term_id": term_id}
     r = client.put(
         f"{settings.API_V1_STR}/students/{student.user_id}",
         headers=superuser_token_headers,

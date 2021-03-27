@@ -19,7 +19,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             hashed_password=get_password_hash(obj_in.password),
             full_name=obj_in.full_name,
             type=obj_in.type,
-            is_admin=obj_in.is_admin or obj_in.type in ('admin', 'superuser'),
+            is_admin=obj_in.is_admin or obj_in.type in ("admin", "superuser"),
             school_id=obj_in.school_id,
         )
         db.add(db_obj)
@@ -28,13 +28,13 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.refresh(db_obj)
 
         # Ensure user gets the appropriate permissions depending on type
-        if obj_in.type == 'superuser':
+        if obj_in.type == "superuser":
             admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=-1))
-        elif obj_in.type == 'admin' or obj_in.is_admin:
+        elif obj_in.type == "admin" or obj_in.is_admin:
             admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=0))
-        elif obj_in.type == 'professor':
+        elif obj_in.type == "professor":
             pass
-        elif obj_in.type == 'student':
+        elif obj_in.type == "student":
             student.create(db, obj_in=StudentCreate(user_id=db_obj.id))
 
         return db_obj
@@ -50,7 +50,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             del update_data["password"]
             update_data["hashed_password"] = hashed_password
 
-        if is_admin := update_data.get('is_admin') is not None:
+        if is_admin := update_data.get("is_admin") is not None:
             if is_admin and not db_obj.is_admin:
                 admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=0))
             else:

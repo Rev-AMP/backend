@@ -9,10 +9,10 @@ from app.models.users.user import User
 class Student(Base):
     user_id = Column(
         Integer,
-        ForeignKey(f'{User.__table__.name}.id', ondelete='CASCADE'),
+        ForeignKey(f"{User.__table__.name}.id", ondelete="CASCADE"),
         index=True,
         primary_key=True,
     )
     user = relationship("User")
-    term_id = Column(Integer, ForeignKey(f'{Term.__table__.name}.id', ondelete='CASCADE'), index=True, nullable=True)
+    term_id = Column(Integer, ForeignKey(f"{Term.__table__.name}.id", ondelete="CASCADE"), index=True, nullable=True)
     term = relationship("Term")

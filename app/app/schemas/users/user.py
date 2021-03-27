@@ -15,13 +15,13 @@ class UserBase(BaseModel):
     is_admin: Optional[bool] = None
     school_id: Optional[int] = None
 
-    @validator('type')
+    @validator("type")
     def valid_type(cls, user_type: Optional[str]) -> Optional[str]:
         if user_type and user_type not in ("superuser", "student", "professor", "admin"):
             raise ValueError("Invalid user type!")
         return user_type
 
-    @validator('password', check_fields=False)
+    @validator("password", check_fields=False)
     def valid_password(cls, password: Optional[str]) -> Optional[str]:
         if password:
             if len(password) < 8:

@@ -11,7 +11,7 @@ class StudentBase(BaseModel):
     user_id: int
     term_id: Optional[int] = None
 
-    @validator('user_id')
+    @validator("user_id")
     def user_not_empty(cls, user_id: int) -> int:
         if user_id == 0:
             raise ValueError("Invalid user id!")
@@ -27,7 +27,7 @@ class StudentCreate(StudentBase):
 class StudentUpdate(BaseModel):
     term_id: int
 
-    @validator('term_id')
+    @validator("term_id")
     def user_not_empty(cls, term_id: int) -> int:
         if term_id < 1:
             raise ValueError("Invalid term id!")

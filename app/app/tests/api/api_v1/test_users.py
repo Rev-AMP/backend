@@ -21,7 +21,7 @@ def test_get_users_superuser_me(client: TestClient, superuser_token_headers: Dic
     current_user = r.json()
     assert current_user
     assert current_user["is_active"] is True
-    assert current_user['type'] == "superuser"
+    assert current_user["type"] == "superuser"
     assert current_user["email"] == settings.FIRST_SUPERUSER
 
 
@@ -30,7 +30,7 @@ def test_get_users_normal_user_me(client: TestClient, normal_user_token_headers:
     current_user = r.json()
     assert current_user
     assert current_user["is_active"] is True
-    assert current_user['type'] != "superuser"
+    assert current_user["type"] != "superuser"
     assert current_user["email"] == settings.EMAIL_TEST_USER
 
 
@@ -292,17 +292,17 @@ def test_update_profile_picture_superuser(
 ) -> None:
     user = create_random_user(db, type="student")
     response = client.get("https://media.rev-amp.tech/logo/revamp.png")
-    with open('/tmp/profile_picture.png', 'wb') as f:
+    with open("/tmp/profile_picture.png", "wb") as f:
         f.write(response.content)
     assert user.profile_picture is None
     r = client.put(
         f"{settings.API_V1_STR}/users/{user.id}/profile_picture",
         headers=superuser_token_headers,
-        files={'image': ('profile_picture.png', open('/tmp/profile_picture.png', 'rb').read(), 'image/png')},
+        files={"image": ("profile_picture.png", open("/tmp/profile_picture.png", "rb").read(), "image/png")},
     )
     updated_user = r.json()
     assert r.status_code == 200
-    assert updated_user['profile_picture']
+    assert updated_user["profile_picture"]
     assert isfile(f"profile_pictures/{updated_user['profile_picture']}")
 
 
@@ -311,12 +311,12 @@ def test_update_profile_picture_superuser_non_existent_user(
 ) -> None:
     user_id = sorted([user.id for user in crud.user.get_multi(db)])[-1] + 1
     response = client.get("https://media.rev-amp.tech/logo/revamp.png")
-    with open('/tmp/profile_picture.png', 'wb') as f:
+    with open("/tmp/profile_picture.png", "wb") as f:
         f.write(response.content)
     r = client.put(
         f"{settings.API_V1_STR}/users/{user_id}/profile_picture",
         headers=superuser_token_headers,
-        files={'image': ('profile_picture.png', open('/tmp/profile_picture.png', 'rb').read(), 'image/png')},
+        files={"image": ("profile_picture.png", open("/tmp/profile_picture.png", "rb").read(), "image/png")},
     )
     assert r.status_code == 404
 
@@ -326,13 +326,13 @@ def test_update_profile_picture_superuser_not_image(
 ) -> None:
     user = create_random_user(db, type="student")
     response = client.get("https://files.rev-amp.tech/README.md")
-    with open('/tmp/README.md', 'wb') as f:
+    with open("/tmp/README.md", "wb") as f:
         f.write(response.content)
     assert user.profile_picture is None
     r = client.put(
         f"{settings.API_V1_STR}/users/{user.id}/profile_picture",
         headers=superuser_token_headers,
-        files={'image': ('README.md', open('/tmp/README.md', 'rb').read(), 'text/markdown')},
+        files={"image": ("README.md", open("/tmp/README.md", "rb").read(), "text/markdown")},
     )
     assert r.status_code == 415
 
@@ -342,13 +342,13 @@ def test_update_profile_picture_normal_user(
 ) -> None:
     user = create_random_user(db, type="student")
     response = client.get("https://media.rev-amp.tech/logo/revamp.png")
-    with open('/tmp/profile_picture.png', 'wb') as f:
+    with open("/tmp/profile_picture.png", "wb") as f:
         f.write(response.content)
     assert user.profile_picture is None
     r = client.put(
         f"{settings.API_V1_STR}/users/{user.id}/profile_picture",
         headers=normal_user_token_headers,
-        files={'image': ('profile_picture.png', open('/tmp/profile_picture.png', 'rb').read(), 'image/png')},
+        files={"image": ("profile_picture.png", open("/tmp/profile_picture.png", "rb").read(), "image/png")},
     )
     assert r.status_code == 403
 
@@ -358,15 +358,15 @@ def test_update_profile_picture_normal_user_self(
 ) -> None:
     user = create_random_user(db, type="student")
     response = client.get("https://media.rev-amp.tech/logo/revamp.png")
-    with open('/tmp/profile_picture.png', 'wb') as f:
+    with open("/tmp/profile_picture.png", "wb") as f:
         f.write(response.content)
     assert user.profile_picture is None
     r = client.put(
         f"{settings.API_V1_STR}/users/{user.id}/profile_picture",
         headers=authentication_token_from_email(client=client, email=user.email, db=db),
-        files={'image': ('profile_picture.png', open('/tmp/profile_picture.png', 'rb').read(), 'image/png')},
+        files={"image": ("profile_picture.png", open("/tmp/profile_picture.png", "rb").read(), "image/png")},
     )
     updated_user = r.json()
     assert r.status_code == 200
-    assert updated_user['profile_picture']
+    assert updated_user["profile_picture"]
     assert isfile(f"profile_pictures/{updated_user['profile_picture']}")

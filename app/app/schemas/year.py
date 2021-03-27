@@ -14,13 +14,13 @@ class YearBase(BaseModel):
     end_year: Optional[int] = None
     is_active: Optional[bool] = True
 
-    @validator('name')
+    @validator("name")
     def name_not_empty(cls, name: Optional[str]) -> Optional[str]:
         if name is not None and name == "":
             raise ValueError("Name must not be empty!")
         return name
 
-    @validator('start_year')
+    @validator("start_year")
     def validate_start_year(cls, start_year: Optional[int]) -> Optional[int]:
         if start_year:
             current_year = datetime.now().year
@@ -30,11 +30,11 @@ class YearBase(BaseModel):
                 raise ValueError("You can't work so much in the past!")
         return start_year
 
-    @validator('end_year')
+    @validator("end_year")
     def validate_end_year(cls, end_year: Optional[int], values: dict) -> Optional[int]:
         if end_year:
-            if values.get('start_year'):
-                if end_year < values['start_year']:
+            if values.get("start_year"):
+                if end_year < values["start_year"]:
                     raise ValueError("You can't end the year before it starts")
             if end_year < datetime.now().year - 1:
                 raise ValueError("You can't work so much in the past!")

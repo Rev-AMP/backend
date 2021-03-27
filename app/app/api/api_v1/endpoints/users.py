@@ -155,7 +155,7 @@ def update_user(
     if user := crud.user.get(db, id=user_id):
         if user_in.type:
             raise BadRequestException(detail="User roles cannot be changed")
-        if user_in.is_admin is not None and user.type != 'professor':
+        if user_in.is_admin is not None and user.type != "professor":
             raise BadRequestException(
                 detail=f"A {user.type} cannot have admin roles changed!",
             )

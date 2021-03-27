@@ -43,11 +43,11 @@ def test_create_course(client: TestClient, superuser_token_headers: Dict[str, st
     elective_code = random_lower_string()[:20]
     term_id = create_random_term(db).id
     data = {
-        'name': name,
-        'course_code': course_code,
-        'panel_code': panel_code,
-        'elective_code': elective_code,
-        'term_id': term_id,
+        "name": name,
+        "course_code": course_code,
+        "panel_code": panel_code,
+        "elective_code": elective_code,
+        "term_id": term_id,
     }
     r = client.post(f"{settings.API_V1_STR}/courses/", headers=superuser_token_headers, json=data)
     assert r.status_code == 200
@@ -67,10 +67,10 @@ def test_create_course(client: TestClient, superuser_token_headers: Dict[str, st
 def test_create_course_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     course = create_random_course(db)
     data = {
-        'name': course.name,
-        'course_code': course.course_code,
-        'panel_code': course.panel_code,
-        'term_id': course.term_id,
+        "name": course.name,
+        "course_code": course.course_code,
+        "panel_code": course.panel_code,
+        "term_id": course.term_id,
     }
     r = client.post(f"{settings.API_V1_STR}/courses/", headers=superuser_token_headers, json=data)
     assert r.status_code == 409
@@ -80,12 +80,12 @@ def test_update_course(client: TestClient, superuser_token_headers: Dict[str, st
     course = create_random_course(db)
     assert course.name
     name = random_lower_string()
-    data = {'name': name}
+    data = {"name": name}
     r = client.put(f"{settings.API_V1_STR}/courses/{course.id}", headers=superuser_token_headers, json=data)
     fetched_course = r.json()
     assert fetched_course
-    assert fetched_course['id'] == course.id
-    assert fetched_course['name'] == name
+    assert fetched_course["id"] == course.id
+    assert fetched_course["name"] == name
 
 
 def test_update_course_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -115,10 +115,10 @@ def test_get_course_normal_user(client: TestClient, normal_user_token_headers: D
 
 def test_get_course_admin(client: TestClient, db: Session) -> None:
     admin_perms = AdminPermissions(0)
-    admin_perms['course'] = True
+    admin_perms["course"] = True
     admin = create_random_user(db=db, type="admin", permissions=admin_perms.permissions)
     admin_user_token_headers = authentication_token_from_email(
-        client=client, db=db, email=admin.email, user_type='admin'
+        client=client, db=db, email=admin.email, user_type="admin"
     )
     r = client.get(f"{settings.API_V1_STR}/courses/", headers=admin_user_token_headers)
     assert r.status_code == 200
@@ -127,7 +127,7 @@ def test_get_course_admin(client: TestClient, db: Session) -> None:
 def test_get_course_weakadmin(client: TestClient, db: Session) -> None:
     admin = create_random_user(db=db, type="admin", permissions=0)
     admin_user_token_headers = authentication_token_from_email(
-        client=client, db=db, email=admin.email, user_type='admin'
+        client=client, db=db, email=admin.email, user_type="admin"
     )
     r = client.get(f"{settings.API_V1_STR}/courses/", headers=admin_user_token_headers)
     assert r.status_code == 403
