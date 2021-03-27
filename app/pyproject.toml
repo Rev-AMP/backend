@@ -44,7 +44,6 @@ force_grid_wrap = 0
 line_length = 88
 
 [tool.black]
-skip-string-normalization = true
 line-length = 120
 
 [build-system]
