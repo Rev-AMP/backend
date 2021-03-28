@@ -13,13 +13,13 @@ class CourseBase(BaseModel):
     elective_code: Optional[str] = None
     term_id: Optional[int] = None
 
-    @validator('name')
+    @validator("name")
     def name_not_empty(cls, name: Optional[str]) -> Optional[str]:
         if name is not None and name == "":
             raise ValueError("Course name must not be empty!")
         return name
 
-    @validator('course_code')
+    @validator("course_code")
     def code_not_empty(cls, course_code: Optional[str]) -> Optional[str]:
         if course_code is not None and course_code == "":
             raise ValueError("Course code must not be empty!")

@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 
 from app.models import School
 
-if decouple.config('DB', default='mysql') == 'mysql':
+if decouple.config("DB", default="mysql") == "mysql":
     from sqlalchemy.dialects.mysql import ENUM
 else:
     from sqlalchemy.dialects.postgresql import ENUM  # type: ignore
@@ -22,6 +22,6 @@ class User(Base):
     is_admin = Column(Boolean(), default=False)
     type = Column(ENUM("superuser", "student", "professor", "admin", name="user_type"), nullable=False)
     school_id = Column(
-        Integer, ForeignKey(f'{School.__table__.name}.id', ondelete='CASCADE'), index=True, nullable=True
+        Integer, ForeignKey(f"{School.__table__.name}.id", ondelete="CASCADE"), index=True, nullable=True
     )
     school = relationship("School")

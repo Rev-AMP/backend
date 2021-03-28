@@ -44,10 +44,10 @@ def test_create_year(client: TestClient, superuser_token_headers: Dict[str, str]
     end_year = start_year + 1
     name = random_lower_string()
     data = {
-        'name': name,
-        'school_id': school_id,
-        'start_year': start_year,
-        'end_year': end_year,
+        "name": name,
+        "school_id": school_id,
+        "start_year": start_year,
+        "end_year": end_year,
     }
     r = client.post(f"{settings.API_V1_STR}/years/", headers=superuser_token_headers, json=data)
     assert r.status_code == 200
@@ -61,10 +61,10 @@ def test_create_year(client: TestClient, superuser_token_headers: Dict[str, str]
 def test_create_year_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     year = create_random_year(db)
     data = {
-        'name': year.name,
-        'school_id': year.school_id,
-        'start_year': year.start_year,
-        'end_year': year.end_year,
+        "name": year.name,
+        "school_id": year.school_id,
+        "start_year": year.start_year,
+        "end_year": year.end_year,
     }
     r = client.post(f"{settings.API_V1_STR}/years/", headers=superuser_token_headers, json=data)
     assert r.status_code == 409
@@ -86,24 +86,24 @@ def test_update_year(client: TestClient, superuser_token_headers: Dict[str, str]
     year = create_random_year(db)
     assert year.start_year
     assert year.end_year
-    data = {'start_year': year.start_year - 1, 'end_year': year.end_year - 1, 'is_active': not year.is_active}
+    data = {"start_year": year.start_year - 1, "end_year": year.end_year - 1, "is_active": not year.is_active}
     r = client.put(f"{settings.API_V1_STR}/years/{year.id}", headers=superuser_token_headers, json=data)
     assert r.status_code == 200
     fetched_year = r.json()
     assert fetched_year
-    assert fetched_year['id'] == year.id
-    assert fetched_year['name'] == year.name
-    assert fetched_year['start_year'] == year.start_year - 1
-    assert fetched_year['end_year'] == year.end_year - 1
-    assert fetched_year['is_active'] != year.is_active
+    assert fetched_year["id"] == year.id
+    assert fetched_year["name"] == year.name
+    assert fetched_year["start_year"] == year.start_year - 1
+    assert fetched_year["end_year"] == year.end_year - 1
+    assert fetched_year["is_active"] != year.is_active
 
 
 def test_get_year_admin(client: TestClient, db: Session) -> None:
     admin_perms = AdminPermissions(0)
-    admin_perms['year'] = True
+    admin_perms["year"] = True
     admin = create_random_user(db, "admin", permissions=admin_perms.permissions)
     admin_user_token_headers = authentication_token_from_email(
-        client=client, db=db, email=admin.email, user_type='admin'
+        client=client, db=db, email=admin.email, user_type="admin"
     )
     r = client.get(f"{settings.API_V1_STR}/years/", headers=admin_user_token_headers)
     assert r.status_code == 200
@@ -112,7 +112,7 @@ def test_get_year_admin(client: TestClient, db: Session) -> None:
 def test_get_year_weakadmin(client: TestClient, db: Session) -> None:
     admin = create_random_user(db, "admin", permissions=0)
     admin_user_token_headers = authentication_token_from_email(
-        client=client, db=db, email=admin.email, user_type='admin'
+        client=client, db=db, email=admin.email, user_type="admin"
     )
     r = client.get(f"{settings.API_V1_STR}/years/", headers=admin_user_token_headers)
     assert r.status_code == 403

@@ -29,7 +29,7 @@ def superuser_token_headers(client: TestClient) -> Dict[str, str]:
 
 @pytest.fixture(scope="module")
 def superuser_refresh_token_headers(client: TestClient) -> Dict[str, str]:
-    return get_superuser_token_headers(client, type_='refresh')
+    return get_superuser_token_headers(client, type_="refresh")
 
 
 @pytest.fixture(scope="module")
@@ -39,4 +39,4 @@ def normal_user_token_headers(client: TestClient, db: Session) -> Dict[str, str]
 
 @pytest.fixture(scope="module")
 def admin_user_token_headers(client: TestClient, db: Session) -> Dict[str, str]:
-    return authentication_token_from_email(client=client, email=settings.EMAIL_TEST_ADMIN, db=db, user_type='admin')
+    return authentication_token_from_email(client=client, email=settings.EMAIL_TEST_ADMIN, db=db, user_type="admin")

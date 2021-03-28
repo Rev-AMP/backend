@@ -32,7 +32,7 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusabl
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
         token_data = schemas.TokenPayload(**payload)
-        if token_data.type != 'access':
+        if token_data.type != "access":
             raise BadRequestException(
                 detail="Invalid token",
             )
@@ -50,7 +50,7 @@ def get_current_user_refresh(db: Session = Depends(get_db), token: str = Depends
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
         token_data = schemas.TokenPayload(**payload)
-        if token_data.type != 'refresh':
+        if token_data.type != "refresh":
             raise BadRequestException(
                 detail="Invalid token",
             )
@@ -92,7 +92,7 @@ def get_current_student(db: Session = Depends(get_db), token: str = Depends(reus
         )
 
     if user := crud.user.get(db, id=token_data.sub):
-        if user.type == 'student':
+        if user.type == "student":
             if student := crud.student.get(db, id=user.id):
                 return student
             raise NotFoundException(detail="Student object not found")

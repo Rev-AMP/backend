@@ -63,8 +63,8 @@ def test_get_admin_me_superuser(client: TestClient, superuser_token_headers: Dic
     )
     assert r.status_code == 200
     admin = r.json()
-    assert admin['user_id'] == 1
-    assert admin['permissions'] == -1
+    assert admin["user_id"] == 1
+    assert admin["permissions"] == -1
 
 
 def test_get_admin_me_normal_admin(client: TestClient, db: Session) -> None:
@@ -75,8 +75,8 @@ def test_get_admin_me_normal_admin(client: TestClient, db: Session) -> None:
     )
     assert r.status_code == 200
     fetched_admin = r.json()
-    assert fetched_admin['user_id'] == admin.id
-    assert fetched_admin['permissions'] == 0
+    assert fetched_admin["user_id"] == admin.id
+    assert fetched_admin["permissions"] == 0
 
 
 def test_get_admin_me_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
@@ -95,8 +95,8 @@ def test_read_admin_by_id_superuser(client: TestClient, superuser_token_headers:
     )
     assert r.status_code == 200
     fetched_admin = r.json()
-    assert fetched_admin['user_id'] == admin.id
-    assert fetched_admin['permissions'] == 0
+    assert fetched_admin["user_id"] == admin.id
+    assert fetched_admin["permissions"] == 0
 
 
 def test_read_admin_by_id_superuser_nonexistent_admin(
@@ -119,8 +119,8 @@ def test_read_admin_by_id_admin_with_permissions(client: TestClient, db: Session
     )
     assert r.status_code == 200
     fetched_admin = r.json()
-    assert fetched_admin['user_id'] == admin.id
-    assert fetched_admin['permissions'] == 0
+    assert fetched_admin["user_id"] == admin.id
+    assert fetched_admin["permissions"] == 0
 
 
 def test_read_admin_by_id_normal_admin(
@@ -142,8 +142,8 @@ def test_read_admin_by_id_normal_admin_fetch_self(client: TestClient, db: Sessio
     )
     assert r.status_code == 200
     fetched_admin = r.json()
-    assert fetched_admin['user_id'] == admin.id
-    assert fetched_admin['permissions'] == 0
+    assert fetched_admin["user_id"] == admin.id
+    assert fetched_admin["permissions"] == 0
 
 
 def test_read_admin_by_id_normal_user(
@@ -185,4 +185,4 @@ def test_update_admin_nonadmin(client: TestClient, superuser_token_headers: Dict
     db.refresh(user)
     assert user
     assert not user.is_admin
-    assert 'user_id' not in updated_admin
+    assert "user_id" not in updated_admin

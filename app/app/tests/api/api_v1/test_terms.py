@@ -45,12 +45,12 @@ def test_create_term(client: TestClient, superuser_token_headers: Dict[str, str]
     current_year_term = randint(1, 4)
     has_electives = choice([True, False])
     data = {
-        'name': name,
-        'year_id': year_id,
-        'start_date': start_date.isoformat(),
-        'end_date': end_date.isoformat(),
-        'current_year_term': current_year_term,
-        'has_electives': has_electives,
+        "name": name,
+        "year_id": year_id,
+        "start_date": start_date.isoformat(),
+        "end_date": end_date.isoformat(),
+        "current_year_term": current_year_term,
+        "has_electives": has_electives,
     }
     r = client.post(f"{settings.API_V1_STR}/terms/", headers=superuser_token_headers, json=data)
     assert r.status_code == 200
@@ -71,12 +71,12 @@ def test_create_term(client: TestClient, superuser_token_headers: Dict[str, str]
 def test_create_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     term = create_random_term(db=db)
     data = {
-        'name': term.name,
-        'year_id': term.year_id,
-        'start_date': term.start_date.isoformat(),
-        'end_date': term.end_date.isoformat() if term.end_date else None,
-        'current_year_term': term.current_year_term,
-        'has_electives': term.has_electives,
+        "name": term.name,
+        "year_id": term.year_id,
+        "start_date": term.start_date.isoformat(),
+        "end_date": term.end_date.isoformat() if term.end_date else None,
+        "current_year_term": term.current_year_term,
+        "has_electives": term.has_electives,
     }
     r = client.post(f"{settings.API_V1_STR}/terms/", headers=superuser_token_headers, json=data)
     assert r.status_code == 409
@@ -100,26 +100,26 @@ def test_update_term(client: TestClient, superuser_token_headers: Dict[str, str]
     start_date = term.start_date - timedelta(days=6 * 30)
     end_date = term.end_date - timedelta(days=6 * 30)
     data = {
-        'start_date': start_date.isoformat(),
-        'end_date': end_date.isoformat(),
-        'is_active': not term.is_active,
+        "start_date": start_date.isoformat(),
+        "end_date": end_date.isoformat(),
+        "is_active": not term.is_active,
     }
     r = client.put(f"{settings.API_V1_STR}/terms/{term.id}", headers=superuser_token_headers, json=data)
     fetched_term = r.json()
     assert fetched_term
-    assert fetched_term['id'] == term.id
-    assert fetched_term['start_date'] == (term.start_date - timedelta(days=6 * 30)).isoformat()
+    assert fetched_term["id"] == term.id
+    assert fetched_term["start_date"] == (term.start_date - timedelta(days=6 * 30)).isoformat()
     if term.end_date:
-        assert fetched_term['end_date'] == (term.end_date - timedelta(days=6 * 30)).isoformat()
-    assert fetched_term['is_active'] != term.is_active
+        assert fetched_term["end_date"] == (term.end_date - timedelta(days=6 * 30)).isoformat()
+    assert fetched_term["is_active"] != term.is_active
 
 
 def test_get_term_admin(client: TestClient, db: Session) -> None:
     admin_perms = AdminPermissions(0)
-    admin_perms['term'] = True
+    admin_perms["term"] = True
     admin = create_random_user(db=db, type="admin", permissions=admin_perms.permissions)
     admin_user_token_headers = authentication_token_from_email(
-        client=client, db=db, email=admin.email, user_type='admin'
+        client=client, db=db, email=admin.email, user_type="admin"
     )
     r = client.get(f"{settings.API_V1_STR}/terms/", headers=admin_user_token_headers)
     assert r.status_code == 200
@@ -128,7 +128,7 @@ def test_get_term_admin(client: TestClient, db: Session) -> None:
 def test_get_term_weakadmin(client: TestClient, db: Session) -> None:
     admin = create_random_user(db=db, type="admin", permissions=0)
     admin_user_token_headers = authentication_token_from_email(
-        client=client, db=db, email=admin.email, user_type='admin'
+        client=client, db=db, email=admin.email, user_type="admin"
     )
     r = client.get(f"{settings.API_V1_STR}/terms/", headers=admin_user_token_headers)
     assert r.status_code == 403

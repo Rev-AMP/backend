@@ -15,7 +15,7 @@ def user_authentication_headers(*, client: TestClient, email: str, password: str
 
     r = client.post(f"{settings.API_V1_STR}/login/access-token", data=data)
     response = r.json()
-    auth_token = response["access_token"] if type_ == 'access' else response["refresh_token"]
+    auth_token = response["access_token"] if type_ == "access" else response["refresh_token"]
     headers = {"Authorization": f"Bearer {auth_token}"}
     return headers
 
@@ -49,7 +49,7 @@ def authentication_token_from_email(
     db: Session,
     user_type: str = "student",
     school_id: Optional[int] = None,
-    type_: str = 'access',
+    type_: str = "access",
 ) -> Dict[str, str]:
     """
     Return a valid token for the user with given email.

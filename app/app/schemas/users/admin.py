@@ -40,27 +40,27 @@ class Admin(AdminBase):
 class AdminPermissions:
     # Unused for now -- left as a description
     BITS_VALUE = {
-        'user': 'CRUD operations on users',
-        'admin': 'CRUD operations on admins',
-        'school': 'CRUD operations on schools',
-        'year': 'CRUD operations on years',
-        'term': 'CRUD operations on terms',
-        'course': 'CRUD operations on courses',
-        'cbcs': 'CRUD operations on CBCS',
-        'student': 'CRUD operations on students',
+        "user": "CRUD operations on users",
+        "admin": "CRUD operations on admins",
+        "school": "CRUD operations on schools",
+        "year": "CRUD operations on years",
+        "term": "CRUD operations on terms",
+        "course": "CRUD operations on courses",
+        "cbcs": "CRUD operations on CBCS",
+        "student": "CRUD operations on students",
     }
 
     def __init__(self, permissions: int):
 
         self.bit_names = {
-            'user': 0,
-            'admin': 1,
-            'school': 2,
-            'year': 3,
-            'term': 4,
-            'course': 5,
-            'cbcs': 6,
-            'student': 7,
+            "user": 0,
+            "admin": 1,
+            "school": 2,
+            "year": 3,
+            "term": 4,
+            "course": 5,
+            "cbcs": 6,
+            "student": 7,
         }
 
         self.permissions = permissions

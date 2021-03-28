@@ -6,7 +6,7 @@ from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, EmailStr, HttpUrl, valida
 
 
 class SQLDsn(AnyUrl):
-    allowed_schemes = {'mysql+mysqlconnector', 'postgres', 'postgresql'}
+    allowed_schemes = {"mysql+mysqlconnector", "postgres", "postgresql"}
     user_required = True
 
 
@@ -42,7 +42,7 @@ class Settings(BaseSettings):
         if isinstance(v, str):
             return v
         return SQLDsn.build(
-            scheme='mysql+mysqlconnector' if config('DB', default='mysql') == 'mysql' else 'postgresql',
+            scheme="mysql+mysqlconnector" if config("DB", default="mysql") == "mysql" else "postgresql",
             user=values.get("DB_USER"),
             password=values.get("DB_PASSWORD"),
             host=values.get("DB_SERVER"),
@@ -78,7 +78,7 @@ class Settings(BaseSettings):
 
     class Config:
         case_sensitive = True
-        env_file = '../.env'
+        env_file = "../.env"
 
 
 settings = Settings()
