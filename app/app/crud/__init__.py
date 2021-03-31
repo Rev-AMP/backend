@@ -1,5 +1,6 @@
 from .crud_admin import admin
 from .crud_course import course
+from .crud_professor import professor
 from .crud_school import school
 from .crud_student import student
 from .crud_term import term
