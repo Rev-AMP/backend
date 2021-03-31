@@ -1,4 +1,5 @@
 from .course import Course, CourseCreate, CourseUpdate
+from .division import Division, DivisionCreate, DivisionUpdate
 from .msg import Msg
 from .school import School, SchoolCreate, SchoolUpdate
 from .term import Term, TermCreate, TermInDB, TermUpdate
