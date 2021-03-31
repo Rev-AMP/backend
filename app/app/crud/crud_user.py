@@ -3,10 +3,10 @@ from typing import Any, Dict, Optional, Union
 from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash, verify_password
-from app.crud import admin, student
+from app.crud import admin, professor, student
 from app.crud.base import CRUDBase
 from app.models import User
-from app.schemas import AdminCreate, StudentCreate, UserCreate, UserUpdate
+from app.schemas import AdminCreate, ProfessorCreate, StudentCreate, UserCreate, UserUpdate
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -33,7 +33,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         elif obj_in.type == "admin" or obj_in.is_admin:
             admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=0))
         elif obj_in.type == "professor":
-            pass
+            professor.create(db, obj_in=ProfessorCreate(user_id=db_obj.id))
         elif obj_in.type == "student":
             student.create(db, obj_in=StudentCreate(user_id=db_obj.id))
 
