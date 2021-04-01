@@ -23,6 +23,11 @@ class ProfessorCreate(ProfessorBase):
     pass
 
 
+# Properties to receive via API on update
+class ProfessorUpdate(BaseModel):
+    pass
+
+
 # Properties to receive via API on remove
 class ProfessorRemove(ProfessorBase):
     pass

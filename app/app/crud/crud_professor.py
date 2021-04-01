@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
 from app.models import Professor
-from app.schemas import ProfessorCreate
+from app.schemas import ProfessorCreate, ProfessorUpdate
 
 
-class CRUDProfessor(CRUDBase[Professor, ProfessorCreate]):
+class CRUDProfessor(CRUDBase[Professor, ProfessorCreate, ProfessorUpdate]):
     def get(self, db: Session, id: int) -> Optional[Professor]:
         return db.query(Professor).filter(Professor.user_id == id).first()
 

@@ -2,6 +2,7 @@ from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
+from app.models.division import Division
 from app.models.users.user import User
 
 
@@ -14,4 +15,4 @@ class Professor(Base):
     )
     user = relationship("User")
 
-    divisions = relationship("Division", back_populates="Professor")
+    divisions = relationship(f"{Division.__name__}", back_populates="Professor")

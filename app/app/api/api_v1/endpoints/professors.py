@@ -1,3 +1,4 @@
+import logging
 from typing import Any, List
 
 from fastapi import APIRouter, Depends
@@ -60,3 +61,27 @@ def read_professor_by_id(
         )
 
     raise ForbiddenException(detail="The user doesn't have enough privileges")
+
+
+@router.put("/{professor_id}", response_model=schemas.Professor)
+def update_professor(
+    *,
+    db: Session = Depends(deps.get_db),
+    professor_id: int,
+    professor_in: schemas.ProfessorUpdate,
+    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("professor")),
+) -> Any:
+    """
+    Update professor.
+    """
+
+    if professor := crud.professor.get(db, id=professor_id):
+        logging.info(
+            f"Admin {current_admin.user_id} ({current_admin.user.email}) is updating professor {professor.user_id}"
+            f"({professor.user.email}) to {professor_in.__dict__}"
+        )
+        return crud.professor.update(db, db_obj=professor, obj_in=professor_in)
+
+    raise NotFoundException(
+        detail="This professor does not exist!",
+    )
