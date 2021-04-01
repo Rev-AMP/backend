@@ -1,8 +1,9 @@
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, validator
 
 from .user import User
+from app.schemas.division import Division
 
 
 # Shared properties
@@ -18,22 +19,18 @@ class ProfessorBase(BaseModel):
 
 # Properties to receive via API on creation
 class ProfessorCreate(ProfessorBase):
-    user_id: int
-
-
-# Properties to receive via API on update
-class ProfessorUpdate(BaseModel):
     pass
 
 
 # Properties to receive via API on remove
 class ProfessorRemove(ProfessorBase):
-    user_id: int
+    pass
 
 
 # Additional properties to return through API
 class Professor(ProfessorBase):
     user: Optional[User]
+    divisions: Optional[List[Division]]
 
     class Config:
         orm_mode = True
