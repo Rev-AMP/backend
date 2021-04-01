@@ -45,7 +45,6 @@ def create_course(
         db,
         name=course_in.name,
         course_code=course_in.course_code,
-        panel_code=course_in.panel_code,
         term_id=course_in.term_id,
     ):
         raise ConflictException(
