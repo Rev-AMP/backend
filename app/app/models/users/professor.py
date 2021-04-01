@@ -1,9 +1,13 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
-from app.models.division import Division
 from app.models.users.user import User
+
+if TYPE_CHECKING:
+    from app.models.division import Division
 
 
 class Professor(Base):
@@ -15,4 +19,7 @@ class Professor(Base):
     )
     user = relationship("User")
 
-    divisions = relationship(f"{Division.__name__}", back_populates="Professor")
+    if TYPE_CHECKING:
+        divisions = relationship(f"{Division.__table__.name}", back_populates="Professor")
+    else:
+        divisions = relationship("Division", back_populates="Professor")
