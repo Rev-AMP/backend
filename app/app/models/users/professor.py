@@ -13,3 +13,5 @@ class Professor(Base):
         primary_key=True,
     )
     user = relationship("User")
+
+    divisions = relationship("Division", back_populates="Professor")

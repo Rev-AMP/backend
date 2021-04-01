@@ -1,4 +1,5 @@
 from .course import Course
+from .division import Division
 from .school import School
 from .term import Term
 from .users.admin import Admin
