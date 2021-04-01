@@ -14,6 +14,4 @@ class Course(Base):
 
     term = relationship("Term")
 
-    __table_args__ = (
-        UniqueConstraint("name", "course_code", "term_id", name="_unique_by_name_code_term"),
-    )
+    __table_args__ = (UniqueConstraint("name", "course_code", "term_id", name="_unique_by_name_code_term"),)

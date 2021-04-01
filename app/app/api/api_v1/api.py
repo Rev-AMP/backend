@@ -3,8 +3,8 @@ from fastapi import APIRouter
 from app.api.api_v1.endpoints import (
     admins,
     courses,
-    professors,
     login,
+    professors,
     schools,
     students,
     terms,

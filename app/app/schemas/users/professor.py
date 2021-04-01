@@ -2,8 +2,9 @@ from typing import List, Optional
 
 from pydantic import BaseModel, validator
 
-from .user import User
 from app.schemas.division import Division
+
+from .user import User
 
 
 # Shared properties

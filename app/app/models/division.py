@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Column, ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
@@ -19,6 +19,4 @@ class Division(Base):
     course = relationship("Course")
     professor = relationship("Professor", back_populates="Division")
 
-    __table_args__ = (
-        UniqueConstraint("course_id", "division_code", name="_unique_by_course_division"),
-    )
+    __table_args__ = (UniqueConstraint("course_id", "division_code", name="_unique_by_course_division"),)

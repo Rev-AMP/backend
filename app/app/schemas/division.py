@@ -2,8 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from .users.professor import Professor
 from .course import Course
+from .users.professor import Professor
 
 
 # shared properties
