@@ -3,31 +3,23 @@ name: Run linting checks and tests
 jobs:
   lint:
     name: Linting
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Check Linting.
         run: |
-          cd ./app
-          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
-          pip3 install $($HOME/.poetry/bin/poetry export --dev --without-hashes | egrep "black|mypy|isort|flake8|pydantic|sqlalchemy-stubs" | cut -d';' -f1)
-          PATH=$HOME/.local/bin:$PATH ./scripts/lint.sh
+          docker run -v $PWD/app:/app ghcr.io/rev-amp/backend /app/scripts/lint.sh
   test:
     name: Tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Run tests.
         run: |
           cat > .env << EOF
-          DOMAIN=localhost
-          STACK_NAME=revamp-ci-env
-          TRAEFIK_PUBLIC_NETWORK=traefik-public
-          TRAEFIK_TAG=revamp.ci.env
-          TRAEFIK_PUBLIC_TAG=traefik-public
-          DOCKER_IMAGE_BACKEND=revamp_backend
-          DOCKER_IMAGE_CELERYWORKER=revamp_celeryworker
-          PROJECT_NAME=Epic ERP
+          SERVER_NAME=localhost
+          SERVER_HOST=http://localhost
+          PROJECT_NAME=Rev-AMP
           SECRET_KEY=$(openssl rand -hex 32)
           FIRST_SUPERUSER=admin@revamp.ci.env
           FIRST_SUPERUSER_PASSWORD=F01bc9165d5b7a67d58fDd38dafdc9ac
@@ -40,5 +32,4 @@ jobs:
           DB_PASSWORD=password
           DB_NAME=revamp
           EOF
-
-          ./scripts/test.sh
+          docker-compose up --abort-on-container-exit --exit-code-from backend
