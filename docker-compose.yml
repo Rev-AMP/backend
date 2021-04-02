@@ -110,24 +110,6 @@ services:
         - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`)
         - traefik.http.services.${STACK_NAME?Variable not set}-backend.loadbalancer.server.port=80
 
-  celeryworker:
-    image: '${DOCKER_IMAGE_CELERYWORKER?Variable not set}:${TAG-latest}'
-    depends_on:
-      - db
-      - queue
-    env_file:
-      - .env
-    environment:
-      - SERVER_NAME=${DOMAIN?Variable not set}
-      - SERVER_HOST=https://${DOMAIN?Variable not set}
-      # Allow explicit env var override for tests
-      - SMTP_HOST=${SMTP_HOST?Variable not set}
-    build:
-      context: ./
-      dockerfile: app/celeryworker.dockerfile
-      args:
-        INSTALL_DEV: ${INSTALL_DEV-false}
-
 volumes:
   app-db-data:
 
