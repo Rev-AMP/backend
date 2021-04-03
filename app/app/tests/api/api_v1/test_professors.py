@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.schemas import AdminPermissions
+from app.tests.utils.division import create_random_division
 from app.tests.utils.user import authentication_token_from_email, create_random_user
+from app.tests.utils.utils import compare_api_and_db_query_results, to_json
 
 
 def test_get_professors_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -73,6 +75,38 @@ def test_get_professor_me_normal_user(
 ) -> None:
     r = client.get(
         f"{settings.API_V1_STR}/professors/me",
+        headers=normal_user_token_headers,
+    )
+    assert r.status_code == 403
+
+
+def test_get_professor_me_divisions_superuser(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    r = client.get(
+        f"{settings.API_V1_STR}/professors/me/divisions",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 403
+
+
+def test_get_professor_me_divisions_normal_professor(client: TestClient, db: Session) -> None:
+    professor = create_random_user(db, type="professor")
+    division = create_random_division(db, professor_id=professor.id)
+    r = client.get(
+        f"{settings.API_V1_STR}/professors/me/divisions",
+        headers=authentication_token_from_email(client=client, email=professor.email, db=db),
+    )
+    assert r.status_code == 200
+    divisions = r.json()
+    compare_api_and_db_query_results(api_result=divisions[-1], db_dict=to_json(division))
+
+
+def test_get_professor_me_divisions_normal_user(
+    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+) -> None:
+    r = client.get(
+        f"{settings.API_V1_STR}/professors/me/divisions",
         headers=normal_user_token_headers,
     )
     assert r.status_code == 403
