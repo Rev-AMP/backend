@@ -10,7 +10,11 @@ from app.core.config import settings
 from app.schemas.users.admin import AdminPermissions
 from app.tests.utils.term import create_random_term, create_random_year
 from app.tests.utils.user import authentication_token_from_email, create_random_user
-from app.tests.utils.utils import random_lower_string, to_json
+from app.tests.utils.utils import (
+    compare_api_and_db_query_results,
+    random_lower_string,
+    to_json,
+)
 
 
 def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -19,7 +23,7 @@ def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, st
     assert r.status_code == 200
     results = r.json()
     assert results
-    assert results[-1] == to_json(term)
+    compare_api_and_db_query_results(api_result=results[-1], db_dict=to_json(term))
 
 
 def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -28,7 +32,7 @@ def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str
     assert r.status_code == 200
     fetched_term = r.json()
     assert fetched_term
-    assert fetched_term == to_json(term)
+    compare_api_and_db_query_results(api_result=fetched_term, db_dict=to_json(term))
 
 
 def test_get_term_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -64,8 +68,8 @@ def test_create_term(client: TestClient, superuser_token_headers: Dict[str, str]
         end_date=end_date,
     )
     assert fetched_term
-    assert created_term == to_json(fetched_term)
-    assert data == {key: value for key, value in created_term.items() if key in data.keys()}
+    compare_api_and_db_query_results(api_result=created_term, db_dict=to_json(fetched_term))
+    compare_api_and_db_query_results(data, created_term)
 
 
 def test_create_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -106,12 +110,9 @@ def test_update_term(client: TestClient, superuser_token_headers: Dict[str, str]
     }
     r = client.put(f"{settings.API_V1_STR}/terms/{term.id}", headers=superuser_token_headers, json=data)
     fetched_term = r.json()
+    db.refresh(term)
     assert fetched_term
-    assert fetched_term["id"] == term.id
-    assert fetched_term["start_date"] == (term.start_date - timedelta(days=6 * 30)).isoformat()
-    if term.end_date:
-        assert fetched_term["end_date"] == (term.end_date - timedelta(days=6 * 30)).isoformat()
-    assert fetched_term["is_active"] != term.is_active
+    compare_api_and_db_query_results(api_result=fetched_term, db_dict=to_json(term))
 
 
 def test_get_term_admin(client: TestClient, db: Session) -> None:

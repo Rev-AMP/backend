@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.core.security import verify_password
 from app.tests.utils.user import authentication_token_from_email, create_random_user
 from app.tests.utils.utils import (
+    compare_api_and_db_query_results,
     random_email,
     random_lower_string,
     random_password,
@@ -47,7 +48,7 @@ def test_create_user_new_email(client: TestClient, superuser_token_headers: dict
     created_user = r.json()
     user = crud.user.get_by_email(db, email=username)
     assert user
-    assert user.email == created_user["email"]
+    compare_api_and_db_query_results(api_result=created_user, db_dict=to_json(user))
 
 
 def test_get_existing_user(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
@@ -60,7 +61,7 @@ def test_get_existing_user(client: TestClient, superuser_token_headers: dict, db
     )
     assert r.status_code == 200
     api_user = r.json()
-    assert user.email == api_user["email"]
+    compare_api_and_db_query_results(api_result=api_user, db_dict=to_json(user))
 
 
 def test_create_user_existing_username(client: TestClient, superuser_token_headers: dict, db: Session) -> None:
@@ -151,9 +152,7 @@ def test_user_update_me(client: TestClient, db: Session) -> None:
     assert r.status_code == 200
     updated_user = r.json()
     db.refresh(user)
-    assert updated_user["id"] == user.id
-    assert updated_user["email"] == user.email == email
-    assert updated_user["full_name"] == user.full_name == full_name
+    compare_api_and_db_query_results(api_result=updated_user, db_dict=to_json(user))
     assert verify_password(password, user.hashed_password)
 
 
@@ -165,7 +164,7 @@ def test_read_user_self(client: TestClient, db: Session) -> None:
     )
     assert r.status_code == 200
     fetched_user = r.json()
-    assert fetched_user == {key: value for key, value in to_json(user).items() if key in fetched_user.keys()}
+    compare_api_and_db_query_results(api_result=fetched_user, db_dict=to_json(user))
 
 
 def test_read_user_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -173,7 +172,7 @@ def test_read_user_superuser(client: TestClient, superuser_token_headers: Dict[s
     r = client.get(f"{settings.API_V1_STR}/users/{user.id}", headers=superuser_token_headers)
     assert r.status_code == 200
     fetched_user = r.json()
-    assert fetched_user == {key: value for key, value in to_json(user).items() if key in fetched_user.keys()}
+    compare_api_and_db_query_results(api_result=fetched_user, db_dict=to_json(user))
 
 
 def test_read_non_existent_user_superuser(
@@ -208,8 +207,7 @@ def test_update_user_superuser(client: TestClient, superuser_token_headers: Dict
     assert r.status_code == 200
     updated_user = r.json()
     db.refresh(user)
-    assert updated_user["id"] == user.id
-    assert updated_user["full_name"] == user.full_name == full_name
+    compare_api_and_db_query_results(api_result=updated_user, db_dict=to_json(user))
 
 
 def test_update_non_existent_user_superuser(
@@ -301,8 +299,9 @@ def test_update_profile_picture_superuser(
         files={"image": ("profile_picture.png", open("/tmp/profile_picture.png", "rb").read(), "image/png")},
     )
     updated_user = r.json()
+    db.refresh(user)
     assert r.status_code == 200
-    assert updated_user["profile_picture"]
+    compare_api_and_db_query_results(api_result=updated_user, db_dict=to_json(user))
     assert isfile(f"profile_pictures/{updated_user['profile_picture']}")
 
 
@@ -367,6 +366,7 @@ def test_update_profile_picture_normal_user_self(
         files={"image": ("profile_picture.png", open("/tmp/profile_picture.png", "rb").read(), "image/png")},
     )
     updated_user = r.json()
+    db.refresh(user)
     assert r.status_code == 200
-    assert updated_user["profile_picture"]
+    compare_api_and_db_query_results(api_result=updated_user, db_dict=to_json(user))
     assert isfile(f"profile_pictures/{updated_user['profile_picture']}")

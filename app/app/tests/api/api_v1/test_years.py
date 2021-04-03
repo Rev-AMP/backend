@@ -9,7 +9,11 @@ from app import crud
 from app.core.config import settings
 from app.schemas.users.admin import AdminPermissions
 from app.tests.utils.user import authentication_token_from_email, create_random_user
-from app.tests.utils.utils import random_lower_string, to_json
+from app.tests.utils.utils import (
+    compare_api_and_db_query_results,
+    random_lower_string,
+    to_json,
+)
 from app.tests.utils.year import create_random_school, create_random_year
 
 
@@ -19,7 +23,7 @@ def test_get_all_years(client: TestClient, superuser_token_headers: Dict[str, st
     assert r.status_code == 200
     results = r.json()
     assert results
-    assert results[-1] == to_json(year)
+    compare_api_and_db_query_results(api_result=results[-1], db_dict=to_json(year))
 
 
 def test_get_year_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -28,7 +32,7 @@ def test_get_year_existing(client: TestClient, superuser_token_headers: Dict[str
     assert r.status_code == 200
     fetched_year = r.json()
     assert fetched_year
-    assert fetched_year == to_json(year)
+    compare_api_and_db_query_results(api_result=fetched_year, db_dict=to_json(year))
 
 
 def test_get_year_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -54,8 +58,8 @@ def test_create_year(client: TestClient, superuser_token_headers: Dict[str, str]
     created_year = r.json()
     year = crud.year.get_by_details(db, name=name, school_id=school_id, start_year=start_year, end_year=end_year)
     assert year
-    assert created_year == to_json(year)
-    assert data == {key: value for key, value in created_year.items() if key in data.keys()}
+    compare_api_and_db_query_results(api_result=created_year, db_dict=to_json(year))
+    compare_api_and_db_query_results(data, created_year)
 
 
 def test_create_year_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -90,12 +94,9 @@ def test_update_year(client: TestClient, superuser_token_headers: Dict[str, str]
     r = client.put(f"{settings.API_V1_STR}/years/{year.id}", headers=superuser_token_headers, json=data)
     assert r.status_code == 200
     fetched_year = r.json()
+    db.refresh(year)
     assert fetched_year
-    assert fetched_year["id"] == year.id
-    assert fetched_year["name"] == year.name
-    assert fetched_year["start_year"] == year.start_year - 1
-    assert fetched_year["end_year"] == year.end_year - 1
-    assert fetched_year["is_active"] != year.is_active
+    compare_api_and_db_query_results(api_result=fetched_year, db_dict=to_json(year))
 
 
 def test_get_year_admin(client: TestClient, db: Session) -> None:
