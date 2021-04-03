@@ -22,7 +22,7 @@ def test_get_all_divisions(client: TestClient, superuser_token_headers: Dict[str
     assert r.status_code == 200
     results = r.json()
     assert results
-    compare_api_and_db_query_results(results, to_json(division))
+    compare_api_and_db_query_results(results[-1], to_json(division))
 
 
 def test_get_division_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
