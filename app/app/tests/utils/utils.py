@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.schema import Table
 
 from app.core.config import settings
 
@@ -37,21 +38,24 @@ def get_superuser_token_headers(client: TestClient, type_: str = "access") -> Di
     return headers
 
 
-def to_json(obj: Any, show_relations: Optional[bool] = True) -> Dict:
+def to_json(obj: Any, show_relations: Optional[bool] = True, backref: Optional[Table] = None) -> Dict:
     result = {}
     for attr, column in obj.__mapper__.c.items():
         result[column.key] = value.isoformat() if isinstance(value := getattr(obj, attr), date) else value
 
     if show_relations and len(obj.__mapper__.relationships.items()) != 0:
         for attr, relation in obj.__mapper__.relationships.items():
-            value = getattr(obj, attr)
+            # Avoid recursive loop between two tables.
+            if backref == relation.target:
+                continue
 
+            value = getattr(obj, attr)
             if value is None:
                 result[relation.key] = None
             elif isinstance(value.__class__, DeclarativeMeta):
-                result[relation.key] = to_json(value)
+                result[relation.key] = to_json(obj=value, backref=obj.__table__)
             else:
-                result[relation.key] = [to_json(i) for i in value]
+                result[relation.key] = [to_json(obj=i, backref=obj.__table__) for i in value]
     return result
 
 
