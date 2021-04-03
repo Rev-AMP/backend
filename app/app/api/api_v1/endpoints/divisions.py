@@ -16,7 +16,7 @@ def read_divisions(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("division")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("division")),
 ) -> Any:
     return crud.division.get_multi(db, skip=skip, limit=limit)
 
@@ -26,7 +26,7 @@ def read_division_by_id(
     *,
     db: Session = Depends(deps.get_db),
     division_id: int,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if division := crud.division.get(db, id=division_id):
         return division
@@ -38,7 +38,7 @@ def create_division(
     *,
     db: Session = Depends(deps.get_db),
     division_in: schemas.DivisionCreate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if crud.division.get_by_details(db, course_id=division_in.course_id, division_code=division_in.division_code):
         raise ConflictException(
@@ -57,7 +57,7 @@ def update_division(
     db: Session = Depends(deps.get_db),
     division_id: int,
     division_in: schemas.DivisionUpdate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if division := crud.division.get(db, id=division_id):
         logging.info(
@@ -74,7 +74,7 @@ def delete_division(
     *,
     db: Session = Depends(deps.get_db),
     division_id: int,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if division := crud.division.get(db, id=division_id):
         logging.info(

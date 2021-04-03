@@ -17,7 +17,7 @@ def read_professors(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("professor")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("professor")),
 ) -> Any:
     """
     Retrieve professors
@@ -108,7 +108,7 @@ def update_professor(
     db: Session = Depends(deps.get_db),
     professor_id: int,
     professor_in: schemas.ProfessorUpdate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("professor")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("professor")),
 ) -> Any:
     """
     Update professor.

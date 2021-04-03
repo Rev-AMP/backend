@@ -71,22 +71,14 @@ def get_current_student(db: Session = Depends(get_db), user: models.User = Depen
     raise ForbiddenException(detail="User is not a student")
 
 
-def get_current_professor(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> models.Professor:
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
-        token_data = schemas.TokenPayload(**payload)
-    except (jwt.JWTError, ValidationError):
-        raise ForbiddenException(
-            detail="Could not validate credentials",
-        )
-
-    if user := crud.user.get(db, id=token_data.sub):
-        if user.type == "professor":
-            if professor := crud.professor.get(db, id=user.id):
-                return professor
-            raise NotFoundException(detail="Professor object not found")
-        raise ForbiddenException(detail="User is not a professor")
-    raise NotFoundException(detail="User not found")
+def get_current_professor(
+    db: Session = Depends(get_db), user: models.User = Depends(get_current_user)
+) -> models.Professor:
+    if user.type == "professor":
+        if student := crud.professor.get(db, id=user.id):
+            return student
+        raise NotFoundException(detail="Professor object not found")
+    raise ForbiddenException(detail="User is not a professor")
 
 
 def get_current_admin_with_permission(permission: str) -> Callable:
