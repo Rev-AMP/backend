@@ -27,6 +27,7 @@ class DivisionUpdate(BaseModel):
 
 # Additional properties to return through API
 class Division(DivisionBase):
+    id: int
     course: Optional[Course]
     professor: Optional[Professor]
 
