@@ -35,6 +35,17 @@ def get_professor_me(
     return current_professor
 
 
+@router.get("/me/divisions", response_model=List[schemas.Division])
+def get_professor_divisions(
+    current_professor: models.Professor = Depends(deps.get_current_professor),
+    db: Session = Depends(deps.get_db),
+) -> Any:
+    """
+    Get all divisions for current professor
+    """
+    return crud.division.get_all_divisions_for_professor(db, professor_id=current_professor.user_id)
+
+
 @router.get("/{professor_id}", response_model=schemas.Professor)
 def read_professor_by_id(
     professor_id: int, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
@@ -56,6 +67,34 @@ def read_professor_by_id(
     ):
         if professor:
             return professor
+        raise NotFoundException(
+            detail="The professor with this ID does not exist in the system",
+        )
+
+    raise ForbiddenException(detail="The user doesn't have enough privileges")
+
+
+@router.get("/{professor_id}/divisions", response_model=List[schemas.Division])
+def read_professor_divisions_by_id(
+    professor_id: int, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
+) -> Any:
+    """
+    Get all divisions for a specific professor by ID.
+    """
+
+    # Fetch professor with the corresponding ID from DB
+    professor = crud.professor.get(db, id=professor_id)
+
+    # Return the fetched object without checking perms if current_professor is trying to fetch itself
+    if current_user.id == professor_id:
+        return crud.division.get_all_divisions_for_professor(db, professor_id=professor.user_id)
+
+    # check perms and return if professor exists, else 404
+    if (admin := crud.admin.get(db, id=current_user.id)) and AdminPermissions(admin.permissions).is_allowed(
+        "professor"
+    ):
+        if professor:
+            return crud.division.get_all_divisions_for_professor(db, professor_id=professor.user_id)
         raise NotFoundException(
             detail="The professor with this ID does not exist in the system",
         )
