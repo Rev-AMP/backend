@@ -181,6 +181,81 @@ def test_read_professor_by_id_normal_user(
     assert r.status_code == 403
 
 
+def test_read_professor_divisions_by_id_superuser(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    professor = create_random_user(db, type="professor")
+    division = create_random_division(db, professor_id=professor.id)
+    r = client.get(
+        f"{settings.API_V1_STR}/professors/{professor.id}/divisions",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 200
+    divisions = r.json()
+    compare_api_and_db_query_results(api_result=divisions[-1], db_dict=to_json(division))
+
+
+def test_read_professor_divisions_by_id_superuser_nonexistent_professor(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    user = create_random_user(db, type="student")
+    r = client.get(
+        f"{settings.API_V1_STR}/professors/{user.id}/divisions",
+        headers=superuser_token_headers,
+    )
+    assert r.status_code == 404
+
+
+def test_read_professor_divisions_by_id_admin_with_permissions(client: TestClient, db: Session) -> None:
+    professor = create_random_user(db, type="professor")
+    division = create_random_division(db, professor_id=professor.id)
+    admin_perms = AdminPermissions(0)
+    admin_perms["professor"] = True
+    admin_with_perms = create_random_user(db, type="admin", permissions=admin_perms.permissions)
+    r = client.get(
+        f"{settings.API_V1_STR}/professors/{professor.id}/divisions",
+        headers=authentication_token_from_email(client=client, email=admin_with_perms.email, db=db),
+    )
+    assert r.status_code == 200
+    divisions = r.json()
+    compare_api_and_db_query_results(api_result=divisions[-1], db_dict=to_json(division))
+
+
+def test_read_professor_divisions_by_id_professor(client: TestClient, db: Session) -> None:
+    professor = create_random_user(db, type="professor")
+    division = create_random_division(db, professor_id=professor.id)
+    r = client.get(
+        f"{settings.API_V1_STR}/professors/{professor.id}/divisions",
+        headers=authentication_token_from_email(client=client, email=professor.email, db=db),
+    )
+    assert r.status_code == 200
+    divisions = r.json()
+    compare_api_and_db_query_results(api_result=divisions[-1], db_dict=to_json(division))
+
+
+def test_read_professor_divisions_by_id_normal_professor_fetch_self(client: TestClient, db: Session) -> None:
+    professor = create_random_user(db, type="professor")
+    division = create_random_division(db, professor_id=professor.id)
+    r = client.get(
+        f"{settings.API_V1_STR}/professors/{professor.id}/divisions",
+        headers=authentication_token_from_email(client=client, email=professor.email, db=db),
+    )
+    assert r.status_code == 200
+    divisions = r.json()
+    compare_api_and_db_query_results(api_result=divisions[-1], db_dict=to_json(division))
+
+
+def test_read_professor_divisions_by_id_normal_user(
+    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+) -> None:
+    professor = create_random_user(db, type="professor")
+    r = client.get(
+        f"{settings.API_V1_STR}/professors/{professor.id}/divisions",
+        headers=normal_user_token_headers,
+    )
+    assert r.status_code == 403
+
+
 def test_update_professor_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     professor = create_random_user(db, type="professor")
     r = client.put(f"{settings.API_V1_STR}/professors/{professor.id}", headers=superuser_token_headers, json={})
