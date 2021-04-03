@@ -27,8 +27,6 @@ def create_random_division(
     return crud.division.create(
         db,
         obj_in=DivisionCreate(
-            course_id=course_id,
-            division_code=division_code or randint(1, 20),
-            professor_id=professor_id
-        )
+            course_id=course_id, division_code=division_code or randint(1, 20), professor_id=professor_id
+        ),
     )
