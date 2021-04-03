@@ -21,9 +21,9 @@ def test_create_division(db: Session) -> None:
 
 
 def test_update_division(db: Session) -> None:
+    professor_id = create_random_professor(db).user_id
     division = create_random_division(db)
     assert division
-    professor_id = create_random_professor(db).user_id
     updated_division = crud.division.update(db, db_obj=division, obj_in=DivisionUpdate(professor_id=professor_id))
     assert updated_division.professor_id == professor_id
 
