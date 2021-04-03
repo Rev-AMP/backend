@@ -1,8 +1,6 @@
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, validator
-
-from app.schemas.division import Division
 
 from .user import User
 
@@ -36,7 +34,6 @@ class ProfessorRemove(ProfessorBase):
 # Additional properties to return through API
 class Professor(ProfessorBase):
     user: Optional[User]
-    divisions: Optional[List[Division]]
 
     class Config:
         orm_mode = True
