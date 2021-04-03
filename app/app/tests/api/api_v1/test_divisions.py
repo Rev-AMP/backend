@@ -59,7 +59,7 @@ def test_create_division(client: TestClient, superuser_token_headers: Dict[str, 
     )
     assert fetched_division
     compare_api_and_db_query_results(created_division, to_json(fetched_division))
-    compare_api_and_db_query_results(data, fetched_division)
+    compare_api_and_db_query_results(data, to_json(fetched_division))
 
 
 def test_create_division_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
