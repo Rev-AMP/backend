@@ -16,7 +16,6 @@ from app.exceptions import (
     ForbiddenException,
     NotFoundException,
 )
-from app.models import User
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/login/access-token")
 
@@ -56,7 +55,7 @@ def get_current_user_refresh(db: Session = Depends(get_db), token: str = Depends
     return get_user_from_token(token, "refresh", db)
 
 
-def get_current_admin(db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> models.Admin:
+def get_current_admin(db: Session = Depends(get_db), user: models.User = Depends(get_current_user)) -> models.Admin:
     if user.is_admin:
         if admin := crud.admin.get(db, id=user.id):
             return admin
@@ -64,7 +63,7 @@ def get_current_admin(db: Session = Depends(get_db), user: User = Depends(get_cu
     raise ForbiddenException(detail="User is not an administrator")
 
 
-def get_current_student(db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> models.Student:
+def get_current_student(db: Session = Depends(get_db), user: models.User = Depends(get_current_user)) -> models.Student:
     if user.type == "student":
         if student := crud.student.get(db, id=user.id):
             return student
