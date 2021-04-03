@@ -46,7 +46,6 @@ def login_refresh_token(
         if crud.user.is_active(user):
             return create_token(user.id)
         raise ForbiddenException(detail="Inactive user")
-    raise UnauthorizedException(detail="Incorrect refresh token")
 
 
 @router.post("/login/test-token", response_model=schemas.User)
