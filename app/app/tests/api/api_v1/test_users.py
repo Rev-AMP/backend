@@ -1,3 +1,4 @@
+from os import remove
 from os.path import isfile
 from typing import Dict
 
@@ -304,6 +305,7 @@ def test_update_profile_picture_superuser(
     assert r.status_code == 200
     assert updated_user["profile_picture"]
     assert isfile(f"profile_pictures/{updated_user['profile_picture']}")
+    remove(f"profile_pictures/{updated_user['profile_picture']}")
 
 
 def test_update_profile_picture_superuser_non_existent_user(
@@ -370,3 +372,4 @@ def test_update_profile_picture_normal_user_self(
     assert r.status_code == 200
     assert updated_user["profile_picture"]
     assert isfile(f"profile_pictures/{updated_user['profile_picture']}")
+    remove(f"profile_pictures/{updated_user['profile_picture']}")
