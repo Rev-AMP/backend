@@ -13,7 +13,7 @@ from app.tests.utils.division import (
     create_random_professor,
 )
 from app.tests.utils.user import authentication_token_from_email, create_random_user
-from app.tests.utils.utils import to_json
+from app.tests.utils.utils import compare_api_and_db_query_results, to_json
 
 
 def test_get_all_divisions(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -22,7 +22,7 @@ def test_get_all_divisions(client: TestClient, superuser_token_headers: Dict[str
     assert r.status_code == 200
     results = r.json()
     assert results
-    assert results[-1] == to_json(division)
+    compare_api_and_db_query_results(results, to_json(division))
 
 
 def test_get_division_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -31,7 +31,7 @@ def test_get_division_existing(client: TestClient, superuser_token_headers: Dict
     assert r.status_code == 200
     fetched_division = r.json()
     assert fetched_division
-    assert fetched_division == to_json(division)
+    compare_api_and_db_query_results(fetched_division, to_json(division))
 
 
 def test_get_division_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -58,8 +58,8 @@ def test_create_division(client: TestClient, superuser_token_headers: Dict[str, 
         division_code=division_code,
     )
     assert fetched_division
-    assert created_division == to_json(fetched_division)
-    assert data == {key: value for key, value in created_division.items() if key in data.keys()}
+    compare_api_and_db_query_results(created_division, to_json(fetched_division))
+    compare_api_and_db_query_results(data, fetched_division)
 
 
 def test_create_division_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -80,9 +80,9 @@ def test_update_division(client: TestClient, superuser_token_headers: Dict[str, 
     data = {"professor_id": professor_id}
     r = client.put(f"{settings.API_V1_STR}/divisions/{division.id}", headers=superuser_token_headers, json=data)
     fetched_division = r.json()
+    db.refresh(division)
     assert fetched_division
-    assert fetched_division["id"] == division.id
-    assert fetched_division["professor_id"] == professor_id
+    compare_api_and_db_query_results(fetched_division, to_json(division))
 
 
 def test_update_division_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
