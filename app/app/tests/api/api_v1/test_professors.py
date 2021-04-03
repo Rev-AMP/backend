@@ -153,3 +153,11 @@ def test_update_professor_superuser(client: TestClient, superuser_token_headers:
     assert r.status_code == 200
     updated_professor = r.json()
     assert professor.id == updated_professor["user_id"]
+
+
+def test_update_non_existent_professor_superuser(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    professor = create_random_user(db, type="student")
+    r = client.put(f"{settings.API_V1_STR}/professors/{professor.id}", headers=superuser_token_headers, json={})
+    assert r.status_code == 404
