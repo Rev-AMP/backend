@@ -48,6 +48,7 @@ class AdminPermissions:
         "course": "CRUD operations on courses",
         "cbcs": "CRUD operations on CBCS",
         "student": "CRUD operations on students",
+        "professor": "CRUD operations on professors",
     }
 
     def __init__(self, permissions: int):
@@ -61,6 +62,7 @@ class AdminPermissions:
             "course": 5,
             "cbcs": 6,
             "student": 7,
+            "professor": 8,
         }
 
         self.permissions = permissions
