@@ -86,7 +86,7 @@ def read_professor_divisions_by_id(
     professor = crud.professor.get(db, id=professor_id)
 
     # Return the fetched object without checking perms if current_professor is trying to fetch itself
-    if current_user.id == professor_id:
+    if professor and current_user.id == professor_id:
         return crud.division.get_all_divisions_for_professor(db, professor_id=professor.user_id)
 
     # check perms and return if professor exists, else 404
