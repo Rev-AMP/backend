@@ -25,7 +25,7 @@ def read_users(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("user")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("user")),
 ) -> Any:
     """
     Retrieve users.
@@ -39,7 +39,7 @@ def create_user(
     *,
     db: Session = Depends(deps.get_db),
     user_in: schemas.UserCreate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("user")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("user")),
 ) -> Any:
     """
     Create new user.
@@ -74,7 +74,7 @@ def update_user_me(
     password: str = Body(None),
     full_name: str = Body(None),
     email: EmailStr = Body(None),
-    current_user: models.User = Depends(deps.get_current_active_user),
+    current_user: models.User = Depends(deps.get_current_user),
 ) -> Any:
     """
     Update own user.
@@ -100,7 +100,7 @@ def update_user_me(
 
 @router.get("/me", response_model=schemas.User)
 def read_user_me(
-    current_user: models.User = Depends(deps.get_current_active_user),
+    current_user: models.User = Depends(deps.get_current_user),
 ) -> Any:
     """
     Get current user.
@@ -111,7 +111,7 @@ def read_user_me(
 @router.get("/{user_id}", response_model=schemas.User)
 def read_user_by_id(
     user_id: int,
-    current_user: models.User = Depends(deps.get_current_active_user),
+    current_user: models.User = Depends(deps.get_current_user),
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
@@ -144,7 +144,7 @@ def update_user(
     db: Session = Depends(deps.get_db),
     user_id: int,
     user_in: schemas.UserUpdate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("user")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("user")),
 ) -> Any:
     """
     Update a user.
@@ -176,7 +176,7 @@ def update_user_profile_picture(
     db: Session = Depends(deps.get_db),
     user_id: int,
     image: UploadFile = File(...),
-    current_user: models.User = Depends(deps.get_current_active_user),
+    current_user: models.User = Depends(deps.get_current_user),
 ) -> Any:
     """
     Update a user's profile picture

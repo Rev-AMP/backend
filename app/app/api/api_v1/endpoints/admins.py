@@ -16,7 +16,7 @@ def read_admins(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("admin")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("admin")),
 ) -> Any:
     """
     Retrieve admins
@@ -65,7 +65,7 @@ def update_admin(
     *,
     db: Session = Depends(deps.get_db),
     admin_in: schemas.AdminUpdate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("admin")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("admin")),
 ) -> Any:
     """
     Update admin.
