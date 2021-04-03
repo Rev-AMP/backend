@@ -21,13 +21,13 @@ class DivisionCreate(DivisionBase):
 
 
 # Properties to receive via API on update
-class DivisionUpdate(BaseModel):
+class DivisionUpdate(DivisionBase):
     pass
 
 
 # Additional properties to return through API
 class Division(DivisionBase):
-    id: int
+    id: Optional[int] = None
     course: Optional[Course]
     professor: Optional[Professor]
 
