@@ -145,3 +145,11 @@ def test_read_professor_by_id_normal_user(
         headers=normal_user_token_headers,
     )
     assert r.status_code == 403
+
+
+def test_update_professor_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    professor = create_random_user(db, type="professor")
+    r = client.put(f"{settings.API_V1_STR}/professors/{professor.id}", headers=superuser_token_headers, json={})
+    assert r.status_code == 200
+    updated_professor = r.json()
+    assert professor.id == updated_professor["user_id"]
