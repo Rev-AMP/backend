@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 set -e
 
-python /app/app/tests_pre_start.py
+module=${1:-app/tests}
 
-bash ./scripts/test.sh "$@"
+python app/initial_data.py
+pytest --cov=app --cov-report=term-missing ${module}
