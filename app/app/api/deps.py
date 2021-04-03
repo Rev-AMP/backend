@@ -28,11 +28,11 @@ def get_db() -> Generator:
         db.close()
 
 
-def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> models.User:
+def get_user_from_token(token: str, token_type: str, db: Session) -> models.User:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
         token_data = schemas.TokenPayload(**payload)
-        if token_data.type != "access":
+        if token_data.type != token_type:
             raise BadRequestException(
                 detail="Invalid token",
             )
@@ -40,83 +40,38 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusabl
         raise ForbiddenException(
             detail="Could not validate credentials",
         )
-
     if user := crud.user.get(db, id=token_data.sub):
-        return user
+        if user.is_active:
+            return user
+        raise ConflictException("User account is disabled")
     raise NotFoundException(detail="User not found")
+
+
+def get_current_user(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> models.User:
+    return get_user_from_token(token, "access", db)
 
 
 def get_current_user_refresh(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> models.User:
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
-        token_data = schemas.TokenPayload(**payload)
-        if token_data.type != "refresh":
-            raise BadRequestException(
-                detail="Invalid token",
-            )
-    except (jwt.JWTError, ValidationError):
-        raise ForbiddenException(
-            detail="Could not validate credentials",
-        )
-
-    if user := crud.user.get(db, id=token_data.sub):
-        return user
-    raise NotFoundException(detail="User not found")
+    return get_user_from_token(token, "refresh", db)
 
 
-def get_current_admin(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> models.Admin:
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
-        token_data = schemas.TokenPayload(**payload)
-    except (jwt.JWTError, ValidationError):
-        raise ForbiddenException(
-            detail="Could not validate credentials",
-        )
-
-    if user := crud.user.get(db, id=token_data.sub):
-        if user.is_admin:
-            if admin := crud.admin.get(db, id=user.id):
-                return admin
-            raise NotFoundException(detail="Admin object not found")
-        raise ForbiddenException(detail="User is not an administrator")
-    raise NotFoundException(detail="User not found")
+def get_current_admin(db: Session = Depends(get_db), user: models.User = Depends(get_current_user)) -> models.Admin:
+    if user.is_admin:
+        if admin := crud.admin.get(db, id=user.id):
+            return admin
+        raise NotFoundException(detail="Admin object not found")
+    raise ForbiddenException(detail="User is not an administrator")
 
 
-def get_current_student(db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)) -> models.Student:
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
-        token_data = schemas.TokenPayload(**payload)
-    except (jwt.JWTError, ValidationError):
-        raise ForbiddenException(
-            detail="Could not validate credentials",
-        )
-
-    if user := crud.user.get(db, id=token_data.sub):
-        if user.type == "student":
-            if student := crud.student.get(db, id=user.id):
-                return student
-            raise NotFoundException(detail="Student object not found")
-        raise ForbiddenException(detail="User is not a student")
-    raise NotFoundException(detail="User not found")
+def get_current_student(db: Session = Depends(get_db), user: models.User = Depends(get_current_user)) -> models.Student:
+    if user.type == "student":
+        if student := crud.student.get(db, id=user.id):
+            return student
+        raise NotFoundException(detail="Student object not found")
+    raise ForbiddenException(detail="User is not a student")
 
 
-def get_current_active_user(
-    current_user: models.User = Depends(get_current_user),
-) -> models.User:
-    if crud.user.is_active(current_user):
-        return current_user
-    raise ConflictException(detail="Inactive user")
-
-
-def get_current_active_admin(
-    current_user: models.User = Depends(get_current_user),
-) -> models.User:
-    if current_user.is_admin:
-        return current_user
-    raise ForbiddenException(detail="The user doesn't have enough privileges")
-
-
-def get_current_active_admin_with_permission(permission: str) -> Callable:
+def get_current_admin_with_permission(permission: str) -> Callable:
     """
     Return a function that checks if the current active admin has permission for given task
     """
@@ -129,7 +84,7 @@ def get_current_active_admin_with_permission(permission: str) -> Callable:
     return inner
 
 
-def get_current_active_superuser(
+def get_current_superuser(
     current_user: models.User = Depends(get_current_user),
 ) -> models.User:
     if crud.user.is_superuser(current_user):

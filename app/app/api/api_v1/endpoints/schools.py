@@ -16,7 +16,7 @@ def read_schools(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     """
     Retrieve schools.
@@ -30,7 +30,7 @@ def create_school(
     *,
     db: Session = Depends(deps.get_db),
     school_in: schemas.SchoolCreate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     """
     Create new school.
@@ -57,7 +57,7 @@ def create_school(
 @router.get("/{school_id}", response_model=schemas.School)
 def read_school_by_id(
     school_id: int,
-    current_user: models.User = Depends(deps.get_current_active_user),
+    current_user: models.User = Depends(deps.get_current_user),
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
@@ -89,7 +89,7 @@ def update_school(
     db: Session = Depends(deps.get_db),
     school_id: int,
     school_in: schemas.SchoolUpdate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     """
     Update a school.
@@ -116,7 +116,7 @@ def get_students(
     *,
     db: Session = Depends(deps.get_db),
     school_id: int,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     """
     Get all students belonging to a school.
@@ -129,7 +129,7 @@ def get_professors(
     *,
     db: Session = Depends(deps.get_db),
     school_id: int,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     """
     Get all students belonging to a school.
@@ -142,7 +142,7 @@ def delete_school(
     *,
     db: Session = Depends(deps.get_db),
     school_id: int,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("school")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     if school := crud.school.get(db, school_id):
         logging.info(

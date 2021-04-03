@@ -16,7 +16,7 @@ def read_terms(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("term")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
 ) -> Any:
     terms = crud.term.get_multi(db, skip=skip, limit=limit)
     return terms
@@ -27,7 +27,7 @@ def read_term_by_id(
     *,
     db: Session = Depends(deps.get_db),
     term_id: int,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("term")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
 ) -> Any:
     if term := crud.term.get(db, term_id):
         return term
@@ -39,7 +39,7 @@ def create_term(
     *,
     db: Session = Depends(deps.get_db),
     term_in: schemas.TermCreate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("term")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
 ) -> Any:
 
     if crud.term.get_by_details(
@@ -64,7 +64,7 @@ def update_term(
     db: Session = Depends(deps.get_db),
     term_id: int,
     term_in: schemas.TermUpdate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("term")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
 ) -> Any:
     if term := crud.term.get(db, term_id):
         logging.info(
@@ -80,7 +80,7 @@ def delete_term(
     *,
     db: Session = Depends(deps.get_db),
     term_id: int,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("term")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
 ) -> Any:
     if term := crud.term.get(db, term_id):
         logging.info(

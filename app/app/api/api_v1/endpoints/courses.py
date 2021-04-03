@@ -16,7 +16,7 @@ def read_courses(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     return crud.course.get_multi(db, skip=skip, limit=limit)
 
@@ -26,7 +26,7 @@ def read_course_by_id(
     *,
     db: Session = Depends(deps.get_db),
     course_id: int,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if course := crud.course.get(db, id=course_id):
         return course
@@ -38,7 +38,7 @@ def create_course(
     *,
     db: Session = Depends(deps.get_db),
     course_in: schemas.CourseCreate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
 
     if crud.course.get_by_details(
@@ -62,7 +62,7 @@ def update_course(
     db: Session = Depends(deps.get_db),
     course_id: int,
     course_in: schemas.CourseUpdate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if course := crud.course.get(db, id=course_id):
         logging.info(
@@ -78,7 +78,7 @@ def delete_course(
     *,
     db: Session = Depends(deps.get_db),
     course_id: int,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("course")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if course := crud.course.get(db, id=course_id):
         logging.info(

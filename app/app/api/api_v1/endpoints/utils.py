@@ -13,7 +13,7 @@ router = APIRouter()
 @router.post("/test-email/", response_model=schemas.Msg, status_code=201)
 def test_email(
     email_to: EmailStr,
-    _: models.User = Depends(deps.get_current_active_superuser),
+    _: models.User = Depends(deps.get_current_superuser),
 ) -> Any:
     """
     Test emails.

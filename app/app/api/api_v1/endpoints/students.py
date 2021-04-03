@@ -17,7 +17,7 @@ def read_students(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    _: models.Admin = Depends(deps.get_current_active_admin_with_permission("student")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("student")),
 ) -> Any:
     """
     Retrieve students
@@ -67,7 +67,7 @@ def update_student(
     db: Session = Depends(deps.get_db),
     student_id: int,
     student_in: schemas.StudentUpdate,
-    current_admin: models.Admin = Depends(deps.get_current_active_admin_with_permission("student")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("student")),
 ) -> Any:
     """
     Update student.
