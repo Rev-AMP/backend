@@ -99,6 +99,28 @@ def test_update_user_superuser(db: Session) -> None:
     assert verify_password(new_password, user_2.hashed_password)
 
 
+def test_update_user_with_dict_superuser(db: Session) -> None:
+    user = create_random_user(db, type="superuser")
+    db.refresh(user)
+    new_password = random_password()
+    user_in_update = {"password": new_password}
+    crud.user.update(db, db_obj=user, obj_in=user_in_update)
+    user_2 = crud.user.get(db, id=user.id)
+    assert user_2
+    assert user.email == user_2.email
+    assert verify_password(new_password, user_2.hashed_password)
+
+
+def test_update_user_professor_admin_demote(db: Session) -> None:
+    user = create_random_user(db, type="professor", is_admin=True)
+    db.refresh(user)
+    user_in_update = UserUpdate(is_admin=False)
+    crud.user.update(db, db_obj=user, obj_in=user_in_update)
+    user_2 = crud.user.get(db, id=user.id)
+    assert user_2
+    assert user.email == user_2.email
+
+
 def test_update_user_student_not_password(db: Session) -> None:
     user = create_random_user(db, type="student")
     full_name = random_lower_string()
