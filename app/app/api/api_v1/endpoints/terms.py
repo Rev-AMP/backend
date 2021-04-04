@@ -34,6 +34,18 @@ def read_term_by_id(
     raise NotFoundException(detail="The term with this ID does not exist!")
 
 
+@router.get("/{term_id}/students", response_model=List[schemas.Student])
+def read_term_students_by_id(
+    *,
+    db: Session = Depends(deps.get_db),
+    term_id: int,
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
+) -> Any:
+    if term := crud.term.get(db, term_id):
+        return term.students
+    raise NotFoundException(detail="The term with this ID does not exist!")
+
+
 @router.post("/", response_model=schemas.Term)
 def create_term(
     *,

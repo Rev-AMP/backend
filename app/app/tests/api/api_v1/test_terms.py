@@ -8,6 +8,7 @@ from starlette.testclient import TestClient
 from app import crud
 from app.core.config import settings
 from app.schemas.users.admin import AdminPermissions
+from app.tests.utils.student import create_random_student
 from app.tests.utils.term import create_random_term, create_random_year
 from app.tests.utils.user import authentication_token_from_email, create_random_user
 from app.tests.utils.utils import (
@@ -26,6 +27,26 @@ def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, st
     compare_api_and_db_query_results(api_result=results[-1], db_dict=to_json(term))
 
 
+def test_get_terms_admin(client: TestClient, db: Session) -> None:
+    admin_perms = AdminPermissions(0)
+    admin_perms["term"] = True
+    admin = create_random_user(db=db, type="admin", permissions=admin_perms.permissions)
+    admin_user_token_headers = authentication_token_from_email(
+        client=client, db=db, email=admin.email, user_type="admin"
+    )
+    r = client.get(f"{settings.API_V1_STR}/terms/", headers=admin_user_token_headers)
+    assert r.status_code == 200
+
+
+def test_get_terms_weakadmin(client: TestClient, db: Session) -> None:
+    admin = create_random_user(db=db, type="admin", permissions=0)
+    admin_user_token_headers = authentication_token_from_email(
+        client=client, db=db, email=admin.email, user_type="admin"
+    )
+    r = client.get(f"{settings.API_V1_STR}/terms/", headers=admin_user_token_headers)
+    assert r.status_code == 403
+
+
 def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     term = create_random_term(db=db)
     r = client.get(f"{settings.API_V1_STR}/terms/{term.id}", headers=superuser_token_headers)
@@ -38,6 +59,27 @@ def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str
 def test_get_term_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     last_term_id = crud.term.get_multi(db)[-1].id
     r = client.get(f"{settings.API_V1_STR}/terms/{last_term_id+1}", headers=superuser_token_headers)
+    assert r.status_code == 404
+
+
+def test_get_term_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    term = create_random_term(db=db)
+    student = create_random_student(db=db, term_id=term.id)
+    db.refresh(term)
+    assert term.students[-1] == student
+    r = client.get(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers)
+    assert r.status_code == 200
+    students = r.json()
+    assert students
+    for api_obj, db_obj in zip(students, term.students):
+        compare_api_and_db_query_results(api_result=api_obj, db_dict=to_json(db_obj))
+
+
+def test_get_term_students_nonexisting(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    last_term_id = crud.term.get_multi(db)[-1].id
+    r = client.get(f"{settings.API_V1_STR}/terms/{last_term_id+1}/students", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
@@ -113,26 +155,6 @@ def test_update_term(client: TestClient, superuser_token_headers: Dict[str, str]
     db.refresh(term)
     assert fetched_term
     compare_api_and_db_query_results(api_result=fetched_term, db_dict=to_json(term))
-
-
-def test_get_term_admin(client: TestClient, db: Session) -> None:
-    admin_perms = AdminPermissions(0)
-    admin_perms["term"] = True
-    admin = create_random_user(db=db, type="admin", permissions=admin_perms.permissions)
-    admin_user_token_headers = authentication_token_from_email(
-        client=client, db=db, email=admin.email, user_type="admin"
-    )
-    r = client.get(f"{settings.API_V1_STR}/terms/", headers=admin_user_token_headers)
-    assert r.status_code == 200
-
-
-def test_get_term_weakadmin(client: TestClient, db: Session) -> None:
-    admin = create_random_user(db=db, type="admin", permissions=0)
-    admin_user_token_headers = authentication_token_from_email(
-        client=client, db=db, email=admin.email, user_type="admin"
-    )
-    r = client.get(f"{settings.API_V1_STR}/terms/", headers=admin_user_token_headers)
-    assert r.status_code == 403
 
 
 def test_delete_term(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
