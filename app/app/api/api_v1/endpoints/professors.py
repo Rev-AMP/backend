@@ -55,23 +55,22 @@ def read_professor_by_id(
     """
 
     # Fetch professor with the corresponding ID from DB
-    professor = crud.professor.get(db, id=professor_id)
-
-    # Return the fetched object without checking perms if current_professor is trying to fetch itself
-    if current_user.id == professor_id:
-        return professor
-
-    # check perms and return if professor exists, else 404
-    if (admin := crud.admin.get(db, id=current_user.id)) and AdminPermissions(admin.permissions).is_allowed(
-        "professor"
-    ):
-        if professor:
+    if professor := crud.professor.get(db, id=professor_id):
+        # Return the fetched object without checking perms if current_professor is trying to fetch itself
+        if current_user.id == professor_id:
             return professor
-        raise NotFoundException(
-            detail="The professor with this ID does not exist in the system",
-        )
 
-    raise ForbiddenException(detail="The user doesn't have enough privileges")
+        # check perms and return if professor exists, else 404
+        if (admin := crud.admin.get(db, id=current_user.id)) and AdminPermissions(admin.permissions).is_allowed(
+            "professor"
+        ):
+            return professor
+
+        raise ForbiddenException(detail="The user doesn't have enough privileges")
+
+    raise NotFoundException(
+        detail="The professor with this ID does not exist in the system",
+    )
 
 
 @router.get("/{professor_id}/divisions", response_model=List[schemas.Division])
@@ -83,23 +82,22 @@ def read_professor_divisions_by_id(
     """
 
     # Fetch professor with the corresponding ID from DB
-    professor = crud.professor.get(db, id=professor_id)
-
-    # Return the fetched object without checking perms if current_professor is trying to fetch itself
-    if professor and current_user.id == professor_id:
-        return crud.division.get_all_divisions_for_professor(db, professor_id=professor.user_id)
-
-    # check perms and return if professor exists, else 404
-    if (admin := crud.admin.get(db, id=current_user.id)) and AdminPermissions(admin.permissions).is_allowed(
-        "professor"
-    ):
-        if professor:
+    if professor := crud.professor.get(db, id=professor_id):
+        # Return the fetched object without checking perms if current_professor is trying to fetch itself
+        if current_user.id == professor_id:
             return crud.division.get_all_divisions_for_professor(db, professor_id=professor.user_id)
-        raise NotFoundException(
-            detail="The professor with this ID does not exist in the system",
-        )
 
-    raise ForbiddenException(detail="The user doesn't have enough privileges")
+        # check perms and return if professor exists, else 404
+        if (admin := crud.admin.get(db, id=current_user.id)) and AdminPermissions(admin.permissions).is_allowed(
+            "professor"
+        ):
+            return crud.division.get_all_divisions_for_professor(db, professor_id=professor.user_id)
+
+        raise ForbiddenException(detail="The user doesn't have enough privileges")
+
+    raise NotFoundException(
+        detail="The professor with this ID does not exist in the system",
+    )
 
 
 @router.put("/{professor_id}", response_model=schemas.Professor)
