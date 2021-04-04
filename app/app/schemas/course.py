@@ -9,7 +9,6 @@ from app.schemas.term import Term
 class CourseBase(BaseModel):
     name: Optional[str] = None
     course_code: Optional[str] = None
-    panel_code: Optional[int] = None
     elective_code: Optional[str] = None
     term_id: Optional[int] = None
 
@@ -30,7 +29,6 @@ class CourseBase(BaseModel):
 class CourseCreate(CourseBase):
     name: str
     course_code: str
-    panel_code: int
     term_id: int
 
 

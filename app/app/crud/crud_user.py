@@ -1,12 +1,18 @@
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash, verify_password
-from app.crud import admin, student
+from app.crud import admin, professor, student
 from app.crud.base import CRUDBase
 from app.models import User
-from app.schemas import AdminCreate, StudentCreate, UserCreate, UserUpdate
+from app.schemas import (
+    AdminCreate,
+    ProfessorCreate,
+    StudentCreate,
+    UserCreate,
+    UserUpdate,
+)
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
@@ -33,7 +39,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         elif obj_in.type == "admin" or obj_in.is_admin:
             admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=0))
         elif obj_in.type == "professor":
-            pass
+            professor.create(db, obj_in=ProfessorCreate(user_id=db_obj.id))
         elif obj_in.type == "student":
             student.create(db, obj_in=StudentCreate(user_id=db_obj.id))
 
@@ -71,6 +77,12 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     def is_superuser(self, user: User) -> bool:
         return user.type == "superuser"
+
+    def get_all_students_for_school(self, db: Session, *, school_id: int) -> List[User]:
+        return db.query(User).filter(User.type == "student").filter(User.school_id == school_id).all()
+
+    def get_all_professors_for_school(self, db: Session, *, school_id: int) -> List[User]:
+        return db.query(User).filter(User.type == "professor").filter(User.school_id == school_id).all()
 
 
 user = CRUDUser(User)

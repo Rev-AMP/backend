@@ -121,7 +121,7 @@ def get_students(
     """
     Get all students belonging to a school.
     """
-    return crud.school.get_all_students(db, school_id=school_id)
+    return crud.user.get_all_students_for_school(db, school_id=school_id)
 
 
 @router.get("/{school_id}/professors", response_model=List[schemas.User])
@@ -134,7 +134,7 @@ def get_professors(
     """
     Get all students belonging to a school.
     """
-    return crud.school.get_all_professors(db, school_id=school_id)
+    return crud.user.get_all_professors_for_school(db, school_id=school_id)
 
 
 @router.delete("/{school_id}")

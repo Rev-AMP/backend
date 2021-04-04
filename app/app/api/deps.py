@@ -71,6 +71,16 @@ def get_current_student(db: Session = Depends(get_db), user: models.User = Depen
     raise ForbiddenException(detail="User is not a student")
 
 
+def get_current_professor(
+    db: Session = Depends(get_db), user: models.User = Depends(get_current_user)
+) -> models.Professor:
+    if user.type == "professor":
+        if professor := crud.professor.get(db, id=user.id):
+            return professor
+        raise NotFoundException(detail="Professor object not found")
+    raise ForbiddenException(detail="User is not a professor")
+
+
 def get_current_admin_with_permission(permission: str) -> Callable:
     """
     Return a function that checks if the current active admin has permission for given task
