@@ -9,7 +9,11 @@ from app.core.config import settings
 from app.schemas.users.admin import AdminPermissions
 from app.tests.utils.course import create_random_course, create_random_term
 from app.tests.utils.user import authentication_token_from_email, create_random_user
-from app.tests.utils.utils import random_lower_string, to_json
+from app.tests.utils.utils import (
+    compare_api_and_db_query_results,
+    random_lower_string,
+    to_json,
+)
 
 
 def test_get_all_courses(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -18,7 +22,7 @@ def test_get_all_courses(client: TestClient, superuser_token_headers: Dict[str, 
     assert r.status_code == 200
     results = r.json()
     assert results
-    assert results[-1] == to_json(course)
+    compare_api_and_db_query_results(api_result=results[-1], db_dict=to_json(course))
 
 
 def test_get_course_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -27,7 +31,7 @@ def test_get_course_existing(client: TestClient, superuser_token_headers: Dict[s
     assert r.status_code == 200
     fetched_course = r.json()
     assert fetched_course
-    assert fetched_course == to_json(course)
+    compare_api_and_db_query_results(api_result=fetched_course, db_dict=to_json(course))
 
 
 def test_get_course_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -60,8 +64,8 @@ def test_create_course(client: TestClient, superuser_token_headers: Dict[str, st
         term_id=term_id,
     )
     assert fetched_course
-    assert created_course == to_json(fetched_course)
-    assert data == {key: value for key, value in created_course.items() if key in data.keys()}
+    compare_api_and_db_query_results(api_result=created_course, db_dict=to_json(fetched_course))
+    compare_api_and_db_query_results(data, created_course)
 
 
 def test_create_course_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -83,9 +87,9 @@ def test_update_course(client: TestClient, superuser_token_headers: Dict[str, st
     data = {"name": name}
     r = client.put(f"{settings.API_V1_STR}/courses/{course.id}", headers=superuser_token_headers, json=data)
     fetched_course = r.json()
+    db.refresh(course)
     assert fetched_course
-    assert fetched_course["id"] == course.id
-    assert fetched_course["name"] == name
+    compare_api_and_db_query_results(api_result=fetched_course, db_dict=to_json(course))
 
 
 def test_update_course_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
