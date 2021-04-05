@@ -12,4 +12,6 @@ class Professor(Base):
         index=True,
         primary_key=True,
     )
+
     user = relationship("User")
+    divisions = relationship("Division", back_populates="professor")  # type: ignore

@@ -17,6 +17,6 @@ class Division(Base):
     )
 
     course = relationship("Course")
-    professor = relationship("Professor", backref="divisions")
+    professor = relationship("Professor", back_populates="divisions")
 
     __table_args__ = (UniqueConstraint("course_id", "division_code", name="_unique_by_course_division"),)
