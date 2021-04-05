@@ -53,7 +53,8 @@ def test_get_by_details(db: Session) -> None:
 def test_get_students(db: Session) -> None:
     term = create_random_term(db)
     created_students = [create_random_student(db, term.id), create_random_student(db, term.id)]
-    students = crud.term.get(db=db, id=term.id).students
+    db.refresh(term)
+    students = term.students
     assert len(students) >= 2
     for student in students:
         assert student in created_students

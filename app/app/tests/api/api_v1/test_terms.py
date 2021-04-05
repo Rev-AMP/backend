@@ -89,6 +89,7 @@ def test_add_term_students_nonexisting(
 ) -> None:
     last_term_id = sorted(term.id for term in crud.term.get_multi(db))[-1]
     term = crud.term.get(db, id=last_term_id)
+    assert term
     students = [
         create_random_user(db, type="student", school_id=term.year.school_id),
         create_random_user(db, type="student", school_id=term.year.school_id),
