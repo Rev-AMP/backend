@@ -48,7 +48,7 @@ def read_term_students_by_id(
 
 
 @router.post("/{term_id}/students", response_model=List[schemas.Student])
-def read_term_students_by_id(
+def add_term_students_by_id(
     *,
     db: Session = Depends(deps.get_db),
     term_id: int,
