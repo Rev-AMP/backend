@@ -38,12 +38,11 @@ def get_professor_me(
 @router.get("/me/divisions", response_model=List[schemas.Division])
 def get_professor_divisions(
     current_professor: models.Professor = Depends(deps.get_current_professor),
-    db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Get all divisions for current professor
     """
-    return crud.division.get_all_divisions_for_professor(db, professor_id=current_professor.user_id)
+    return current_professor.divisions
 
 
 @router.get("/{professor_id}", response_model=schemas.Professor)
@@ -85,13 +84,13 @@ def read_professor_divisions_by_id(
     if professor := crud.professor.get(db, id=professor_id):
         # Return the fetched object without checking perms if current_professor is trying to fetch itself
         if current_user.id == professor_id:
-            return crud.division.get_all_divisions_for_professor(db, professor_id=professor.user_id)
+            return professor.divisions
 
         # check perms and return if professor exists, else 404
         if (admin := crud.admin.get(db, id=current_user.id)) and AdminPermissions(admin.permissions).is_allowed(
             "professor"
         ):
-            return crud.division.get_all_divisions_for_professor(db, professor_id=professor.user_id)
+            return professor.divisions
 
         raise ForbiddenException(detail="The user doesn't have enough privileges")
 
