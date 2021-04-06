@@ -2,7 +2,6 @@ on:
   push:
     paths:
     - app/poetry.lock
-    - app/pyproject.toml
     branch: master
 
 name: Build and push docker image to container registry
