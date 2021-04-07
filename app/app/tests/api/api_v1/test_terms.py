@@ -152,12 +152,12 @@ def test_add_term_students_different_school(
         create_random_user(db, type="student", school_id=term.year.school_id),
     ]
     data = [user.id for user in students]
-    student_differnt_school = create_random_user(db, type="student", school_id=create_random_school(db).id)
-    data.append(student_differnt_school.id)
+    student_different_school = create_random_user(db, type="student", school_id=create_random_school(db).id)
+    data.append(student_different_school.id)
     r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
     assert r.status_code == 207
     response = r.json()
-    assert response.get("errors").get("different schools")[0] == student_differnt_school.id
+    assert response.get("errors").get("different schools")[0] == student_different_school.id
     for user in students:
         student = crud.student.get(db, id=user.id)
         assert student
