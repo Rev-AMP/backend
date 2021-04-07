@@ -111,12 +111,13 @@ def test_add_term_students_not_a_user(client: TestClient, superuser_token_header
     last_user_id = sorted(user.id for user in crud.user.get_multi(db))[-1]
     data.append(last_user_id + 1)
     r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
-    assert r.status_code == 418
-    expected_error = [{"msg": "not a user", "type": "user.not_a_user", "loc": ["user ID", last_user_id + 1]}]
-    assert r.json().get("detail") == expected_error
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("not a user")[0] == last_user_id + 1
     for user in students:
         student = crud.student.get(db, id=user.id)
         assert student
+        assert student.user_id in response.get("success")
         assert student.term_id == term.id
 
 
@@ -132,12 +133,13 @@ def test_add_term_students_not_a_student(
     non_student = create_random_user(db, type="professor", school_id=term.id)
     data.append(non_student.id)
     r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
-    assert r.status_code == 418
-    expected_error = [{"msg": "not a student", "type": "user.not_a_student", "loc": ["user ID", non_student.id]}]
-    assert r.json().get("detail") == expected_error
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("not a student")[0] == non_student.id
     for user in students:
         student = crud.student.get(db, id=user.id)
         assert student
+        assert student.user_id in response.get("success")
         assert student.term_id == term.id
 
 
@@ -153,14 +155,13 @@ def test_add_term_students_different_school(
     student_differnt_school = create_random_user(db, type="student", school_id=create_random_school(db).id)
     data.append(student_differnt_school.id)
     r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
-    assert r.status_code == 418
-    expected_error = [
-        {"msg": "different schools", "type": "objects.different_school", "loc": ["user ID", student_differnt_school.id]}
-    ]
-    assert r.json().get("detail") == expected_error
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("different schools")[0] == student_differnt_school.id
     for user in students:
         student = crud.student.get(db, id=user.id)
         assert student
+        assert student.user_id in response.get("success")
         assert student.term_id == term.id
 
 
@@ -177,14 +178,13 @@ def test_add_term_students_no_student_object(
     crud.student.remove(db, id=student_no_object.id)
     data.append(student_no_object.id)
     r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
-    assert r.status_code == 418
-    expected_error = [
-        {"msg": "no student object", "type": "user.no_student_object", "loc": ["user ID", student_no_object.id]}
-    ]
-    assert r.json().get("detail") == expected_error
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("no student object")[0] == student_no_object.id
     for user in students:
         student = crud.student.get(db, id=user.id)
         assert student
+        assert student.user_id in response.get("success")
         assert student.term_id == term.id
 
 
@@ -196,9 +196,9 @@ def test_add_term_students(client: TestClient, superuser_token_headers: Dict[str
     ]
     data = [user.id for user in students]
     r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
-    assert r.status_code == 200
+    assert r.status_code == 207
     assert r.json()
-    fetched_students = [student.get("user_id") for student in r.json()]
+    fetched_students = [student_id for student_id in r.json()["success"]]
     for user in students:
         assert user.id in fetched_students
         student = crud.student.get(db, id=user.id)
