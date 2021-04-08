@@ -1,4 +1,5 @@
 import logging
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
 from shutil import copyfileobj
@@ -6,6 +7,8 @@ from typing import Any, Dict, Optional
 from uuid import uuid4
 
 import emails
+from boto3 import session
+from decouple import config
 from emails.template import JinjaTemplate
 from fastapi import UploadFile
 from jose import jwt
@@ -130,8 +133,33 @@ def verify_password_reset_token(token: str) -> Optional[str]:
         return None
 
 
-def save_image(image: UploadFile) -> str:
+def save_image(image: UploadFile, directory: str = "profile_pictures") -> str:
+    if access_key := config("S3_ACCESS_KEY", default=None):
+        if secret_key := config("S3_SECRET_ACCESS_KEY", default=None):
+            if endpoint := config("S3_ENDPOINT", default=None):
+                if bucket := config("S3_BUCKET_NAME", default=None):
+                    return save_image_s3_bucket(image, directory, access_key, secret_key, endpoint, bucket)
+    return save_image_local(image, directory)
+
+
+def save_image_local(image: UploadFile, directory: str) -> str:
     filename = f"{uuid4()}.{image.content_type.replace('image/', '')}"
-    with open(f"./profile_pictures/{filename}", "wb") as buffer:
+    with open(f"./{directory}/{filename}", "wb") as buffer:
         copyfileobj(image.file, buffer)
+    return filename
+
+
+def save_image_s3_bucket(
+    image: UploadFile, directory: str, access_key: str, secret_key: str, endpoint: str, bucket: str
+) -> str:
+    client = session.Session().client(
+        "s3",
+        endpoint_url=endpoint,
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret_key,
+    )
+    filename = f"{uuid4()}.{image.content_type.replace('image/', '')}"
+    client.upload_fileobj(
+        Fileobj=image, Bucket=bucket, Key=os.path.join(directory, filename), ExtraArgs={"ACL": "public-read"}
+    )
     return filename
