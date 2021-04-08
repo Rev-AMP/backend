@@ -1,5 +1,6 @@
 import logging
-from typing import Any, List
+from collections import defaultdict
+from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -7,6 +8,7 @@ from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.api import deps
 from app.exceptions import ConflictException, NotFoundException
+from app.schemas import StudentUpdate
 
 router = APIRouter()
 
@@ -31,6 +33,55 @@ def read_term_by_id(
 ) -> Any:
     if term := crud.term.get(db, term_id):
         return term
+    raise NotFoundException(detail="The term with this ID does not exist!")
+
+
+@router.get("/{term_id}/students", response_model=List[schemas.Student])
+def read_term_students_by_id(
+    *,
+    db: Session = Depends(deps.get_db),
+    term_id: int,
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
+) -> Any:
+    if term := crud.term.get(db, term_id):
+        return term.students
+    raise NotFoundException(detail="The term with this ID does not exist!")
+
+
+@router.post("/{term_id}/students", response_model=Dict[str, Any], status_code=207)
+def add_term_students_by_id(
+    *,
+    db: Session = Depends(deps.get_db),
+    term_id: int,
+    user_ids: List[int],
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
+) -> Any:
+    if term := crud.term.get(db, id=term_id):
+        response: Dict[str, Any] = {"success": []}
+        errors = defaultdict(lambda: [])
+
+        for user_id in user_ids:
+            if user := crud.user.get(db, id=user_id):
+                if user.type == "student":
+                    if user.school_id == term.year.school_id:
+                        if student := crud.student.get(db, id=user_id):
+                            crud.student.update(db, db_obj=student, obj_in=StudentUpdate(term_id=term_id))
+                            response["success"].append(student.user_id)
+                        else:
+                            errors["no student object"].append(user_id)
+                    else:
+                        errors["different schools"].append(user_id)
+                else:
+                    errors["not a student"].append(user_id)
+            else:
+                errors["not a user"].append(user_id)
+
+        # Cleanup response a bit
+        if len(response["success"]) == 0:
+            del response["success"]
+        response["errors"] = errors
+        return response
+
     raise NotFoundException(detail="The term with this ID does not exist!")
 
 

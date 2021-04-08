@@ -180,6 +180,8 @@ def test_read_non_existent_user_superuser(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
     user_id = sorted([user.id for user in crud.user.get_multi(db=db)])[-1] + 1
+    while crud.user.get(db, id=user_id):
+        user_id += 1
     r = client.get(f"{settings.API_V1_STR}/users/{user_id}", headers=superuser_token_headers)
     assert r.status_code == 404
 
@@ -215,6 +217,8 @@ def test_update_non_existent_user_superuser(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
     user_id = sorted([user.id for user in crud.user.get_multi(db)])[-1] + 1
+    while crud.user.get(db, id=user_id):
+        user_id += 1
     full_name = random_lower_string()
     data = {"full_name": full_name}
     r = client.put(
@@ -311,6 +315,8 @@ def test_update_profile_picture_superuser_non_existent_user(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
     user_id = sorted([user.id for user in crud.user.get_multi(db)])[-1] + 1
+    while crud.user.get(db, id=user_id):
+        user_id += 1
     response = client.get("https://media.rev-amp.tech/logo/revamp.png")
     with open("/tmp/profile_picture.png", "wb") as f:
         f.write(response.content)

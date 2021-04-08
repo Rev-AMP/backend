@@ -34,3 +34,10 @@ def test_update_user_student_with_dict(db: Session) -> None:
     assert student_2
     assert student_2.user_id == student.user_id
     assert student_2.term_id == term.id
+
+
+def test_remove_student(db: Session) -> None:
+    student = create_random_student(db)
+    assert student
+    crud.student.remove(db, id=student.user_id)
+    assert not crud.student.get(db, id=student.user_id)

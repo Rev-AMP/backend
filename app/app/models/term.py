@@ -16,3 +16,4 @@ class Term(Base):
     is_active = Column(Boolean, default=True)
 
     year = relationship("Year")
+    students = relationship("Student", back_populates="term")  # type: ignore

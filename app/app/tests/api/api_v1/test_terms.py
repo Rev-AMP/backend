@@ -8,6 +8,8 @@ from starlette.testclient import TestClient
 from app import crud
 from app.core.config import settings
 from app.schemas.users.admin import AdminPermissions
+from app.tests.utils.school import create_random_school
+from app.tests.utils.student import create_random_student
 from app.tests.utils.term import create_random_term, create_random_year
 from app.tests.utils.user import authentication_token_from_email, create_random_user
 from app.tests.utils.utils import (
@@ -26,6 +28,26 @@ def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, st
     compare_api_and_db_query_results(api_result=results[-1], db_dict=to_json(term))
 
 
+def test_get_terms_admin(client: TestClient, db: Session) -> None:
+    admin_perms = AdminPermissions(0)
+    admin_perms["term"] = True
+    admin = create_random_user(db=db, type="admin", permissions=admin_perms.permissions)
+    admin_user_token_headers = authentication_token_from_email(
+        client=client, db=db, email=admin.email, user_type="admin"
+    )
+    r = client.get(f"{settings.API_V1_STR}/terms/", headers=admin_user_token_headers)
+    assert r.status_code == 200
+
+
+def test_get_terms_weakadmin(client: TestClient, db: Session) -> None:
+    admin = create_random_user(db=db, type="admin", permissions=0)
+    admin_user_token_headers = authentication_token_from_email(
+        client=client, db=db, email=admin.email, user_type="admin"
+    )
+    r = client.get(f"{settings.API_V1_STR}/terms/", headers=admin_user_token_headers)
+    assert r.status_code == 403
+
+
 def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     term = create_random_term(db=db)
     r = client.get(f"{settings.API_V1_STR}/terms/{term.id}", headers=superuser_token_headers)
@@ -39,6 +61,149 @@ def test_get_term_nonexisting(client: TestClient, superuser_token_headers: Dict[
     last_term_id = crud.term.get_multi(db)[-1].id
     r = client.get(f"{settings.API_V1_STR}/terms/{last_term_id+1}", headers=superuser_token_headers)
     assert r.status_code == 404
+
+
+def test_get_term_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    term = create_random_term(db=db)
+    student = create_random_student(db=db, term_id=term.id)
+    db.refresh(term)
+    assert term.students[-1] == student
+    r = client.get(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers)
+    assert r.status_code == 200
+    students = r.json()
+    assert students
+    for api_obj, db_obj in zip(students, term.students):
+        compare_api_and_db_query_results(api_result=api_obj, db_dict=to_json(db_obj))
+
+
+def test_get_term_students_nonexisting(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    last_term_id = crud.term.get_multi(db)[-1].id
+    r = client.get(f"{settings.API_V1_STR}/terms/{last_term_id+1}/students", headers=superuser_token_headers)
+    assert r.status_code == 404
+
+
+def test_add_term_students_nonexisting(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    last_term_id = sorted(term.id for term in crud.term.get_multi(db))[-1]
+    term = crud.term.get(db, id=last_term_id)
+    assert term
+    students = [
+        create_random_user(db, type="student", school_id=term.year.school_id),
+        create_random_user(db, type="student", school_id=term.year.school_id),
+    ]
+    data = [user.id for user in students]
+    r = client.post(
+        f"{settings.API_V1_STR}/terms/{last_term_id+1}/students", headers=superuser_token_headers, json=data
+    )
+    assert r.status_code == 404
+
+
+def test_add_term_students_not_a_user(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    term = create_random_term(db)
+    students = [
+        create_random_user(db, type="student", school_id=term.year.school_id),
+        create_random_user(db, type="student", school_id=term.year.school_id),
+    ]
+    data = [user.id for user in students]
+    last_user_id = sorted(user.id for user in crud.user.get_multi(db))[-1]
+    data.append(last_user_id + 1)
+    r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("not a user")[0] == last_user_id + 1
+    for user in students:
+        student = crud.student.get(db, id=user.id)
+        assert student
+        assert student.user_id in response.get("success")
+        assert student.term_id == term.id
+
+
+def test_add_term_students_not_a_student(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    term = create_random_term(db)
+    students = [
+        create_random_user(db, type="student", school_id=term.year.school_id),
+        create_random_user(db, type="student", school_id=term.year.school_id),
+    ]
+    data = [user.id for user in students]
+    non_student = create_random_user(db, type="professor", school_id=term.id)
+    data.append(non_student.id)
+    r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("not a student")[0] == non_student.id
+    for user in students:
+        student = crud.student.get(db, id=user.id)
+        assert student
+        assert student.user_id in response.get("success")
+        assert student.term_id == term.id
+
+
+def test_add_term_students_different_school(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    term = create_random_term(db)
+    students = [
+        create_random_user(db, type="student", school_id=term.year.school_id),
+        create_random_user(db, type="student", school_id=term.year.school_id),
+    ]
+    data = [user.id for user in students]
+    student_different_school = create_random_user(db, type="student", school_id=create_random_school(db).id)
+    data.append(student_different_school.id)
+    r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("different schools")[0] == student_different_school.id
+    for user in students:
+        student = crud.student.get(db, id=user.id)
+        assert student
+        assert student.user_id in response.get("success")
+        assert student.term_id == term.id
+
+
+def test_add_term_students_no_student_object(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    term = create_random_term(db)
+    students = [
+        create_random_user(db, type="student", school_id=term.year.school_id),
+        create_random_user(db, type="student", school_id=term.year.school_id),
+    ]
+    data = [user.id for user in students]
+    student_no_object = create_random_user(db, type="student", school_id=term.year.school_id)
+    crud.student.remove(db, id=student_no_object.id)
+    data.append(student_no_object.id)
+    r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("no student object")[0] == student_no_object.id
+    for user in students:
+        student = crud.student.get(db, id=user.id)
+        assert student
+        assert student.user_id in response.get("success")
+        assert student.term_id == term.id
+
+
+def test_add_term_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    term = create_random_term(db)
+    students = [
+        create_random_user(db, type="student", school_id=term.year.school_id),
+        create_random_user(db, type="student", school_id=term.year.school_id),
+    ]
+    data = [user.id for user in students]
+    r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
+    assert r.status_code == 207
+    assert r.json()
+    fetched_students = [student_id for student_id in r.json()["success"]]
+    for user in students:
+        assert user.id in fetched_students
+        student = crud.student.get(db, id=user.id)
+        assert student
+        assert student.term_id == term.id
 
 
 def test_create_term(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -113,26 +278,6 @@ def test_update_term(client: TestClient, superuser_token_headers: Dict[str, str]
     db.refresh(term)
     assert fetched_term
     compare_api_and_db_query_results(api_result=fetched_term, db_dict=to_json(term))
-
-
-def test_get_term_admin(client: TestClient, db: Session) -> None:
-    admin_perms = AdminPermissions(0)
-    admin_perms["term"] = True
-    admin = create_random_user(db=db, type="admin", permissions=admin_perms.permissions)
-    admin_user_token_headers = authentication_token_from_email(
-        client=client, db=db, email=admin.email, user_type="admin"
-    )
-    r = client.get(f"{settings.API_V1_STR}/terms/", headers=admin_user_token_headers)
-    assert r.status_code == 200
-
-
-def test_get_term_weakadmin(client: TestClient, db: Session) -> None:
-    admin = create_random_user(db=db, type="admin", permissions=0)
-    admin_user_token_headers = authentication_token_from_email(
-        client=client, db=db, email=admin.email, user_type="admin"
-    )
-    r = client.get(f"{settings.API_V1_STR}/terms/", headers=admin_user_token_headers)
-    assert r.status_code == 403
 
 
 def test_delete_term(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
