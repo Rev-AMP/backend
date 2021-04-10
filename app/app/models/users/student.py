@@ -18,4 +18,4 @@ class Student(Base):
     term_id = Column(String(36), ForeignKey(f"{Term.__table__.name}.id", ondelete="CASCADE"), index=True, nullable=True)
 
     term = relationship("Term", back_populates="students")
-    divisions = relationship("Division", secondary=division_student, back_populates="students")
+    divisions = relationship("Division", secondary=division_student, back_populates="students")  # type: ignore
