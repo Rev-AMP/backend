@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from sqlalchemy.orm import Session
@@ -14,7 +15,11 @@ class CRUDProfessor(CRUDBase[Professor, ProfessorCreate, ProfessorUpdate]):
     def create(self, db: Session, *, obj_in: ProfessorCreate) -> Professor:
         db_obj = Professor(user_id=obj_in.user_id)
         db.add(db_obj)
-        db.commit()
+        try:
+            db.commit()
+        except Exception as e:
+            logging.error(f"{e.__class__} - {e.__str__}")
+            db.rollback()
         db.refresh(db_obj)
         return db_obj
 

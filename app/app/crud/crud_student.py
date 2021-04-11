@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, Optional, Union
 
 from sqlalchemy.orm import Session
@@ -14,7 +15,11 @@ class CRUDStudent(CRUDBase[Student, StudentCreate, StudentUpdate]):
     def create(self, db: Session, *, obj_in: StudentCreate) -> Student:
         db_obj = Student(user_id=obj_in.user_id, term_id=obj_in.term_id)
         db.add(db_obj)
-        db.commit()
+        try:
+            db.commit()
+        except Exception as e:
+            logging.error(f"{e.__class__} - {e.__str__}")
+            db.rollback()
         db.refresh(db_obj)
         return db_obj
 
@@ -28,7 +33,11 @@ class CRUDStudent(CRUDBase[Student, StudentCreate, StudentUpdate]):
     def remove(self, db: Session, *, id: str) -> Student:
         obj = db.query(Student).filter(Student.user_id == id).first()
         db.delete(obj)
-        db.commit()
+        try:
+            db.commit()
+        except Exception as e:
+            logging.error(f"{e.__class__} - {e.__str__}")
+            db.rollback()
         return obj
 
 

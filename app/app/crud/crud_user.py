@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, List, Optional, Union
 
 from sqlalchemy.orm import Session
@@ -29,8 +30,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             school_id=obj_in.school_id,
         )
         db.add(db_obj)
-
-        db.commit()
+        try:
+            db.commit()
+        except Exception as e:
+            logging.error(f"{e.__class__} - {e.__str__}")
+            db.rollback()
         db.refresh(db_obj)
 
         # Ensure user gets the appropriate permissions depending on type
