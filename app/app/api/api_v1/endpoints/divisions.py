@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
-from app.exceptions import ConflictException, NotFoundException
+from app.exceptions import ConflictException, ForbiddenException, NotFoundException
+from app.schemas import AdminPermissions
 
 router = APIRouter()
 
@@ -31,6 +32,33 @@ def read_division_by_id(
     if division := crud.division.get(db, id=division_id):
         return division
     raise NotFoundException(detail="The division with this ID does not exist!")
+
+
+@router.get("/{division_id}/Students", response_model=List[schemas.Student])
+def read_division_students_by_id(
+    division_id: int, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
+) -> Any:
+    """
+    Get all students for a specific division by ID.
+    """
+
+    # Fetch division with the corresponding ID from DB
+    if division := crud.division.get(db, id=division_id):
+        # Return the fetched object without checking perms if current_user is the professor for the division
+        if current_user.id == division.professor_id:
+            return division.students
+
+        # check perms and return if division exists, else 404
+        if (admin := crud.admin.get(db, id=current_user.id)) and AdminPermissions(admin.permissions).is_allowed(
+            "course"
+        ):
+            return division.students
+
+        raise ForbiddenException(detail="The user doesn't have enough privileges")
+
+    raise NotFoundException(
+        detail="The division with this ID does not exist in the system",
+    )
 
 
 @router.post("/", response_model=schemas.Division)
