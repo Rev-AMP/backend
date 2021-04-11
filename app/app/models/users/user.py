@@ -1,15 +1,9 @@
-import decouple
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import relationship
 
-from app.models.school import School
-
-if decouple.config("DB", default="mysql") == "mysql":
-    from sqlalchemy.dialects.mysql import ENUM
-else:
-    from sqlalchemy.dialects.postgresql import ENUM  # type: ignore
-
 from app.db.base_class import Base
+from app.models.school import School
 
 
 class User(Base):

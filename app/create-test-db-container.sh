@@ -15,5 +15,8 @@ if [ "${VENV}" ]; then
   source "./${VENV}/bin/activate"
 fi
 
+# Create initial table structure
+alembic upgrade head
+
 # Initialize test db with data
 python ./app/initial_data.py
