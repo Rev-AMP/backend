@@ -129,7 +129,7 @@ def test_add_term_students_not_a_student(
         create_random_user(db, type="student", school_id=term.year.school_id),
     ]
     data = [user.id for user in students]
-    non_student = create_random_user(db, type="professor", school_id=term.id)
+    non_student = create_random_user(db, type="professor", school_id=term.year.school_id)
     data.append(non_student.id)
     r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
     assert r.status_code == 207
