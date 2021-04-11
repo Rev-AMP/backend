@@ -1,9 +1,9 @@
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 from app.models.course import Course
-from app.models.division_student import division_student
 from app.models.users.professor import Professor
 from app.utils import generate_uuid
 
@@ -20,6 +20,6 @@ class Division(Base):
 
     course = relationship("Course")
     professor = relationship("Professor", back_populates="divisions")
-    students = relationship("Student", secondary=division_student, back_populates="divisions")  # type: ignore
+    students = association_proxy("student_division", "student")
 
     __table_args__ = (UniqueConstraint("course_id", "division_code", name="_unique_by_course_division"),)
