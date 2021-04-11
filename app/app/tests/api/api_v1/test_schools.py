@@ -1,4 +1,3 @@
-from random import randint
 from typing import Dict
 
 from sqlalchemy.orm import Session
@@ -14,6 +13,7 @@ from app.tests.utils.utils import (
     random_lower_string,
     to_json,
 )
+from app.utils import generate_uuid
 
 
 def test_get_all_schools(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -63,7 +63,7 @@ def test_get_school_superuser(client: TestClient, superuser_token_headers: Dict[
 def test_get_non_existing_school_superuser(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
-    school_id = crud.school.get_multi(db)[-1].id + 1
+    school_id = generate_uuid()
     r = client.get(f"{settings.API_V1_STR}/schools/{school_id}", headers=superuser_token_headers)
     assert r.status_code == 404
 
@@ -113,10 +113,8 @@ def test_update_school(client: TestClient, superuser_token_headers: Dict[str, st
 
 
 def test_update_school_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    while crud.school.get(db, id=(school_id := randint(0, 10000000))):
-        pass
     data = {"name": random_lower_string(), "head": random_lower_string()}
-    r = client.put(f"{settings.API_V1_STR}/schools/{school_id}", headers=superuser_token_headers, json=data)
+    r = client.put(f"{settings.API_V1_STR}/schools/{generate_uuid()}", headers=superuser_token_headers, json=data)
     assert r.status_code == 404
 
 
@@ -149,6 +147,5 @@ def test_delete_school(client: TestClient, superuser_token_headers: Dict[str, st
 
 
 def test_delete_school_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_school_id = crud.school.get_multi(db)[-1].id
-    r = client.delete(f"{settings.API_V1_STR}/schools/{last_school_id + 1}", headers=superuser_token_headers)
+    r = client.delete(f"{settings.API_V1_STR}/schools/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404

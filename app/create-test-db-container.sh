@@ -8,12 +8,15 @@ if [ "$(docker ps -aq -f name=revamp_test_db)" ]; then
 fi
 
 # Create new test db container
-docker run --name revamp_test_db -e POSTGRES_USER="${POSTGRES_USER:?}" -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD:?}" -e POSTGRES_DB="${POSTGRES_DB:?}" -p 5432:5432 -d postgres
+docker run --name revamp_test_db -e POSTGRES_USER="${POSTGRES_USER:?}" -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD:?}" -e POSTGRES_DB="${POSTGRES_DB:?}" -p ${DB_PORT:-5432}:5432 -d postgres
 
 # Activate venv if given
 if [ "${VENV}" ]; then
   source "./${VENV}/bin/activate"
 fi
+
+# Create initial table structure
+alembic upgrade head
 
 # Initialize test db with data
 python ./app/initial_data.py

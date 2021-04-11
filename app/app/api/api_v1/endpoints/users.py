@@ -110,7 +110,7 @@ def read_user_me(
 
 @router.get("/{user_id}", response_model=schemas.User)
 def read_user_by_id(
-    user_id: int,
+    user_id: str,
     current_user: models.User = Depends(deps.get_current_user),
     db: Session = Depends(deps.get_db),
 ) -> Any:
@@ -142,7 +142,7 @@ def read_user_by_id(
 def update_user(
     *,
     db: Session = Depends(deps.get_db),
-    user_id: int,
+    user_id: str,
     user_in: schemas.UserUpdate,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("user")),
 ) -> Any:
@@ -174,7 +174,7 @@ def update_user(
 def update_user_profile_picture(
     *,
     db: Session = Depends(deps.get_db),
-    user_id: int,
+    user_id: str,
     image: UploadFile = File(...),
     current_user: models.User = Depends(deps.get_current_user),
 ) -> Any:

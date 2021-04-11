@@ -9,7 +9,7 @@ from app.schemas.year import Year
 # Shared properties
 class TermBase(BaseModel):
     name: Optional[str] = None
-    year_id: Optional[int] = None
+    year_id: Optional[str] = None
     current_year_term: Optional[int] = None
     start_date: Optional[date] = None
     end_date: Optional[date] = None
@@ -20,7 +20,7 @@ class TermBase(BaseModel):
 # Properties to receive via API on creation
 class TermCreate(TermBase):
     name: str
-    year_id: int
+    year_id: str
     start_date: date
     current_year_term: int
     has_electives: bool
@@ -32,7 +32,7 @@ class TermUpdate(TermBase):
 
 
 class TermInDBBase(TermBase):
-    id: Optional[int] = None
+    id: Optional[str] = None
 
     class Config:
         orm_mode = True

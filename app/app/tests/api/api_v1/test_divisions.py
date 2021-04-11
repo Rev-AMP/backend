@@ -14,6 +14,7 @@ from app.tests.utils.division import (
 )
 from app.tests.utils.user import authentication_token_from_email, create_random_user
 from app.tests.utils.utils import compare_api_and_db_query_results, to_json
+from app.utils import generate_uuid
 
 
 def test_get_all_divisions(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -35,8 +36,7 @@ def test_get_division_existing(client: TestClient, superuser_token_headers: Dict
 
 
 def test_get_division_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_division_id = crud.division.get_multi(db)[-1].id
-    r = client.get(f"{settings.API_V1_STR}/divisions/{last_division_id+1}", headers=superuser_token_headers)
+    r = client.get(f"{settings.API_V1_STR}/divisions/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
@@ -86,8 +86,7 @@ def test_update_division(client: TestClient, superuser_token_headers: Dict[str, 
 
 
 def test_update_division_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_division_id = crud.division.get_multi(db)[-1].id
-    r = client.put(f"{settings.API_V1_STR}/divisions/{last_division_id + 1}", headers=superuser_token_headers, json={})
+    r = client.put(f"{settings.API_V1_STR}/divisions/{generate_uuid()}", headers=superuser_token_headers, json={})
     assert r.status_code == 404
 
 
@@ -100,8 +99,7 @@ def test_delete_division(client: TestClient, superuser_token_headers: Dict[str, 
 
 
 def test_delete_division_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_division_id = crud.division.get_multi(db)[-1].id
-    r = client.delete(f"{settings.API_V1_STR}/divisions/{last_division_id+1}", headers=superuser_token_headers)
+    r = client.delete(f"{settings.API_V1_STR}/divisions/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 

@@ -10,7 +10,7 @@ class CourseBase(BaseModel):
     name: Optional[str] = None
     course_code: Optional[str] = None
     elective_code: Optional[str] = None
-    term_id: Optional[int] = None
+    term_id: Optional[str] = None
 
     @validator("name")
     def name_not_empty(cls, name: Optional[str]) -> Optional[str]:
@@ -29,7 +29,7 @@ class CourseBase(BaseModel):
 class CourseCreate(CourseBase):
     name: str
     course_code: str
-    term_id: int
+    term_id: str
 
 
 # Properties to receive via API on update
@@ -38,7 +38,7 @@ class CourseUpdate(CourseBase):
 
 
 class CourseInDBBase(CourseBase):
-    id: Optional[int] = None
+    id: Optional[str] = None
 
     class Config:
         orm_mode = True

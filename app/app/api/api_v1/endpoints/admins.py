@@ -36,7 +36,7 @@ def get_admin_me(
 
 @router.get("/{admin_id}", response_model=schemas.Admin)
 def read_admin_by_id(
-    admin_id: int, current_admin: models.Admin = Depends(deps.get_current_admin), db: Session = Depends(deps.get_db)
+    admin_id: str, current_admin: models.Admin = Depends(deps.get_current_admin), db: Session = Depends(deps.get_db)
 ) -> Any:
     """
     Get a specific admin by ID.

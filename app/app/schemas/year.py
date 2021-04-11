@@ -9,7 +9,7 @@ from app.schemas.school import School
 # Shared properties
 class YearBase(BaseModel):
     name: Optional[str] = None
-    school_id: Optional[int] = None
+    school_id: Optional[str] = None
     start_year: Optional[int] = None
     end_year: Optional[int] = None
     is_active: Optional[bool] = True
@@ -44,7 +44,7 @@ class YearBase(BaseModel):
 # Properties to receive via API on creation
 class YearCreate(YearBase):
     name: str
-    school_id: int
+    school_id: str
     start_year: int
     end_year: int
 
@@ -55,7 +55,7 @@ class YearUpdate(YearBase):
 
 
 class YearInDBBase(YearBase):
-    id: Optional[int] = None
+    id: Optional[str] = None
 
     class Config:
         orm_mode = True

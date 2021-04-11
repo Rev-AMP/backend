@@ -29,7 +29,7 @@ def read_years(
 def read_year_by_id(
     *,
     db: Session = Depends(deps.get_db),
-    year_id: int,
+    year_id: str,
     _: models.Admin = Depends(deps.get_current_admin_with_permission("year")),
 ) -> Any:
     """
@@ -62,7 +62,7 @@ def create_year(
 def update_year(
     *,
     db: Session = Depends(deps.get_db),
-    year_id: int,
+    year_id: str,
     year_in: schemas.YearUpdate,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("year")),
 ) -> Any:
@@ -79,7 +79,7 @@ def update_year(
 def delete_year(
     *,
     db: Session = Depends(deps.get_db),
-    year_id: int,
+    year_id: str,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("year")),
 ) -> Any:
     if year := crud.year.get(db, year_id):

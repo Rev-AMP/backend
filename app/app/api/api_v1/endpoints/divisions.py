@@ -25,7 +25,7 @@ def read_divisions(
 def read_division_by_id(
     *,
     db: Session = Depends(deps.get_db),
-    division_id: int,
+    division_id: str,
     _: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if division := crud.division.get(db, id=division_id):
@@ -55,7 +55,7 @@ def create_division(
 def update_division(
     *,
     db: Session = Depends(deps.get_db),
-    division_id: int,
+    division_id: str,
     division_in: schemas.DivisionUpdate,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
@@ -73,7 +73,7 @@ def update_division(
 def delete_division(
     *,
     db: Session = Depends(deps.get_db),
-    division_id: int,
+    division_id: str,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if division := crud.division.get(db, id=division_id):

@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, List, Optional, Union
 
 from sqlalchemy.orm import Session
@@ -29,8 +30,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             school_id=obj_in.school_id,
         )
         db.add(db_obj)
-
-        db.commit()
+        try:
+            db.commit()
+        except Exception as e:
+            logging.error(f"{e.__class__} - {e.__str__}")
+            db.rollback()
         db.refresh(db_obj)
 
         # Ensure user gets the appropriate permissions depending on type
@@ -78,10 +82,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def is_superuser(self, user: User) -> bool:
         return user.type == "superuser"
 
-    def get_all_students_for_school(self, db: Session, *, school_id: int) -> List[User]:
+    def get_all_students_for_school(self, db: Session, *, school_id: str) -> List[User]:
         return db.query(User).filter(User.type == "student").filter(User.school_id == school_id).all()
 
-    def get_all_professors_for_school(self, db: Session, *, school_id: int) -> List[User]:
+    def get_all_professors_for_school(self, db: Session, *, school_id: str) -> List[User]:
         return db.query(User).filter(User.type == "professor").filter(User.school_id == school_id).all()
 
 

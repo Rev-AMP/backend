@@ -25,7 +25,7 @@ def read_courses(
 def read_course_by_id(
     *,
     db: Session = Depends(deps.get_db),
-    course_id: int,
+    course_id: str,
     _: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if course := crud.course.get(db, id=course_id):
@@ -59,7 +59,7 @@ def create_course(
 def update_course(
     *,
     db: Session = Depends(deps.get_db),
-    course_id: int,
+    course_id: str,
     course_in: schemas.CourseUpdate,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
@@ -76,7 +76,7 @@ def update_course(
 def delete_course(
     *,
     db: Session = Depends(deps.get_db),
-    course_id: int,
+    course_id: str,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if course := crud.course.get(db, id=course_id):

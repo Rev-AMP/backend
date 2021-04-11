@@ -8,25 +8,25 @@ from .user import User
 
 
 class AdminBase(BaseModel):
-    user_id: Optional[int] = None
+    user_id: Optional[str] = None
     permissions: Optional[int] = 0
 
 
 # Properties to receive via API on creation
 class AdminCreate(AdminBase):
-    user_id: int
+    user_id: str
     permissions: int
 
 
 # Properties to receive via API on update
 class AdminUpdate(AdminBase):
-    user_id: int
+    user_id: str
     permissions: int
 
 
 # Properties to receive via API on remove
 class AdminRemove(AdminBase):
-    user_id: int
+    user_id: str
 
 
 # Additional properties to return through API

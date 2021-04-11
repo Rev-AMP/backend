@@ -13,9 +13,9 @@ from .professor import create_random_professor
 
 def create_random_division(
     db: Session,
-    course_id: Optional[int] = None,
+    course_id: Optional[str] = None,
     division_code: Optional[int] = None,
-    professor_id: Optional[int] = None,
+    professor_id: Optional[str] = None,
 ) -> Division:
 
     if course_id is None:

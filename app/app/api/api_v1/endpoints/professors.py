@@ -47,7 +47,7 @@ def get_professor_divisions(
 
 @router.get("/{professor_id}", response_model=schemas.Professor)
 def read_professor_by_id(
-    professor_id: int, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
+    professor_id: str, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
 ) -> Any:
     """
     Get a specific professor by ID.
@@ -74,7 +74,7 @@ def read_professor_by_id(
 
 @router.get("/{professor_id}/divisions", response_model=List[schemas.Division])
 def read_professor_divisions_by_id(
-    professor_id: int, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
+    professor_id: str, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
 ) -> Any:
     """
     Get all divisions for a specific professor by ID.
@@ -103,7 +103,7 @@ def read_professor_divisions_by_id(
 def update_professor(
     *,
     db: Session = Depends(deps.get_db),
-    professor_id: int,
+    professor_id: str,
     professor_in: schemas.ProfessorUpdate,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("professor")),
 ) -> Any:

@@ -15,7 +15,7 @@ from .year import create_random_year
 def create_random_term(
     db: Session,
     name: Optional[str] = None,
-    year_id: Optional[int] = None,
+    year_id: Optional[str] = None,
     current_year_term: Optional[int] = None,
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,

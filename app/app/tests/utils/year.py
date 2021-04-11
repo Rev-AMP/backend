@@ -16,7 +16,7 @@ current_year = datetime.now().year
 def create_random_year(
     db: Session,
     name: Optional[str] = None,
-    school_id: Optional[int] = None,
+    school_id: Optional[str] = None,
     start_year: Optional[int] = None,
     end_year: Optional[int] = None,
     is_active: bool = True,

@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, Optional, Union
 
 from sqlalchemy.orm import Session
@@ -8,13 +9,17 @@ from app.schemas import AdminCreate, AdminUpdate
 
 
 class CRUDAdmin(CRUDBase[Admin, AdminCreate, AdminUpdate]):
-    def get(self, db: Session, id: int) -> Optional[Admin]:
+    def get(self, db: Session, id: str) -> Optional[Admin]:
         return db.query(Admin).filter(Admin.user_id == id).first()
 
     def create(self, db: Session, *, obj_in: AdminCreate) -> Admin:
         db_obj = Admin(user_id=obj_in.user_id, permissions=obj_in.permissions)
         db.add(db_obj)
-        db.commit()
+        try:
+            db.commit()
+        except Exception as e:
+            logging.error(f"{e.__class__} - {e.__str__}")
+            db.rollback()
         db.refresh(db_obj)
         return db_obj
 

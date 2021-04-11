@@ -28,7 +28,7 @@ def read_terms(
 def read_term_by_id(
     *,
     db: Session = Depends(deps.get_db),
-    term_id: int,
+    term_id: str,
     _: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
 ) -> Any:
     if term := crud.term.get(db, term_id):
@@ -40,7 +40,7 @@ def read_term_by_id(
 def read_term_students_by_id(
     *,
     db: Session = Depends(deps.get_db),
-    term_id: int,
+    term_id: str,
     _: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
 ) -> Any:
     if term := crud.term.get(db, term_id):
@@ -52,8 +52,8 @@ def read_term_students_by_id(
 def add_term_students_by_id(
     *,
     db: Session = Depends(deps.get_db),
-    term_id: int,
-    user_ids: List[int],
+    term_id: str,
+    user_ids: List[str],
     _: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
 ) -> Any:
     if term := crud.term.get(db, id=term_id):
@@ -113,7 +113,7 @@ def create_term(
 def update_term(
     *,
     db: Session = Depends(deps.get_db),
-    term_id: int,
+    term_id: str,
     term_in: schemas.TermUpdate,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
 ) -> Any:
@@ -130,7 +130,7 @@ def update_term(
 def delete_term(
     *,
     db: Session = Depends(deps.get_db),
-    term_id: int,
+    term_id: str,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
 ) -> Any:
     if term := crud.term.get(db, term_id):
