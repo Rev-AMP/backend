@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
@@ -33,7 +34,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj_in_data = jsonable_encoder(obj_in)
         db_obj = self.model(**obj_in_data)  # type: ignore
         db.add(db_obj)
-        db.commit()
+        try:
+            db.commit()
+        except Exception as e:
+            logging.error(f"{e.__class__} - {e.__str__}")
+            db.rollback()
         db.refresh(db_obj)
         return db_obj
 
@@ -47,12 +52,20 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if field in update_data:
                 setattr(db_obj, field, update_data[field])
         db.add(db_obj)
-        db.commit()
+        try:
+            db.commit()
+        except Exception as e:
+            logging.error(f"{e.__class__} - {e.__str__}")
+            db.rollback()
         db.refresh(db_obj)
         return db_obj
 
     def remove(self, db: Session, *, id: str) -> ModelType:
         obj = db.query(self.model).get(id)
         db.delete(obj)
-        db.commit()
+        try:
+            db.commit()
+        except Exception as e:
+            logging.error(f"{e.__class__} - {e.__str__}")
+            db.rollback()
         return obj
