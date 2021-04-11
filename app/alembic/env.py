@@ -34,15 +34,13 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    if decouple.config('DB', default='mysql') == 'mysql':
-        protocol = 'mysql+mysqlconnector'
-    else:
-        protocol = 'postgresql'
+    protocol = 'postgresql'
     user = decouple.config("DB_USER")
     password = decouple.config("DB_PASSWORD")
     server = decouple.config("DB_SERVER")
     db = decouple.config("DB_NAME")
-    return f"{protocol}://{user}:{password}@{server}/{db}"
+    port = decouple.config("DB_PORT", default=5432)
+    return f"{protocol}://{user}:{password}@{server}:{port}/{db}"
 
 
 def run_migrations_offline():

@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
     DB_NAME: str
+    DB_PORT: Optional[int]
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
@@ -41,6 +42,7 @@ class Settings(BaseSettings):
             password=values.get("DB_PASSWORD"),
             host=values.get("DB_SERVER"),
             path=f"/{values.get('DB_NAME') or ''}",
+            port=values.get("DB_PORT") or 5432,
         )
 
     SMTP_TLS: bool = True
