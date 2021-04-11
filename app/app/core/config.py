@@ -42,7 +42,7 @@ class Settings(BaseSettings):
             password=values.get("DB_PASSWORD"),
             host=values.get("DB_SERVER"),
             path=f"/{values.get('DB_NAME') or ''}",
-            port=values.get("DB_PORT") or 5432,
+            port=str(values.get("DB_PORT") or 5432),
         )
 
     SMTP_TLS: bool = True
