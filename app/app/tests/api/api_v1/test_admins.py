@@ -63,7 +63,8 @@ def test_get_admin_me_superuser(client: TestClient, superuser_token_headers: Dic
     )
     assert r.status_code == 200
     admin = r.json()
-    assert admin["user_id"] == 1
+    assert admin.get("user")
+    assert admin.get("user").get("email") == settings.FIRST_SUPERUSER
     assert admin["permissions"] == -1
 
 
