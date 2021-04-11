@@ -43,7 +43,7 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    protocol = 'postgresql'
+    protocol = "postgresql"
     user = decouple.config("DB_USER")
     password = decouple.config("DB_PASSWORD")
     server = decouple.config("DB_SERVER")

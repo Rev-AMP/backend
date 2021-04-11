@@ -1,5 +1,5 @@
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base

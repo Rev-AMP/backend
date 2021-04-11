@@ -1,6 +1,7 @@
 from .course import Course
 from .division import Division
 from .school import School
+from .student_division import StudentDivision
 from .term import Term
 from .users.admin import Admin
 from .users.professor import Professor

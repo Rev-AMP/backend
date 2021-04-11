@@ -1,5 +1,4 @@
 from sqlalchemy import Column, ForeignKey, String
-from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 
