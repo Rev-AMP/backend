@@ -15,7 +15,7 @@ def create_random_course(
     name: Optional[str] = None,
     course_code: Optional[str] = None,
     elective_code: Optional[str] = None,
-    term_id: Optional[int] = None,
+    term_id: Optional[str] = None,
 ) -> Course:
 
     if term_id is None:

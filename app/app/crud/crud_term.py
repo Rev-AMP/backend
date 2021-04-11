@@ -14,7 +14,7 @@ class CRUDTerm(CRUDBase[Term, TermCreate, TermUpdate]):
         db: Session,
         *,
         name: str,
-        year_id: int,
+        year_id: str,
         current_year_term: int,
         start_date: date,
         end_date: Optional[date]

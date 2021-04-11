@@ -13,7 +13,7 @@ class UserBase(BaseModel):
     full_name: Optional[str] = None
     profile_picture: Optional[str] = None
     is_admin: Optional[bool] = None
-    school_id: Optional[int] = None
+    school_id: Optional[str] = None
 
     @validator("type")
     def valid_type(cls, user_type: Optional[str]) -> Optional[str]:
@@ -50,7 +50,7 @@ class UserUpdate(UserBase):
 
 
 class UserInDBBase(UserBase):
-    id: Optional[int] = None
+    id: Optional[str] = None
 
     class Config:
         orm_mode = True

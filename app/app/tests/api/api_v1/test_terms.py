@@ -17,6 +17,7 @@ from app.tests.utils.utils import (
     random_lower_string,
     to_json,
 )
+from app.utils import generate_uuid
 
 
 def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -58,8 +59,7 @@ def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str
 
 
 def test_get_term_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_term_id = crud.term.get_multi(db)[-1].id
-    r = client.get(f"{settings.API_V1_STR}/terms/{last_term_id+1}", headers=superuser_token_headers)
+    r = client.get(f"{settings.API_V1_STR}/terms/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
@@ -79,8 +79,7 @@ def test_get_term_students(client: TestClient, superuser_token_headers: Dict[str
 def test_get_term_students_nonexisting(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
-    last_term_id = crud.term.get_multi(db)[-1].id
-    r = client.get(f"{settings.API_V1_STR}/terms/{last_term_id+1}/students", headers=superuser_token_headers)
+    r = client.get(f"{settings.API_V1_STR}/terms/{generate_uuid()}/students", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
@@ -96,7 +95,7 @@ def test_add_term_students_nonexisting(
     ]
     data = [user.id for user in students]
     r = client.post(
-        f"{settings.API_V1_STR}/terms/{last_term_id+1}/students", headers=superuser_token_headers, json=data
+        f"{settings.API_V1_STR}/terms/{generate_uuid()}/students", headers=superuser_token_headers, json=data
     )
     assert r.status_code == 404
 
@@ -108,12 +107,12 @@ def test_add_term_students_not_a_user(client: TestClient, superuser_token_header
         create_random_user(db, type="student", school_id=term.year.school_id),
     ]
     data = [user.id for user in students]
-    last_user_id = sorted(user.id for user in crud.user.get_multi(db))[-1]
-    data.append(last_user_id + 1)
+    new_user_id = generate_uuid()
+    data.append(new_user_id)
     r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
     assert r.status_code == 207
     response = r.json()
-    assert response.get("errors").get("not a user")[0] == last_user_id + 1
+    assert response.get("errors").get("not a user")[0] == new_user_id
     for user in students:
         student = crud.student.get(db, id=user.id)
         assert student
@@ -257,8 +256,7 @@ def test_get_term_normal_user(client: TestClient, normal_user_token_headers: Dic
 
 
 def test_update_term_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_term_id = crud.term.get_multi(db)[-1].id
-    r = client.put(f"{settings.API_V1_STR}/terms/{last_term_id + 1}", headers=superuser_token_headers, json={})
+    r = client.put(f"{settings.API_V1_STR}/terms/{generate_uuid()}", headers=superuser_token_headers, json={})
     assert r.status_code == 404
 
 
@@ -289,6 +287,5 @@ def test_delete_term(client: TestClient, superuser_token_headers: Dict[str, str]
 
 
 def test_delete_term_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_term_id = crud.term.get_multi(db)[-1].id
-    r = client.delete(f"{settings.API_V1_STR}/terms/{last_term_id+1}", headers=superuser_token_headers)
+    r = client.delete(f"{settings.API_V1_STR}/terms/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404

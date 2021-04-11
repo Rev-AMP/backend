@@ -1,4 +1,5 @@
 import logging
+import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 from shutil import copyfileobj
@@ -135,3 +136,7 @@ def save_image(image: UploadFile) -> str:
     with open(f"./profile_pictures/{filename}", "wb") as buffer:
         copyfileobj(image.file, buffer)
     return filename
+
+
+def generate_uuid() -> str:
+    return str(uuid.uuid4())

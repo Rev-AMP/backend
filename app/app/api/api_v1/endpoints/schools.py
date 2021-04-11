@@ -56,7 +56,7 @@ def create_school(
 
 @router.get("/{school_id}", response_model=schemas.School)
 def read_school_by_id(
-    school_id: int,
+    school_id: str,
     current_user: models.User = Depends(deps.get_current_user),
     db: Session = Depends(deps.get_db),
 ) -> Any:
@@ -87,7 +87,7 @@ def read_school_by_id(
 def update_school(
     *,
     db: Session = Depends(deps.get_db),
-    school_id: int,
+    school_id: str,
     school_in: schemas.SchoolUpdate,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
@@ -115,7 +115,7 @@ def update_school(
 def get_students(
     *,
     db: Session = Depends(deps.get_db),
-    school_id: int,
+    school_id: str,
     _: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     """
@@ -128,7 +128,7 @@ def get_students(
 def get_professors(
     *,
     db: Session = Depends(deps.get_db),
-    school_id: int,
+    school_id: str,
     _: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     """
@@ -141,7 +141,7 @@ def get_professors(
 def delete_school(
     *,
     db: Session = Depends(deps.get_db),
-    school_id: int,
+    school_id: str,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     if school := crud.school.get(db, school_id):

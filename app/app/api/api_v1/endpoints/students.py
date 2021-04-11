@@ -37,7 +37,7 @@ def get_student_me(
 
 @router.get("/{student_id}", response_model=schemas.Student)
 def read_student_by_id(
-    student_id: int, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
+    student_id: str, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
 ) -> Any:
     """
     Get a specific student by ID.
@@ -65,7 +65,7 @@ def read_student_by_id(
 def update_student(
     *,
     db: Session = Depends(deps.get_db),
-    student_id: int,
+    student_id: str,
     student_in: schemas.StudentUpdate,
     current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("student")),
 ) -> Any:

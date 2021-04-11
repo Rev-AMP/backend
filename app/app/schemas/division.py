@@ -8,16 +8,16 @@ from .users.professor import Professor
 
 # shared properties
 class DivisionBase(BaseModel):
-    course_id: Optional[int] = None
+    course_id: Optional[str] = None
     division_code: Optional[int] = None
-    professor_id: Optional[int] = None
+    professor_id: Optional[str] = None
 
 
 # Properties to receive via API on creation
 class DivisionCreate(DivisionBase):
-    course_id: int
+    course_id: str
     division_code: int
-    professor_id: int
+    professor_id: str
 
 
 # Properties to receive via API on update
@@ -27,7 +27,7 @@ class DivisionUpdate(DivisionBase):
 
 # Additional properties to return through API
 class Division(DivisionBase):
-    id: Optional[int] = None
+    id: Optional[str] = None
     course: Optional[Course]
     professor: Optional[Professor]
 

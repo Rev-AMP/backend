@@ -8,7 +8,7 @@ from app.schemas import ProfessorCreate, ProfessorUpdate
 
 
 class CRUDProfessor(CRUDBase[Professor, ProfessorCreate, ProfessorUpdate]):
-    def get(self, db: Session, id: int) -> Optional[Professor]:
+    def get(self, db: Session, id: str) -> Optional[Professor]:
         return db.query(Professor).filter(Professor.user_id == id).first()
 
     def create(self, db: Session, *, obj_in: ProfessorCreate) -> Professor:

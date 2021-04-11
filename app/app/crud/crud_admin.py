@@ -8,7 +8,7 @@ from app.schemas import AdminCreate, AdminUpdate
 
 
 class CRUDAdmin(CRUDBase[Admin, AdminCreate, AdminUpdate]):
-    def get(self, db: Session, id: int) -> Optional[Admin]:
+    def get(self, db: Session, id: str) -> Optional[Admin]:
         return db.query(Admin).filter(Admin.user_id == id).first()
 
     def create(self, db: Session, *, obj_in: AdminCreate) -> Admin:

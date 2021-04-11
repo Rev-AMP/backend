@@ -3,13 +3,14 @@ from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 from app.models.school import School
+from app.utils import generate_uuid
 
 
 class Year(Base):
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(36), primary_key=True, index=True, default=generate_uuid)
     name = Column(String(100), index=True, nullable=False)
     school_id = Column(
-        Integer, ForeignKey(f"{School.__table__.name}.id", ondelete="CASCADE"), index=True, nullable=False
+        String(36), ForeignKey(f"{School.__table__.name}.id", ondelete="CASCADE"), index=True, nullable=False
     )
     start_year = Column(Integer, index=True, nullable=False)
     end_year = Column(Integer, index=True, nullable=False)

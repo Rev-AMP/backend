@@ -16,6 +16,7 @@ from app.tests.utils.utils import (
     random_password,
     to_json,
 )
+from app.utils import generate_uuid
 
 
 def test_get_users_superuser_me(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
@@ -179,9 +180,9 @@ def test_read_user_superuser(client: TestClient, superuser_token_headers: Dict[s
 def test_read_non_existent_user_superuser(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
-    user_id = sorted([user.id for user in crud.user.get_multi(db=db)])[-1] + 1
+    user_id = generate_uuid()
     while crud.user.get(db, id=user_id):
-        user_id += 1
+        user_id = generate_uuid()
     r = client.get(f"{settings.API_V1_STR}/users/{user_id}", headers=superuser_token_headers)
     assert r.status_code == 404
 
@@ -216,9 +217,9 @@ def test_update_user_superuser(client: TestClient, superuser_token_headers: Dict
 def test_update_non_existent_user_superuser(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
-    user_id = sorted([user.id for user in crud.user.get_multi(db)])[-1] + 1
+    user_id = generate_uuid()
     while crud.user.get(db, id=user_id):
-        user_id += 1
+        user_id = generate_uuid()
     full_name = random_lower_string()
     data = {"full_name": full_name}
     r = client.put(
@@ -314,9 +315,9 @@ def test_update_profile_picture_superuser(
 def test_update_profile_picture_superuser_non_existent_user(
     client: TestClient, superuser_token_headers: Dict[str, str], db: Session
 ) -> None:
-    user_id = sorted([user.id for user in crud.user.get_multi(db)])[-1] + 1
+    user_id = generate_uuid()
     while crud.user.get(db, id=user_id):
-        user_id += 1
+        user_id = generate_uuid()
     response = client.get("https://media.rev-amp.tech/logo/revamp.png")
     with open("/tmp/profile_picture.png", "wb") as f:
         f.write(response.content)

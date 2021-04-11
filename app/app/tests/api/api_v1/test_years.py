@@ -1,5 +1,4 @@
 from datetime import datetime
-from random import randint
 from typing import Dict
 
 from sqlalchemy.orm import Session
@@ -15,6 +14,7 @@ from app.tests.utils.utils import (
     to_json,
 )
 from app.tests.utils.year import create_random_school, create_random_year
+from app.utils import generate_uuid
 
 
 def test_get_all_years(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -36,9 +36,7 @@ def test_get_year_existing(client: TestClient, superuser_token_headers: Dict[str
 
 
 def test_get_year_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    while crud.year.get(db, id=(year_id := randint(0, 10000000))):
-        pass
-    r = client.get(f"{settings.API_V1_STR}/years/{year_id}", headers=superuser_token_headers)
+    r = client.get(f"{settings.API_V1_STR}/years/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
@@ -80,9 +78,7 @@ def test_get_year_normal_user(client: TestClient, normal_user_token_headers: Dic
 
 
 def test_update_year_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    while crud.year.get(db, id=(year_id := randint(0, 10000000))):
-        pass
-    r = client.put(f"{settings.API_V1_STR}/years/{year_id}", headers=superuser_token_headers, json={})
+    r = client.put(f"{settings.API_V1_STR}/years/{generate_uuid()}", headers=superuser_token_headers, json={})
     assert r.status_code == 404
 
 
@@ -128,7 +124,5 @@ def test_delete_year(client: TestClient, superuser_token_headers: Dict[str, str]
 
 
 def test_delete_year_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    while crud.year.get(db, id=(year_id := randint(0, 10000000))):
-        pass
-    r = client.delete(f"{settings.API_V1_STR}/years/{year_id}", headers=superuser_token_headers)
+    r = client.delete(f"{settings.API_V1_STR}/years/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404

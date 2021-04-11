@@ -8,7 +8,7 @@ from app.schemas import StudentCreate, StudentUpdate
 
 
 class CRUDStudent(CRUDBase[Student, StudentCreate, StudentUpdate]):
-    def get(self, db: Session, id: int) -> Optional[Student]:
+    def get(self, db: Session, id: str) -> Optional[Student]:
         return db.query(Student).filter(Student.user_id == id).first()
 
     def create(self, db: Session, *, obj_in: StudentCreate) -> Student:
@@ -25,7 +25,7 @@ class CRUDStudent(CRUDBase[Student, StudentCreate, StudentUpdate]):
             update_data = obj_in.dict(exclude_unset=True)
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
-    def remove(self, db: Session, *, id: int) -> Student:
+    def remove(self, db: Session, *, id: str) -> Student:
         obj = db.query(Student).filter(Student.user_id == id).first()
         db.delete(obj)
         db.commit()

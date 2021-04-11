@@ -21,7 +21,7 @@ def user_authentication_headers(*, client: TestClient, email: str, password: str
 
 
 def create_random_user(
-    db: Session, type: str, is_admin: bool = False, school_id: Optional[int] = None, permissions: Optional[int] = None
+    db: Session, type: str, is_admin: bool = False, school_id: Optional[str] = None, permissions: Optional[int] = None
 ) -> User:
     """
     :param db: SQLAlchemy Session object pointing to the project database
@@ -48,7 +48,7 @@ def authentication_token_from_email(
     email: str,
     db: Session,
     user_type: str = "student",
-    school_id: Optional[int] = None,
+    school_id: Optional[str] = None,
     type_: str = "access",
 ) -> Dict[str, str]:
     """

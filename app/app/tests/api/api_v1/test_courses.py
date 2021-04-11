@@ -13,6 +13,7 @@ from app.tests.utils.utils import (
     random_lower_string,
     to_json,
 )
+from app.utils import generate_uuid
 
 
 def test_get_all_courses(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
@@ -34,8 +35,7 @@ def test_get_course_existing(client: TestClient, superuser_token_headers: Dict[s
 
 
 def test_get_course_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_course_id = crud.course.get_multi(db)[-1].id
-    r = client.get(f"{settings.API_V1_STR}/courses/{last_course_id+1}", headers=superuser_token_headers)
+    r = client.get(f"{settings.API_V1_STR}/courses/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
@@ -88,8 +88,7 @@ def test_update_course(client: TestClient, superuser_token_headers: Dict[str, st
 
 
 def test_update_course_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_course_id = crud.course.get_multi(db)[-1].id
-    r = client.put(f"{settings.API_V1_STR}/courses/{last_course_id + 1}", headers=superuser_token_headers, json={})
+    r = client.put(f"{settings.API_V1_STR}/courses/{generate_uuid()}", headers=superuser_token_headers, json={})
     assert r.status_code == 404
 
 
@@ -102,8 +101,7 @@ def test_delete_course(client: TestClient, superuser_token_headers: Dict[str, st
 
 
 def test_delete_course_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    last_course_id = crud.course.get_multi(db)[-1].id
-    r = client.delete(f"{settings.API_V1_STR}/courses/{last_course_id+1}", headers=superuser_token_headers)
+    r = client.delete(f"{settings.API_V1_STR}/courses/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
