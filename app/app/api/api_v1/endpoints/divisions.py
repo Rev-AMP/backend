@@ -36,7 +36,7 @@ def read_division_by_id(
 
 @router.get("/{division_id}/Students", response_model=List[schemas.Student])
 def read_division_students_by_id(
-    division_id: int, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
+    division_id: str, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
 ) -> Any:
     """
     Get all students for a specific division by ID.
