@@ -7,6 +7,7 @@ from starlette.testclient import TestClient
 
 from app import crud
 from app.core.config import settings
+from app.schemas import StudentUpdate
 from app.schemas.users.admin import AdminPermissions
 from app.tests.utils.school import create_random_school
 from app.tests.utils.student import create_random_student
@@ -203,6 +204,44 @@ def test_add_term_students(client: TestClient, superuser_token_headers: Dict[str
         student = crud.student.get(db, id=user.id)
         assert student
         assert student.term_id == term.id
+
+
+def test_remove_term_student(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    term = create_random_term(db)
+    students = [
+        create_random_user(db, type="student", school_id=term.year.school_id),
+        create_random_user(db, type="student", school_id=term.year.school_id),
+    ]
+    for user in students:
+        student = crud.student.get(db, user.id)
+        assert student
+        crud.student.update(db, db_obj=student, obj_in=StudentUpdate(term_id=term.id))
+    r = client.delete(
+        f"{settings.API_V1_STR}/terms/{term.id}/students/{students[0].id}", headers=superuser_token_headers
+    )
+    assert r.status_code == 200
+    updated_student = r.json()
+    assert updated_student["user_id"] == students[0].id
+    assert updated_student["term_id"] is None
+
+
+def test_remove_nonexisting_term_student(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    r = client.delete(
+        f"{settings.API_V1_STR}/terms/{generate_uuid()}/students/{generate_uuid()}", headers=superuser_token_headers
+    )
+    assert r.status_code == 404
+
+
+def test_remove_term_nonexisting_student(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    term = create_random_term(db)
+    r = client.delete(
+        f"{settings.API_V1_STR}/terms/{term.id}/students/{generate_uuid()}", headers=superuser_token_headers
+    )
+    assert r.status_code == 404
 
 
 def test_create_term(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
