@@ -1,5 +1,6 @@
 import logging
-from typing import Any, List
+from collections import defaultdict
+from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -34,7 +35,7 @@ def read_division_by_id(
     raise NotFoundException(detail="The division with this ID does not exist!")
 
 
-@router.get("/{division_id}/Students", response_model=List[schemas.Student])
+@router.get("/{division_id}/students", response_model=List[schemas.Student])
 def read_division_students_by_id(
     division_id: str, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
 ) -> Any:
@@ -77,6 +78,46 @@ def create_division(
         f"Admin {current_admin.user_id} ({current_admin.user.email}) is creating Division {division_in.__dict__}"
     )
     return crud.division.create(db, obj_in=division_in)
+
+
+@router.post("/{division_id}/students", response_model=Dict[str, Any], status_code=207)
+def add_division_students_by_id(
+    *,
+    db: Session = Depends(deps.get_db),
+    division_id: str,
+    user_ids: List[str],
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
+) -> Any:
+    if division := crud.division.get(db, id=division_id):
+        response: Dict[str, Any] = {"success": []}
+        errors = defaultdict(lambda: [])
+
+        for user_id in user_ids:
+            if user := crud.user.get(db, id=user_id):
+                if user.type == "student":
+                    if user.school_id == division.course.term.year.school_id:
+                        if student := crud.student.get(db, id=user_id):
+                            if student.term_id == division.course.term_id:
+                                division.students.append(student)
+                                response["success"].append(student.user_id)
+                            else:
+                                errors["different terms"].append(user_id)
+                        else:
+                            errors["no student object"].append(user_id)
+                    else:
+                        errors["different schools"].append(user_id)
+                else:
+                    errors["not a student"].append(user_id)
+            else:
+                errors["not a user"].append(user_id)
+
+        # Cleanup response a bit
+        if len(response["success"]) == 0:
+            del response["success"]
+        response["errors"] = errors
+        return response
+
+    raise NotFoundException(detail="The division with this ID does not exist!")
 
 
 @router.put("/{division_id}", response_model=schemas.Division)
