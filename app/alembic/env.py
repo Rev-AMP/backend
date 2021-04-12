@@ -1,22 +1,12 @@
 from __future__ import with_statement
 
-import logging
 from logging.config import fileConfig
 
 import decouple
 from sqlalchemy import engine_from_config, pool
-from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
 
 from alembic import context
 from app.db.base import Base  # noqa
-
-# Logging configuration
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Tenacity configration
-max_tries = 60 * 5  # 5 minutes
-wait_seconds = 1
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -71,12 +61,6 @@ def run_migrations_offline():
         context.run_migrations()
 
 
-@retry(
-    stop=stop_after_attempt(max_tries),
-    wait=wait_fixed(wait_seconds),
-    before=before_log(logger, logging.INFO),
-    after=after_log(logger, logging.WARN),
-)
 def run_migrations_online():
     """Run migrations in 'online' mode.
 
