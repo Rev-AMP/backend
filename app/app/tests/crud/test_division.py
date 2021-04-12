@@ -7,6 +7,7 @@ from app.schemas import DivisionUpdate
 from app.tests.utils.course import create_random_course
 from app.tests.utils.division import create_random_division
 from app.tests.utils.professor import create_random_professor
+from app.tests.utils.student import create_random_student
 
 
 def test_create_division(db: Session) -> None:
@@ -39,3 +40,17 @@ def test_division_by_details(db: Session) -> None:
     )
     assert fetched_division
     assert fetched_division.id == division.id
+
+
+def test_add_students_to_division(db: Session) -> None:
+    division = create_random_division(db)
+    assert division
+    students = [
+        create_random_student(db, term_id=division.course.term_id),
+        create_random_student(db, term_id=division.course.term_id),
+    ]
+    for student in students:
+        division.students.append(student)
+        std = crud.student.get(db, id=student.user_id)
+        assert std
+        assert std.divisions
