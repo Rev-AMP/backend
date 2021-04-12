@@ -228,3 +228,32 @@ def test_get_student_divisions_id_nonexistent(
         headers=normal_user_token_headers,
     )
     assert r.status_code == 404
+
+
+def test_get_student_me_divisions(client: TestClient, db: Session) -> None:
+    student = create_random_student(db)
+    course = create_random_course(db, term_id=student.term_id)
+    divisions = [create_random_division(db, course_id=course.id), create_random_division(db, course_id=course.id)]
+    for division in divisions:
+        division.students.append(student)
+    r = client.get(
+        f"{settings.API_V1_STR}/students/me/divisions",
+        headers=authentication_token_from_email(client=client, email=student.user.email, db=db),
+    )
+    assert r.status_code == 200
+    fetched_divisions = r.json()
+    assert fetched_divisions
+    assert len(fetched_divisions) == 2
+    for division in divisions:
+        # if fetched_divisions[0].get("id") == division.id:
+        #     compare_api_and_db_query_results(api_result=fetched_divisions[0], db_dict=to_json(division))
+        # else:
+        #     compare_api_and_db_query_results(api_result=fetched_divisions[1], db_dict=to_json(division))
+        assert division.id == fetched_divisions[0].get("id") or division.id == fetched_divisions[1].get("id")
+
+
+def test_get_student_me_divisions_superuser(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    r = client.get(f"{settings.API_V1_STR}/students/me/divisions", headers=superuser_token_headers)
+    assert r.status_code == 403

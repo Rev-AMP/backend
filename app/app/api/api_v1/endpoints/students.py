@@ -35,6 +35,16 @@ def get_student_me(
     return current_student
 
 
+@router.get("/me/divisions", response_model=List[schemas.Division])
+def get_student_me(
+    current_student: models.Student = Depends(deps.get_current_student),
+) -> Any:
+    """
+    Get current student divisions
+    """
+    return list(current_student.divisions)
+
+
 @router.get("/{student_id}", response_model=schemas.Student)
 def read_student_by_id(
     student_id: str, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
