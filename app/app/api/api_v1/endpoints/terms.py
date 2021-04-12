@@ -85,6 +85,26 @@ def add_term_students_by_id(
     raise NotFoundException(detail="The term with this ID does not exist!")
 
 
+@router.delete("/{term_id}/students/{student_id}", response_model=schemas.Student)
+def remove_student_from_term(
+    *,
+    db: Session = Depends(deps.get_db),
+    term_id: str,
+    student_id: str,
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
+) -> Any:
+
+    if term := crud.term.get(db, term_id):
+        if student := crud.student.get(db, student_id):
+            logging.info(
+                f"Admin {current_admin.user_id} ({current_admin.user.email}) is deleting Student {student_id} "
+                f"({student.user.email}) from Term {term_id} ({term.name})"
+            )
+            return crud.student.update(db, db_obj=student, obj_in=StudentUpdate(term_id=None))
+        raise NotFoundException(detail=f"Student with id {student_id} not found in term {term_id}")
+    raise NotFoundException(detail=f"Term with id {term_id} not found")
+
+
 @router.post("/", response_model=schemas.Term)
 def create_term(
     *,
