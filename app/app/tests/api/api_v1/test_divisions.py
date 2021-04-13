@@ -12,6 +12,9 @@ from app.tests.utils.division import (
     create_random_division,
     create_random_professor,
 )
+from app.tests.utils.school import create_random_school
+from app.tests.utils.student import create_random_student
+from app.tests.utils.term import create_random_term
 from app.tests.utils.user import authentication_token_from_email, create_random_user
 from app.tests.utils.utils import compare_api_and_db_query_results, to_json
 from app.utils import generate_uuid
@@ -126,3 +129,135 @@ def test_get_division_weakadmin(client: TestClient, db: Session) -> None:
     )
     r = client.get(f"{settings.API_V1_STR}/divisions/", headers=admin_user_token_headers)
     assert r.status_code == 403
+
+
+def test_add_division_students_not_a_user(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    division = create_random_division(db)
+    new_user_id = generate_uuid()
+    data = [new_user_id]
+    r = client.post(
+        f"{settings.API_V1_STR}/divisions/{division.id}/students", headers=superuser_token_headers, json=data
+    )
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("not a user")[0] == new_user_id
+
+
+def test_add_division_students_not_a_student(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    course = create_random_course(db)
+    division = create_random_division(db, course_id=course.id)
+    students = [
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+    ]
+    data = [student.user_id for student in students]
+    non_student = create_random_user(db, type="professor", school_id=division.course.term.year.school_id)
+    data.append(non_student.id)
+    r = client.post(
+        f"{settings.API_V1_STR}/divisions/{division.id}/students", headers=superuser_token_headers, json=data
+    )
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("not a student")[0] == non_student.id
+    for student in students:
+        assert student.user_id in response.get("success")
+
+
+def test_add_division_students_different_school(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    course = create_random_course(db)
+    division = create_random_division(db, course_id=course.id)
+    students = [
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+    ]
+    data = [student.user_id for student in students]
+    student_different_school = create_random_user(db, type="student", school_id=create_random_school(db).id)
+    data.append(student_different_school.id)
+    r = client.post(
+        f"{settings.API_V1_STR}/divisions/{division.id}/students", headers=superuser_token_headers, json=data
+    )
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("different schools")[0] == student_different_school.id
+    for student in students:
+        assert student.user_id in response.get("success")
+
+
+def test_add_division_students_different_term(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    course = create_random_course(db)
+    division = create_random_division(db, course_id=course.id)
+    students = [
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+    ]
+    data = [student.user_id for student in students]
+    student_different_term = create_random_student(
+        db, school_id=course.term.year.school_id, term_id=create_random_term(db).id
+    )
+    data.append(student_different_term.user_id)
+    r = client.post(
+        f"{settings.API_V1_STR}/divisions/{division.id}/students", headers=superuser_token_headers, json=data
+    )
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("different terms")[0] == student_different_term.user_id
+    for student in students:
+        assert student.user_id in response.get("success")
+
+
+def test_add_division_students_no_student_object(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    course = create_random_course(db)
+    division = create_random_division(db, course_id=course.id)
+    students = [
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+    ]
+    data = [student.user_id for student in students]
+    student_no_object = create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id)
+    crud.student.remove(db, id=student_no_object.user_id)
+    data.append(student_no_object.user_id)
+    r = client.post(
+        f"{settings.API_V1_STR}/divisions/{division.id}/students", headers=superuser_token_headers, json=data
+    )
+    assert r.status_code == 207
+    response = r.json()
+    assert response.get("errors").get("no student object")[0] == student_no_object.user_id
+    for student in students:
+        assert student.user_id in response.get("success")
+
+
+def test_add_division_students_non_existent_division(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    r = client.post(
+        f"{settings.API_V1_STR}/divisions/{generate_uuid()}/students", headers=superuser_token_headers, json=[]
+    )
+    assert r.status_code == 404
+
+
+def test_add_division_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    course = create_random_course(db)
+    division = create_random_division(db, course_id=course.id)
+    students = [
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+    ]
+    data = [student.user_id for student in students]
+    r = client.post(
+        f"{settings.API_V1_STR}/divisions/{division.id}/students", headers=superuser_token_headers, json=data
+    )
+    assert r.status_code == 207
+    assert r.json()
+    fetched_students = [student_id for student_id in r.json()["success"]]
+    for student in students:
+        assert student.user_id in fetched_students
