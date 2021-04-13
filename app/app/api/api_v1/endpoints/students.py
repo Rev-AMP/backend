@@ -36,7 +36,7 @@ def get_student_me(
 
 
 @router.get("/me/divisions", response_model=List[schemas.Division])
-def get_student_me(
+def get_student_divisions_me(
     current_student: models.Student = Depends(deps.get_current_student),
 ) -> Any:
     """
