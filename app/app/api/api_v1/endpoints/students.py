@@ -86,7 +86,6 @@ def read_student_divisions_by_id(
             (admin := crud.admin.get(db, id=current_user.id))
             and AdminPermissions(admin.permissions).is_allowed("student")
         ):
-            print(student.divisions)
             return list(student.divisions)
 
         raise ForbiddenException(detail="The user doesn't have enough privileges")
