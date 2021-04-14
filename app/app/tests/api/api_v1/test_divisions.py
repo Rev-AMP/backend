@@ -261,3 +261,27 @@ def test_add_division_students(client: TestClient, superuser_token_headers: Dict
     fetched_students = [student_id for student_id in r.json()["success"]]
     for student in students:
         assert student.user_id in fetched_students
+
+
+def test_get_division_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    course = create_random_course(db)
+    division = create_random_division(db, course_id=course.id)
+    students = [
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+    ]
+    for student in students:
+        division.students.append(student)
+        std = crud.student.get(db, id=student.user_id)
+        assert std
+        assert std.divisions
+    db.commit()
+    print("Before refresh", division.students)
+    db.refresh(division)
+    print("After refresh", division.students)
+    r = client.get(f"{settings.API_V1_STR}/divisions/{division.id}/students", headers=superuser_token_headers)
+    assert r.status_code == 200
+    assert r.json()
+    fetched_students = [student.get("user_id") for student in r.json()]
+    for student in students:
+        assert student.user_id in fetched_students

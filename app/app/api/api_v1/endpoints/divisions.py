@@ -42,18 +42,15 @@ def read_division_students_by_id(
     """
     Get all students for a specific division by ID.
     """
-
     # Fetch division with the corresponding ID from DB
     if division := crud.division.get(db, id=division_id):
-        # Return the fetched object without checking perms if current_user is the professor for the division
-        if current_user.id == division.professor_id:
-            return division.students
-
-        # check perms and return if division exists, else 404
-        if (admin := crud.admin.get(db, id=current_user.id)) and AdminPermissions(admin.permissions).is_allowed(
-            "course"
+        # Return the fetched object if current_user is the professor for the division
+        # or admin with required perms
+        if current_user.id == division.professor_id or (
+            (admin := crud.admin.get(db, id=current_user.id))
+            and AdminPermissions(admin.permissions).is_allowed("course")
         ):
-            return division.students
+            return list(division.students)
 
         raise ForbiddenException(detail="The user doesn't have enough privileges")
 
@@ -110,6 +107,9 @@ def add_division_students_by_id(
                     errors["not a student"].append(user_id)
             else:
                 errors["not a user"].append(user_id)
+
+        # commit all the students added to the student
+        db.commit()
 
         # Cleanup response a bit
         if len(response["success"]) == 0:
