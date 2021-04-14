@@ -51,6 +51,8 @@ def test_add_students_to_division(db: Session) -> None:
     ]
     for student in students:
         division.students.append(student)
-        std = crud.student.get(db, id=student.user_id)
-        assert std
-        assert std.divisions
+    db.commit()
+    for student in students:
+        db.refresh(student)
+        assert student.divisions
+        assert student.divisions[0] == division
