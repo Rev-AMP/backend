@@ -198,7 +198,6 @@ def test_add_term_students(client: TestClient, superuser_token_headers: Dict[str
     r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
     assert r.status_code == 207
     assert r.json()
-    print(r.json().keys())
     fetched_students = [student_id for student_id in r.json()["success"]]
     for user in students:
         assert user.id in fetched_students
