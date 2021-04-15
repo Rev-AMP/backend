@@ -86,7 +86,7 @@ def add_division_students_by_id(
     _: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if division := crud.division.get(db, id=division_id):
-        response: Dict[str, Any] = {"success": []}
+        response: Dict[str, Any] = defaultdict(lambda: [])
         errors = defaultdict(lambda: [])
 
         for user_id in user_ids:
@@ -111,10 +111,8 @@ def add_division_students_by_id(
         # commit all the students added to the student
         db.commit()
 
-        # Cleanup response a bit
-        if len(response["success"]) == 0:
-            del response["success"]
-        response["errors"] = errors
+        if errors.keys():
+            response["errors"] = errors
         return response
 
     raise NotFoundException(detail="The division with this ID does not exist!")
