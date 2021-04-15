@@ -57,7 +57,7 @@ def add_term_students_by_id(
     _: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
 ) -> Any:
     if term := crud.term.get(db, id=term_id):
-        response: Dict[str, Any] = {"success": []}
+        response: Dict[str, Any] = defaultdict(lambda: [])
         errors = defaultdict(lambda: [])
 
         for user_id in user_ids:
@@ -76,10 +76,8 @@ def add_term_students_by_id(
             else:
                 errors["not a user"].append(user_id)
 
-        # Cleanup response a bit
-        if len(response["success"]) == 0:
-            del response["success"]
-        response["errors"] = errors
+        if errors.keys():
+            response["errors"] = errors
         return response
 
     raise NotFoundException(detail="The term with this ID does not exist!")
