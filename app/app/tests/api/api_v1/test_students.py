@@ -168,11 +168,11 @@ def test_get_student_divisions_id(client: TestClient, db: Session) -> None:
     assert fetched_divisions
     assert len(fetched_divisions) == 2
     for division in divisions:
-        # if fetched_divisions[0].get("id") == division.id:
-        #     compare_api_and_db_query_results(api_result=fetched_divisions[0], db_dict=to_json(division))
-        # else:
-        #     compare_api_and_db_query_results(api_result=fetched_divisions[1], db_dict=to_json(division))
-        assert division.id == fetched_divisions[0].get("id") or division.id == fetched_divisions[1].get("id")
+        if fetched_divisions[0].get("id") == division.id:
+            compare_api_and_db_query_results(api_result=fetched_divisions[0], db_dict=to_json(division))
+        else:
+            compare_api_and_db_query_results(api_result=fetched_divisions[1], db_dict=to_json(division))
+    # assert division.id == fetched_divisions[0].get("id") or division.id == fetched_divisions[1].get("id")
 
 
 def test_get_student_divisions_id_admin_with_perms(client: TestClient, db: Session) -> None:
@@ -245,11 +245,11 @@ def test_get_student_me_divisions(client: TestClient, db: Session) -> None:
     assert fetched_divisions
     assert len(fetched_divisions) == 2
     for division in divisions:
-        # if fetched_divisions[0].get("id") == division.id:
-        #     compare_api_and_db_query_results(api_result=fetched_divisions[0], db_dict=to_json(division))
-        # else:
-        #     compare_api_and_db_query_results(api_result=fetched_divisions[1], db_dict=to_json(division))
-        assert division.id == fetched_divisions[0].get("id") or division.id == fetched_divisions[1].get("id")
+        if fetched_divisions[0].get("id") == division.id:
+            compare_api_and_db_query_results(api_result=fetched_divisions[0], db_dict=to_json(division))
+        else:
+            compare_api_and_db_query_results(api_result=fetched_divisions[1], db_dict=to_json(division))
+        # assert division.id == fetched_divisions[0].get("id") or division.id == fetched_divisions[1].get("id")
 
 
 def test_get_student_me_divisions_superuser(
