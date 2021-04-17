@@ -11,6 +11,4 @@ class StudentDivision(Base):
     batch_number = Column("batch_number", Integer, index=True)
 
     student = relationship(Student, backref=backref("student_division", cascade="all, delete-orphan"))
-    division = relationship(
-        "Division", backref=backref("student_division", cascade="all, delete-orphan")
-    )  # type: ignore
+    division = relationship("Division", back_populates="student_division")  # type: ignore

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.schemas import DivisionUpdate
+from app.schemas.student_division import StudentDivisionUpdate
 from app.tests.utils.course import create_random_course
 from app.tests.utils.division import create_random_division
 from app.tests.utils.professor import create_random_professor
@@ -56,3 +57,26 @@ def test_add_students_to_division(db: Session) -> None:
         db.refresh(student)
         assert student.divisions
         assert student.divisions[0] == division
+
+
+def test_add_students_to_division_batches(db: Session) -> None:
+    division = create_random_division(db)
+    assert division
+    students = [
+        create_random_student(db, term_id=division.course.term_id),
+        create_random_student(db, term_id=division.course.term_id),
+    ]
+    for student in students:
+        division.students.append(student)
+    db.commit()
+    for student in students:
+        student_division = crud.student_division.get_by_details(db, division_id=division.id, student_id=student.user_id)
+        assert student_division
+        crud.student_division.update(db, db_obj=student_division, obj_in=StudentDivisionUpdate(batch_number=1))
+    for student in students:
+        db.refresh(student)
+        assert student.divisions
+        assert student.divisions[0] == division
+        student_division = crud.student_division.get_by_details(db, division_id=division.id, student_id=student.user_id)
+        assert student_division
+        assert student_division.batch_number == 1

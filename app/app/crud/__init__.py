@@ -4,6 +4,7 @@ from .crud_division import division
 from .crud_professor import professor
 from .crud_school import school
 from .crud_student import student
+from .crud_student_division import student_division
 from .crud_term import term
 from .crud_user import user
 from .crud_year import year

@@ -22,5 +22,6 @@ class Division(Base):
     course = relationship("Course")
     professor = relationship("Professor", back_populates="divisions")
     students = association_proxy("student_division", "student", creator=lambda std: StudentDivision(student=std))
+    student_division = relationship(StudentDivision, back_populates="division")
 
     __table_args__ = (UniqueConstraint("course_id", "division_code", name="_unique_by_course_division"),)
