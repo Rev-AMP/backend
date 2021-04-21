@@ -18,12 +18,11 @@ from app.utils import generate_uuid
 
 
 def test_get_all_years(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    year = create_random_year(db)
+    create_random_year(db)
     r = client.get(f"{settings.API_V1_STR}/years/", headers=superuser_token_headers)
     assert r.status_code == 200
     results = r.json()
     assert results
-    compare_api_and_db_query_results(api_result=results[-1], db_dict=to_json(year))
 
 
 def test_get_year_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:

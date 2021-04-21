@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -51,6 +51,30 @@ def read_division_students_by_id(
             and AdminPermissions(admin.permissions).is_allowed("course")
         ):
             return list(division.students)
+
+        raise ForbiddenException(detail="The user doesn't have enough privileges")
+
+    raise NotFoundException(
+        detail="The division with this ID does not exist in the system",
+    )
+
+
+@router.get("/{division_id}/batches", response_model=Set[int])
+def read_division_batches_by_id(
+    division_id: str, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
+) -> Any:
+    """
+    Get all students for a specific division by ID.
+    """
+    # Fetch division with the corresponding ID from DB
+    if division := crud.division.get(db, id=division_id):
+        # Return the fetched object if current_user is the professor for the division
+        # or admin with required perms
+        if current_user.id == division.professor_id or (
+            (admin := crud.admin.get(db, id=current_user.id))
+            and AdminPermissions(admin.permissions).is_allowed("course")
+        ):
+            return set(student_division.batch_number for student_division in getattr(division, "student_division"))
 
         raise ForbiddenException(detail="The user doesn't have enough privileges")
 

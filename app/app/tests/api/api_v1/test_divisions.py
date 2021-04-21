@@ -366,3 +366,102 @@ def test_get_division_students_non_existent_division(
         headers=normal_user_token_headers,
     )
     assert r.status_code == 404
+
+
+def test_get_division_batches(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    course = create_random_course(db)
+    division = create_random_division(db, course_id=course.id)
+    students = [
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+    ]
+    for student in students:
+        division.students.append(student)
+    for i, student_division in enumerate(getattr(division, "student_division")):
+        student_division.batch_number = i
+    db.commit()
+    r = client.get(f"{settings.API_V1_STR}/divisions/{division.id}/batches", headers=superuser_token_headers)
+    assert r.status_code == 200
+    assert r.json() == [0, 1]
+
+
+def test_get_division_batches_professor(client: TestClient, db: Session) -> None:
+    course = create_random_course(db)
+    professor = create_random_user(db, type="professor", school_id=course.term.year.school_id)
+    division = create_random_division(db, course_id=course.id, professor_id=professor.id)
+    students = [
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+    ]
+    for student in students:
+        division.students.append(student)
+        std = crud.student.get(db, id=student.user_id)
+        assert std
+        assert std.divisions
+    for i, student_division in enumerate(getattr(division, "student_division")):
+        student_division.batch_number = i
+    db.commit()
+    r = client.get(
+        f"{settings.API_V1_STR}/divisions/{division.id}/batches",
+        headers=authentication_token_from_email(client=client, db=db, email=professor.email),
+    )
+    assert r.status_code == 200
+    assert r.json() == [0, 1]
+
+
+def test_get_division_batches_admin_with_perms(client: TestClient, db: Session) -> None:
+    course = create_random_course(db)
+    division = create_random_division(db, course_id=course.id)
+    students = [
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+    ]
+    for student in students:
+        division.students.append(student)
+        std = crud.student.get(db, id=student.user_id)
+        assert std
+        assert std.divisions
+    for i, student_division in enumerate(getattr(division, "student_division")):
+        student_division.batch_number = i
+    db.commit()
+    perms = AdminPermissions(0)
+    perms["course"] = True
+    admin = create_random_user(db, type="admin", permissions=perms.permissions)
+    r = client.get(
+        f"{settings.API_V1_STR}/divisions/{division.id}/batches",
+        headers=authentication_token_from_email(client=client, db=db, email=admin.email),
+    )
+    assert r.status_code == 200
+    assert r.json() == [0, 1]
+
+
+def test_get_division_batches_admin_without_perms(
+    client: TestClient, admin_user_token_headers: Dict[str, str], db: Session
+) -> None:
+    division = create_random_division(db)
+    r = client.get(
+        f"{settings.API_V1_STR}/divisions/{division.id}/batches",
+        headers=admin_user_token_headers,
+    )
+    assert r.status_code == 403
+
+
+def test_get_division_batches_normal_user(
+    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+) -> None:
+    division = create_random_division(db)
+    r = client.get(
+        f"{settings.API_V1_STR}/divisions/{division.id}/batches",
+        headers=normal_user_token_headers,
+    )
+    assert r.status_code == 403
+
+
+def test_get_division_batches_non_existent_division(
+    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+) -> None:
+    r = client.get(
+        f"{settings.API_V1_STR}/divisions/{generate_uuid()}/batches",
+        headers=normal_user_token_headers,
+    )
+    assert r.status_code == 404
