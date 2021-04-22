@@ -83,6 +83,37 @@ def read_division_batches_by_id(
     )
 
 
+@router.get("/{division_id}/students/{batch_number}", response_model=List[schemas.Student])
+def read_division_batch_students_by_id(
+    division_id: str,
+    batch_number: int,
+    current_user: models.User = Depends(deps.get_current_user),
+    db: Session = Depends(deps.get_db),
+) -> Any:
+    """
+    Get all students for a specific division by ID.
+    """
+    # Fetch division with the corresponding ID from DB
+    if division := crud.division.get(db, id=division_id):
+        # Return the fetched object if current_user is the professor for the division
+        # or admin with required perms
+        if current_user.id == division.professor_id or (
+            (admin := crud.admin.get(db, id=current_user.id))
+            and AdminPermissions(admin.permissions).is_allowed("course")
+        ):
+            return [
+                student_division.student
+                for student_division in getattr(division, "student_division")
+                if student_division.batch_number == batch_number
+            ]
+
+        raise ForbiddenException(detail="The user doesn't have enough privileges")
+
+    raise NotFoundException(
+        detail="The division with this ID does not exist in the system",
+    )
+
+
 @router.post("/", response_model=schemas.Division)
 def create_division(
     *,
