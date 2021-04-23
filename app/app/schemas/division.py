@@ -11,6 +11,7 @@ class DivisionBase(BaseModel):
     course_id: Optional[str] = None
     division_code: Optional[int] = None
     professor_id: Optional[str] = None
+    number_of_batches: Optional[int] = None
 
 
 # Properties to receive via API on creation
@@ -18,6 +19,7 @@ class DivisionCreate(DivisionBase):
     course_id: str
     division_code: int
     professor_id: str
+    number_of_batches: int = 5
 
 
 # Properties to receive via API on update

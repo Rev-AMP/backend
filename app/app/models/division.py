@@ -18,6 +18,7 @@ class Division(Base):
     professor_id = Column(
         String(36), ForeignKey(f"{Professor.__table__.name}.user_id", ondelete="CASCADE"), index=True, nullable=False
     )
+    number_of_batches = Column(Integer, index=True, nullable=False)
 
     course = relationship("Course")
     professor = relationship("Professor", back_populates="divisions")
