@@ -1,3 +1,4 @@
+from random import randint
 from typing import Dict
 
 from fastapi.testclient import TestClient
@@ -157,8 +158,9 @@ def test_get_student_divisions_id(client: TestClient, db: Session) -> None:
     student = create_random_student(db)
     course = create_random_course(db, term_id=student.term_id)
     divisions = [create_random_division(db, course_id=course.id), create_random_division(db, course_id=course.id)]
+    batch_number = randint(1, 5)
     for division in divisions:
-        division.students.append(student)
+        division.students.append({"student": student, "batch_number": batch_number})
     r = client.get(
         f"{settings.API_V1_STR}/students/{student.user_id}/divisions",
         headers=authentication_token_from_email(client=client, email=student.user.email, db=db),
@@ -179,7 +181,7 @@ def test_get_student_divisions_id_admin_with_perms(client: TestClient, db: Sessi
     student = create_random_student(db)
     course = create_random_course(db, term_id=student.term_id)
     division = create_random_division(db, course_id=course.id)
-    division.students.append(student)
+    division.students.append({"student": student, "batch_number": randint(1, 5)})
 
     perms = AdminPermissions(0)
     perms["student"] = True
@@ -212,7 +214,7 @@ def test_get_student_divisions_id_normal_user(
     student = create_random_student(db)
     course = create_random_course(db, term_id=student.term_id)
     division = create_random_division(db, course_id=course.id)
-    division.students.append(student)
+    division.students.append({"student": student, "batch_number": randint(1, 5)})
     r = client.get(
         f"{settings.API_V1_STR}/students/{student.user_id}/divisions",
         headers=normal_user_token_headers,
@@ -234,8 +236,9 @@ def test_get_student_me_divisions(client: TestClient, db: Session) -> None:
     student = create_random_student(db)
     course = create_random_course(db, term_id=student.term_id)
     divisions = [create_random_division(db, course_id=course.id), create_random_division(db, course_id=course.id)]
+    batch_number = randint(1, 5)
     for division in divisions:
-        division.students.append(student)
+        division.students.append({"student": student, "batch_number": batch_number})
     r = client.get(
         f"{settings.API_V1_STR}/students/me/divisions",
         headers=authentication_token_from_email(client=client, email=student.user.email, db=db),

@@ -120,13 +120,16 @@ def add_division_students_by_id(
         response: Dict[str, Any] = defaultdict(lambda: [])
         errors = defaultdict(lambda: [])
 
+        batch_number = 0
+
         for user_id in user_ids:
             if user := crud.user.get(db, id=user_id):
                 if user.type == "student":
                     if user.school_id == division.course.term.year.school_id:
                         if student := crud.student.get(db, id=user_id):
                             if student.term_id == division.course.term_id:
-                                division.students.append(student)
+                                division.students.append({"student": student, "batch_number": batch_number + 1})
+                                batch_number = (batch_number + 1) % division.number_of_batches
                                 response["success"].append(student.user_id)
                             else:
                                 errors["different terms"].append(user_id)

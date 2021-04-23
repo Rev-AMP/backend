@@ -19,7 +19,7 @@ class DivisionCreate(DivisionBase):
     course_id: str
     division_code: int
     professor_id: str
-    number_of_batches: int = 5
+    number_of_batches: int = 4
 
 
 # Properties to receive via API on update

@@ -49,8 +49,9 @@ def test_add_students_to_division(db: Session) -> None:
         create_random_student(db, term_id=division.course.term_id),
         create_random_student(db, term_id=division.course.term_id),
     ]
+    random_batch = randint(1, 5)
     for student in students:
-        division.students.append(student)
+        division.students.append({"student": student, "batch_number": random_batch})
     db.commit()
     for student in students:
         db.refresh(student)
@@ -65,13 +66,10 @@ def test_add_students_to_division_batches(db: Session) -> None:
         create_random_student(db, term_id=division.course.term_id),
         create_random_student(db, term_id=division.course.term_id),
     ]
-    for student in students:
-        division.students.append(student)
-    db.commit()
     random_batch = randint(1, 5)
-    for student_division in getattr(division, "student_division"):
-        student_division.batch_number = random_batch
-        assert student_division.batch_number
+    for student in students:
+        division.students.append({"student": student, "batch_number": random_batch})
+    db.commit()
     for student in students:
         db.refresh(student)
         assert student.divisions

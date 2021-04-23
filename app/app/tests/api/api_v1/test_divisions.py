@@ -270,11 +270,9 @@ def test_get_division_students(client: TestClient, superuser_token_headers: Dict
         create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
         create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
     ]
+    batch_number = randint(1, 5)
     for student in students:
-        division.students.append(student)
-        std = crud.student.get(db, id=student.user_id)
-        assert std
-        assert std.divisions
+        division.students.append({"student": student, "batch_number": batch_number})
     db.commit()
     r = client.get(f"{settings.API_V1_STR}/divisions/{division.id}/students", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -292,11 +290,9 @@ def test_get_division_students_professor(client: TestClient, db: Session) -> Non
         create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
         create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
     ]
+    batch_number = randint(1, 5)
     for student in students:
-        division.students.append(student)
-        std = crud.student.get(db, id=student.user_id)
-        assert std
-        assert std.divisions
+        division.students.append({"student": student, "batch_number": batch_number})
     db.commit()
     r = client.get(
         f"{settings.API_V1_STR}/divisions/{division.id}/students",
@@ -316,11 +312,9 @@ def test_get_division_students_admin_with_perms(client: TestClient, db: Session)
         create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
         create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
     ]
+    batch_number = randint(1, 5)
     for student in students:
-        division.students.append(student)
-        std = crud.student.get(db, id=student.user_id)
-        assert std
-        assert std.divisions
+        division.students.append({"student": student, "batch_number": batch_number})
     db.commit()
     perms = AdminPermissions(0)
     perms["course"] = True
@@ -375,18 +369,17 @@ def test_get_division_batch_students(client: TestClient, superuser_token_headers
         create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
         create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
     ]
+    batch_number = randint(1, 5)
     for student in students:
-        division.students.append(student)
-    for i, student_division in enumerate(getattr(division, "student_division")):
-        student_division.batch_number = i
+        division.students.append({"student": student, "batch_number": batch_number})
     db.commit()
-    r = client.get(f"{settings.API_V1_STR}/divisions/{division.id}/students/0", headers=superuser_token_headers)
+    r = client.get(
+        f"{settings.API_V1_STR}/divisions/{division.id}/students/{batch_number}", headers=superuser_token_headers
+    )
     assert r.status_code == 200
-    compare_api_and_db_query_results(api_result=r.json()[0], db_dict=to_json(students[0]))
-    r = client.get(f"{settings.API_V1_STR}/divisions/{division.id}/students/1", headers=superuser_token_headers)
-    assert r.status_code == 200
-    assert r.json()
-    compare_api_and_db_query_results(api_result=r.json()[0], db_dict=to_json(students[1]))
+    student_ids = [student.get("user_id") for student in r.json()]
+    for student in students:
+        assert student.user_id in student_ids
 
 
 def test_get_division_batch_students_professor(client: TestClient, db: Session) -> None:
@@ -397,26 +390,18 @@ def test_get_division_batch_students_professor(client: TestClient, db: Session) 
         create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
         create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
     ]
+    batch_number = randint(1, 5)
     for student in students:
-        division.students.append(student)
-        std = crud.student.get(db, id=student.user_id)
-        assert std
-        assert std.divisions
-    for i, student_division in enumerate(getattr(division, "student_division")):
-        student_division.batch_number = i
+        division.students.append({"student": student, "batch_number": batch_number})
     db.commit()
     r = client.get(
-        f"{settings.API_V1_STR}/divisions/{division.id}/students/0",
+        f"{settings.API_V1_STR}/divisions/{division.id}/students/{batch_number}",
         headers=authentication_token_from_email(client=client, db=db, email=professor.email),
     )
     assert r.status_code == 200
-    compare_api_and_db_query_results(api_result=r.json()[0], db_dict=to_json(students[0]))
-    r = client.get(
-        f"{settings.API_V1_STR}/divisions/{division.id}/students/1",
-        headers=authentication_token_from_email(client=client, db=db, email=professor.email),
-    )
-    assert r.status_code == 200
-    compare_api_and_db_query_results(api_result=r.json()[0], db_dict=to_json(students[1]))
+    student_ids = [student.get("user_id") for student in r.json()]
+    for student in students:
+        assert student.user_id in student_ids
 
 
 def test_get_division_batch_students_admin_with_perms(client: TestClient, db: Session) -> None:
@@ -426,29 +411,21 @@ def test_get_division_batch_students_admin_with_perms(client: TestClient, db: Se
         create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
         create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
     ]
+    batch_number = randint(1, 5)
     for student in students:
-        division.students.append(student)
-        std = crud.student.get(db, id=student.user_id)
-        assert std
-        assert std.divisions
-    for i, student_division in enumerate(getattr(division, "student_division")):
-        student_division.batch_number = i
+        division.students.append({"student": student, "batch_number": batch_number})
     db.commit()
     perms = AdminPermissions(0)
     perms["course"] = True
     admin = create_random_user(db, type="admin", permissions=perms.permissions)
     r = client.get(
-        f"{settings.API_V1_STR}/divisions/{division.id}/students/0",
+        f"{settings.API_V1_STR}/divisions/{division.id}/students/{batch_number}",
         headers=authentication_token_from_email(client=client, db=db, email=admin.email),
     )
     assert r.status_code == 200
-    compare_api_and_db_query_results(api_result=r.json()[0], db_dict=to_json(students[0]))
-    r = client.get(
-        f"{settings.API_V1_STR}/divisions/{division.id}/students/1",
-        headers=authentication_token_from_email(client=client, db=db, email=admin.email),
-    )
-    assert r.status_code == 200
-    compare_api_and_db_query_results(api_result=r.json()[0], db_dict=to_json(students[1]))
+    student_ids = [student.get("user_id") for student in r.json()]
+    for student in students:
+        assert student.user_id in student_ids
 
 
 def test_get_division_batch_students_admin_without_perms(
