@@ -3,11 +3,17 @@ from collections import defaultdict
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import exc
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.api import deps
-from app.exceptions import ConflictException, ForbiddenException, NotFoundException
+from app.exceptions import (
+    BadRequestException,
+    ConflictException,
+    ForbiddenException,
+    NotFoundException,
+)
 from app.schemas import AdminPermissions
 
 router = APIRouter()
@@ -142,8 +148,17 @@ def add_division_students_by_id(
             else:
                 errors["not a user"].append(user_id)
 
-        # commit all the students added to the student
-        db.commit()
+        # Commit all the students added to the student
+        try:
+            db.commit()
+        except exc.IntegrityError as e:
+            logging.error(e.__str__())
+            db.rollback()
+            raise ConflictException(detail=e.__str__())
+        except Exception as e:
+            logging.error(e.__str__())
+            db.rollback()
+            raise BadRequestException(detail=e.__str__())
 
         if errors.keys():
             response["errors"] = errors
