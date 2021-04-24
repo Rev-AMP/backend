@@ -1,6 +1,8 @@
+import logging
 from random import randint
 from typing import Dict
 
+from sqlalchemy import exc
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
@@ -273,7 +275,14 @@ def test_get_division_students(client: TestClient, superuser_token_headers: Dict
     batch_number = randint(1, 5)
     for student in students:
         division.students.append({"student": student, "batch_number": batch_number})
-    db.commit()
+    try:
+        db.commit()
+    except exc.IntegrityError as e:
+        logging.error(e.__str__())
+        db.rollback()
+    except Exception as e:
+        logging.error(e.__str__())
+        db.rollback()
     r = client.get(f"{settings.API_V1_STR}/divisions/{division.id}/students", headers=superuser_token_headers)
     assert r.status_code == 200
     assert r.json()
@@ -293,7 +302,14 @@ def test_get_division_students_professor(client: TestClient, db: Session) -> Non
     batch_number = randint(1, 5)
     for student in students:
         division.students.append({"student": student, "batch_number": batch_number})
-    db.commit()
+    try:
+        db.commit()
+    except exc.IntegrityError as e:
+        logging.error(e.__str__())
+        db.rollback()
+    except Exception as e:
+        logging.error(e.__str__())
+        db.rollback()
     r = client.get(
         f"{settings.API_V1_STR}/divisions/{division.id}/students",
         headers=authentication_token_from_email(client=client, db=db, email=professor.email),
@@ -315,7 +331,14 @@ def test_get_division_students_admin_with_perms(client: TestClient, db: Session)
     batch_number = randint(1, 5)
     for student in students:
         division.students.append({"student": student, "batch_number": batch_number})
-    db.commit()
+    try:
+        db.commit()
+    except exc.IntegrityError as e:
+        logging.error(e.__str__())
+        db.rollback()
+    except Exception as e:
+        logging.error(e.__str__())
+        db.rollback()
     perms = AdminPermissions(0)
     perms["course"] = True
     admin = create_random_user(db, type="admin", permissions=perms.permissions)
@@ -372,7 +395,14 @@ def test_get_division_batch_students(client: TestClient, superuser_token_headers
     batch_number = randint(1, 5)
     for student in students:
         division.students.append({"student": student, "batch_number": batch_number})
-    db.commit()
+    try:
+        db.commit()
+    except exc.IntegrityError as e:
+        logging.error(e.__str__())
+        db.rollback()
+    except Exception as e:
+        logging.error(e.__str__())
+        db.rollback()
     r = client.get(
         f"{settings.API_V1_STR}/divisions/{division.id}/students/{batch_number}", headers=superuser_token_headers
     )
@@ -393,7 +423,14 @@ def test_get_division_batch_students_professor(client: TestClient, db: Session) 
     batch_number = randint(1, 5)
     for student in students:
         division.students.append({"student": student, "batch_number": batch_number})
-    db.commit()
+    try:
+        db.commit()
+    except exc.IntegrityError as e:
+        logging.error(e.__str__())
+        db.rollback()
+    except Exception as e:
+        logging.error(e.__str__())
+        db.rollback()
     r = client.get(
         f"{settings.API_V1_STR}/divisions/{division.id}/students/{batch_number}",
         headers=authentication_token_from_email(client=client, db=db, email=professor.email),
@@ -414,7 +451,14 @@ def test_get_division_batch_students_admin_with_perms(client: TestClient, db: Se
     batch_number = randint(1, 5)
     for student in students:
         division.students.append({"student": student, "batch_number": batch_number})
-    db.commit()
+    try:
+        db.commit()
+    except exc.IntegrityError as e:
+        logging.error(e.__str__())
+        db.rollback()
+    except Exception as e:
+        logging.error(e.__str__())
+        db.rollback()
     perms = AdminPermissions(0)
     perms["course"] = True
     admin = create_random_user(db, type="admin", permissions=perms.permissions)

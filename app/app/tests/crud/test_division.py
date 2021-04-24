@@ -1,5 +1,7 @@
+import logging
 from random import randint
 
+from sqlalchemy import exc
 from sqlalchemy.orm import Session
 
 from app import crud
@@ -52,7 +54,14 @@ def test_add_students_to_division(db: Session) -> None:
     random_batch = randint(1, 5)
     for student in students:
         division.students.append({"student": student, "batch_number": random_batch})
-    db.commit()
+    try:
+        db.commit()
+    except exc.IntegrityError as e:
+        logging.error(e.__str__())
+        db.rollback()
+    except Exception as e:
+        logging.error(e.__str__())
+        db.rollback()
     for student in students:
         db.refresh(student)
         assert student.divisions
