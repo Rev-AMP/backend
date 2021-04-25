@@ -1,5 +1,7 @@
+import logging
 from random import randint
 
+from sqlalchemy import exc
 from sqlalchemy.orm import Session
 
 from app import crud
@@ -7,6 +9,7 @@ from app.schemas import DivisionUpdate
 from app.tests.utils.course import create_random_course
 from app.tests.utils.division import create_random_division
 from app.tests.utils.professor import create_random_professor
+from app.tests.utils.student import create_random_student
 
 
 def test_create_division(db: Session) -> None:
@@ -39,3 +42,46 @@ def test_division_by_details(db: Session) -> None:
     )
     assert fetched_division
     assert fetched_division.id == division.id
+
+
+def test_add_students_to_division(db: Session) -> None:
+    division = create_random_division(db)
+    assert division
+    students = [
+        create_random_student(db, term_id=division.course.term_id),
+        create_random_student(db, term_id=division.course.term_id),
+    ]
+    random_batch = randint(1, 5)
+    for student in students:
+        division.students.append({"student": student, "batch_number": random_batch})
+    try:
+        db.commit()
+    except exc.IntegrityError as e:
+        logging.error(e.__str__())
+        db.rollback()
+    except Exception as e:
+        logging.error(e.__str__())
+        db.rollback()
+    for student in students:
+        db.refresh(student)
+        assert student.divisions
+        assert student.divisions[0] == division
+
+
+def test_add_students_to_division_batches(db: Session) -> None:
+    division = create_random_division(db)
+    assert division
+    students = [
+        create_random_student(db, term_id=division.course.term_id),
+        create_random_student(db, term_id=division.course.term_id),
+    ]
+    random_batch = randint(1, 5)
+    for student in students:
+        division.students.append({"student": student, "batch_number": random_batch})
+    db.commit()
+    for student in students:
+        db.refresh(student)
+        assert student.divisions
+        assert student.divisions[0] == division
+        assert getattr(student, "student_division")[0].division_id == division.id
+        assert getattr(student, "student_division")[0].batch_number == random_batch

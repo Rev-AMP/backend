@@ -35,6 +35,16 @@ def get_student_me(
     return current_student
 
 
+@router.get("/me/divisions", response_model=List[schemas.Division])
+def get_student_divisions_me(
+    current_student: models.Student = Depends(deps.get_current_student),
+) -> Any:
+    """
+    Get current student divisions
+    """
+    return list(current_student.divisions)
+
+
 @router.get("/{student_id}", response_model=schemas.Student)
 def read_student_by_id(
     student_id: str, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
@@ -59,6 +69,30 @@ def read_student_by_id(
         )
 
     raise ForbiddenException(detail="The user doesn't have enough privileges")
+
+
+@router.get("/{student_id}/divisions", response_model=List[schemas.Division])
+def read_student_divisions_by_id(
+    student_id: str, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
+) -> Any:
+    """
+    Get a specific student's divisions by ID.
+    """
+    # Fetch student with the corresponding ID from DB
+    if student := crud.student.get(db, id=student_id):
+        # Return the fetched divisions if current_user is trying to fetch itself
+        # or is an admin with the required perms
+        if current_user.id == student_id or (
+            (admin := crud.admin.get(db, id=current_user.id))
+            and AdminPermissions(admin.permissions).is_allowed("student")
+        ):
+            return list(student.divisions)
+
+        raise ForbiddenException(detail="The user doesn't have enough privileges")
+
+    raise NotFoundException(
+        detail="The student with this ID does not exist in the system",
+    )
 
 
 @router.put("/{student_id}", response_model=schemas.Student)
