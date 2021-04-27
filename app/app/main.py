@@ -1,7 +1,9 @@
 import logging
 import sys
 
+import sentry_sdk
 from fastapi import FastAPI
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.api_v1.api import api_router
@@ -24,6 +26,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+if settings.SENTRY_DSN:
+    sentry_sdk.init(dsn=settings.SENTRY_DSN)
+    app.add_middleware(SentryAsgiMiddleware)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
