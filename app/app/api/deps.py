@@ -1,8 +1,10 @@
+import logging
 from typing import Callable, Generator
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
+from jose.exceptions import ExpiredSignatureError
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
@@ -36,7 +38,10 @@ def get_user_from_token(token: str, token_type: str, db: Session) -> models.User
             raise BadRequestException(
                 detail="Invalid token",
             )
-    except (jwt.JWTError, ValidationError):
+    except ExpiredSignatureError:
+        raise ForbiddenException(detail="Token has expired")
+    except (jwt.JWTError, ValidationError) as e:
+        logging.error(e.__str__())
         raise ForbiddenException(
             detail="Could not validate credentials",
         )
