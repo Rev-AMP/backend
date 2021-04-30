@@ -3,8 +3,7 @@ from typing import Callable, Generator
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
-from jose.exceptions import ExpiredSignatureError
+from jose import ExpiredSignatureError, jwt
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
