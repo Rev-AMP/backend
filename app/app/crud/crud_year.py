@@ -14,10 +14,7 @@ class CRUDYear(CRUDBase[Year, YearCreate, YearUpdate]):
         return (
             db.query(Year)
             .filter(
-                Year.name == name
-                and Year.school_id == school_id
-                and Year.start_year == start_year
-                and Year.end_year == end_year
+                Year.name == name, Year.school_id == school_id, Year.start_year == start_year, Year.end_year == end_year
             )
             .first()
         )
