@@ -167,6 +167,40 @@ def add_division_students_by_id(
     raise NotFoundException(detail="The division with this ID does not exist!")
 
 
+@router.delete("/{division_id}/students/{student_id}", response_model=schemas.Student)
+def remove_student_from_term(
+    *,
+    db: Session = Depends(deps.get_db),
+    division_id: str,
+    student_id: str,
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
+) -> Any:
+
+    if division := crud.division.get(db, division_id):
+        if student := crud.student.get(db, student_id):
+            if student in division.students:
+                logging.info(
+                    f"Admin {current_admin.user_id} ({current_admin.user.email}) "
+                    f"is deleting Student {student_id} ({student.user.email}) "
+                    f"from Division {division_id} ({division.course.name} {division.division_code})"
+                )
+                division.students.remove(student)
+                try:
+                    db.commit()
+                except exc.IntegrityError as e:
+                    logging.error(e)
+                    db.rollback()
+                    raise ConflictException(detail=e.__str__())
+                except Exception as e:
+                    logging.error(e)
+                    db.rollback()
+                    raise BadRequestException(detail=e.__str__())
+                return student
+            raise NotFoundException(detail=f"Student with id {student_id} not found in Division with if {division_id}")
+        raise NotFoundException(detail=f"Student with id {student_id} not found")
+    raise NotFoundException(detail=f"Division with id {division_id} not found")
+
+
 @router.put("/{division_id}", response_model=schemas.Division)
 def update_division(
     *,
