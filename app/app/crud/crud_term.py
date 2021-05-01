@@ -22,11 +22,11 @@ class CRUDTerm(CRUDBase[Term, TermCreate, TermUpdate]):
         return (
             db.query(Term)
             .filter(
-                Term.name == name
-                and Term.year_id == year_id
-                and Term.current_year_term == current_year_term
-                and Term.start_date == start_date
-                and Term.end_date == end_date
+                Term.name == name,
+                Term.year_id == year_id,
+                Term.current_year_term == current_year_term,
+                Term.start_date == start_date,
+                Term.end_date == end_date,
             )
             .first()
         )

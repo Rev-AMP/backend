@@ -24,9 +24,12 @@ def create_random_division(
     if professor_id is None:
         professor_id = create_random_professor(db).user_id
 
+    if division_code is None:
+        division_code = randint(1, 20)
+        while crud.division.get_by_details(db=db, course_id=course_id, division_code=division_code):
+            division_code = randint(1, 20)
+
     return crud.division.create(
         db,
-        obj_in=DivisionCreate(
-            course_id=course_id, division_code=division_code or randint(1, 20), professor_id=professor_id
-        ),
+        obj_in=DivisionCreate(course_id=course_id, division_code=division_code, professor_id=professor_id),
     )
