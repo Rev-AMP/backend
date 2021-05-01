@@ -16,7 +16,7 @@ def read_timeslots(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    _: models.Admin = Depends(deps.get_current_admin_with_permission("timeslot")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     return crud.timeslot.get_multi(db, skip=skip, limit=limit)
 
@@ -26,7 +26,7 @@ def read_timeslot_by_id(
     *,
     db: Session = Depends(deps.get_db),
     timeslot_id: str,
-    _: models.Admin = Depends(deps.get_current_admin_with_permission("timeslot")),
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     if timeslot := crud.timeslot.get(db, id=timeslot_id):
         return timeslot
@@ -38,7 +38,7 @@ def create_timeslot(
     *,
     db: Session = Depends(deps.get_db),
     timeslot_in: schemas.TimeSlotCreate,
-    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("timeslot")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
 
     if crud.timeslot.get_by_details(
@@ -62,7 +62,7 @@ def update_timeslot(
     db: Session = Depends(deps.get_db),
     timeslot_id: str,
     timeslot_in: schemas.TimeSlotUpdate,
-    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("timeslot")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     if timeslot := crud.timeslot.get(db, id=timeslot_id):
         logging.info(
@@ -78,7 +78,7 @@ def delete_timeslot(
     *,
     db: Session = Depends(deps.get_db),
     timeslot_id: str,
-    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("timeslot")),
+    current_admin: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
 ) -> Any:
     if timeslot := crud.timeslot.get(db, id=timeslot_id):
         logging.info(

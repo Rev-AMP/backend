@@ -108,7 +108,7 @@ def test_get_timeslot_normal_user(client: TestClient, normal_user_token_headers:
 
 def test_get_timeslot_admin(client: TestClient, db: Session) -> None:
     admin_perms = AdminPermissions(0)
-    admin_perms["timeslot"] = True
+    admin_perms["school"] = True
     admin = create_random_user(db=db, type="admin", permissions=admin_perms.permissions)
     admin_user_token_headers = authentication_token_from_email(
         client=client, db=db, email=admin.email, user_type="admin"
