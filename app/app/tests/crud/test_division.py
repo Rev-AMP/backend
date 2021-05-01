@@ -85,3 +85,31 @@ def test_add_students_to_division_batches(db: Session) -> None:
         assert student.divisions[0] == division
         assert getattr(student, "student_division")[0].division_id == division.id
         assert getattr(student, "student_division")[0].batch_number == random_batch
+
+
+def test_remove_students_from_division(db: Session) -> None:
+    division = create_random_division(db)
+    assert division
+    student = create_random_student(db, term_id=division.course.term_id)
+    division.students.append({"student": student, "batch_number": randint(1, 5)})
+    try:
+        db.commit()
+    except exc.IntegrityError as e:
+        logging.error(e.__str__())
+        db.rollback()
+    except Exception as e:
+        logging.error(e.__str__())
+        db.rollback()
+    db.refresh(student)
+    assert division in student.divisions
+    division.students.remove(student)
+    try:
+        db.commit()
+    except exc.IntegrityError as e:
+        logging.error(e.__str__())
+        db.rollback()
+    except Exception as e:
+        logging.error(e.__str__())
+        db.rollback()
+    db.refresh(student)
+    assert division not in student.divisions

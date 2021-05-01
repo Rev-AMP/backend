@@ -502,3 +502,56 @@ def test_get_division_batch_students_non_existent_division(
         headers=normal_user_token_headers,
     )
     assert r.status_code == 404
+
+
+def test_remove_division_student(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    course = create_random_course(db)
+    division = create_random_division(db, course_id=course.id)
+    students = [
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+        create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id),
+    ]
+    batch_number = randint(1, 5)
+    for student in students:
+        division.students.append({"student": student, "batch_number": batch_number})
+    try:
+        db.commit()
+    except Exception as e:
+        logging.error(e)
+        db.rollback()
+    r = client.delete(
+        f"{settings.API_V1_STR}/divisions/{division.id}/students/{students[0].user_id}", headers=superuser_token_headers
+    )
+    assert r.status_code == 200
+    updated_student = r.json()
+    assert updated_student["user_id"] == students[0].user_id
+    db.refresh(division)
+    assert students[0] not in division.students
+
+
+def test_remove_nonexisting_division_student(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
+    r = client.delete(
+        f"{settings.API_V1_STR}/divisions/{generate_uuid()}/students/{generate_uuid()}", headers=superuser_token_headers
+    )
+    assert r.status_code == 404
+
+
+def test_remove_division_nonexisting_student(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    division = create_random_division(db)
+    r = client.delete(
+        f"{settings.API_V1_STR}/divisions/{division.id}/students/{generate_uuid()}", headers=superuser_token_headers
+    )
+    assert r.status_code == 404
+
+
+def test_remove_division_student_not_in_division(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    division = create_random_division(db)
+    student = create_random_student(db)
+    r = client.delete(
+        f"{settings.API_V1_STR}/divisions/{division.id}/students/{student.user_id}", headers=superuser_token_headers
+    )
+    assert r.status_code == 404
