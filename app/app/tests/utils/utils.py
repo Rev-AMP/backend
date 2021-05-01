@@ -1,6 +1,6 @@
 import random
 import string
-from datetime import date
+from datetime import date, time
 from typing import Any, Dict, Optional
 
 from fastapi.testclient import TestClient
@@ -45,7 +45,11 @@ def to_json(obj: Any, show_relations: Optional[bool] = True) -> Dict:
     def obj_to_json(obj: Any, show_relations: Optional[bool] = True, backref: Optional[Table] = None) -> Dict:
         result = {}
         for attr, column in obj.__mapper__.c.items():
-            result[column.key] = value.isoformat() if isinstance(value := getattr(obj, attr), date) else value
+            value = getattr(obj, attr)
+            # Convert to ISO8601 format if date or time
+            if isinstance(value, date) or isinstance(value, time):
+                value = value.isoformat()
+            result[column.key] = value
 
         if show_relations and len(obj.__mapper__.relationships.items()) != 0:
             for attr, relation in obj.__mapper__.relationships.items():
