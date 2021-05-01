@@ -9,6 +9,7 @@ from app.api.api_v1.endpoints import (
     schools,
     students,
     terms,
+    timeslots,
     users,
     utils,
     years,
@@ -25,4 +26,5 @@ api_router.include_router(years.router, prefix="/years", tags=["years"])
 api_router.include_router(terms.router, prefix="/terms", tags=["terms"])
 api_router.include_router(courses.router, prefix="/courses", tags=["courses"])
 api_router.include_router(divisions.router, prefix="/divisions", tags=["divisions"])
+api_router.include_router(timeslots.router, prefix="/timeslots", tags=["timeslots"])
 api_router.include_router(utils.router, prefix="/utils", tags=["utils"])
