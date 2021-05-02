@@ -3,11 +3,14 @@ from typing import Dict, Optional
 
 from pydantic import BaseModel, validator
 
+from app.schemas.school import School
+
 
 # shared properties
 class TimeSlotBase(BaseModel):
     start_time: time
     end_time: time
+    school_id: str
 
     @validator("start_time")
     def check_start_time(cls, start_time: time) -> time:
@@ -56,7 +59,7 @@ class TimeSlotInDBBase(TimeSlotBase):
 
 # Additional properties to return via API
 class TimeSlot(TimeSlotInDBBase):
-    pass
+    school: Optional[School]
 
 
 # Additional properties stored in DB

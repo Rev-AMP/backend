@@ -42,9 +42,7 @@ def create_timeslot(
 ) -> Any:
 
     if crud.timeslot.get_by_details(
-        db,
-        start_time=timeslot_in.start_time,
-        end_time=timeslot_in.end_time,
+        db, start_time=timeslot_in.start_time, end_time=timeslot_in.end_time, school_id=timeslot_in.school_id
     ):
         raise ConflictException(
             detail="The timeslot with these details already exists in the system!",

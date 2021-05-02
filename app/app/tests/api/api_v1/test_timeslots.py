@@ -12,6 +12,8 @@ from app.tests.utils.user import authentication_token_from_email, create_random_
 from app.tests.utils.utils import compare_api_and_db_query_results, to_json
 from app.utils import generate_uuid
 
+from ...utils.school import create_random_school
+
 
 def test_get_all_timeslots(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     timeslot = create_random_timeslot(db)
@@ -39,9 +41,11 @@ def test_get_timeslot_nonexisting(client: TestClient, superuser_token_headers: D
 def test_create_timeslot(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     start_time = datetime.now().time()
     end_time = (datetime.now() + timedelta(hours=1)).time()
+    school_id = create_random_school(db).id
     data = {
         "start_time": start_time.isoformat(),
         "end_time": end_time.isoformat(),
+        "school_id": school_id,
     }
     r = client.post(f"{settings.API_V1_STR}/timeslots/", headers=superuser_token_headers, json=data)
     assert r.status_code == 200
@@ -50,6 +54,7 @@ def test_create_timeslot(client: TestClient, superuser_token_headers: Dict[str, 
         db,
         start_time=start_time,
         end_time=end_time,
+        school_id=school_id,
     )
     assert fetched_timeslot
     compare_api_and_db_query_results(api_result=created_timeslot, db_dict=to_json(fetched_timeslot))
@@ -60,9 +65,11 @@ def test_create_timeslot_existing(client: TestClient, superuser_token_headers: D
     timeslot = create_random_timeslot(db)
     assert timeslot.start_time
     assert timeslot.end_time
+    assert timeslot.school_id
     data = {
         "start_time": timeslot.start_time.isoformat(),
         "end_time": timeslot.end_time.isoformat(),
+        "school_id": timeslot.school_id,
     }
     r = client.post(f"{settings.API_V1_STR}/timeslots/", headers=superuser_token_headers, json=data)
     assert r.status_code == 409
@@ -72,9 +79,11 @@ def test_update_timeslot(client: TestClient, superuser_token_headers: Dict[str, 
     timeslot = create_random_timeslot(db)
     start_time = datetime.now().time()
     end_time = (datetime.now() + timedelta(hours=1)).time()
+    school_id = create_random_school(db).id
     data = {
         "start_time": start_time.isoformat(),
         "end_time": end_time.isoformat(),
+        "school_id": school_id,
     }
     r = client.put(f"{settings.API_V1_STR}/timeslots/{timeslot.id}", headers=superuser_token_headers, json=data)
     fetched_timeslot = r.json()
