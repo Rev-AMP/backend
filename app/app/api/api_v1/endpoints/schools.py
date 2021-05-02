@@ -137,6 +137,19 @@ def get_professors(
     return crud.user.get_all_professors_for_school(db, school_id=school_id)
 
 
+@router.get("/{school_id}/timeslots", response_model=List[schemas.School])
+def get_timeslots(
+    *,
+    db: Session = Depends(deps.get_db),
+    school_id: str,
+    _: models.Admin = Depends(deps.get_current_admin_with_permission("school")),
+) -> Any:
+    """
+    Get all timeslots in a school
+    """
+    return crud.timeslot.get_by_school(db, school_id=school_id)
+
+
 @router.delete("/{school_id}")
 def delete_school(
     *,

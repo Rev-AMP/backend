@@ -1,5 +1,5 @@
 from datetime import time
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
@@ -15,6 +15,9 @@ class CRUDTimeSlot(CRUDBase[TimeSlot, TimeSlotCreate, TimeSlotUpdate]):
             .filter(TimeSlot.start_time == start_time, TimeSlot.end_time == end_time, TimeSlot.school_id == school_id)
             .first()
         )
+
+    def get_by_school(self, db: Session, *, school_id: str) -> List[TimeSlot]:
+        return db.query(TimeSlot).filter(TimeSlot.school_id == school_id).all()
 
 
 timeslot = CRUDTimeSlot(TimeSlot)

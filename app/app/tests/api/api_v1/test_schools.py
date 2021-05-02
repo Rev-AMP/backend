@@ -15,6 +15,8 @@ from app.tests.utils.utils import (
 )
 from app.utils import generate_uuid
 
+from ...utils.timeslot import create_random_timeslot
+
 
 def test_get_all_schools(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     school = create_random_school(db)
@@ -133,9 +135,20 @@ def test_get_all_professors(client: TestClient, superuser_token_headers: Dict[st
     school_professor = create_random_user(db=db, type="professor", school_id=school.id)
     r = client.get(f"{settings.API_V1_STR}/schools/{school.id}/professors", headers=superuser_token_headers)
     assert r.status_code == 200
-    fetched_students = r.json()
-    assert fetched_students
-    compare_api_and_db_query_results(api_result=fetched_students[-1], db_dict=to_json(school_professor))
+    fetched_professors = r.json()
+    assert fetched_professors
+    compare_api_and_db_query_results(api_result=fetched_professors[-1], db_dict=to_json(school_professor))
+
+
+def test_get_all_timeslots(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    school = create_random_school(db)
+    create_random_timeslot(db, school_id=school.id)
+    create_random_timeslot(db, school_id=school.id)
+    r = client.get(f"{settings.API_V1_STR}/schools/{school.id}/timeslots", headers=superuser_token_headers)
+    assert r.status_code == 200
+    fetched_timeslots = r.json()
+    assert fetched_timeslots
+    assert len(fetched_timeslots) == 2
 
 
 def test_delete_school(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:

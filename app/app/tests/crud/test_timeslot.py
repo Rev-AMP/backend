@@ -41,3 +41,12 @@ def test_timeslot_by_details(db: Session) -> None:
     )
     assert fetched_timeslot
     assert fetched_timeslot.id == timeslot.id
+
+
+def test_timeslot_by_school(db: Session) -> None:
+    timeslot = create_random_timeslot(db)
+    assert timeslot.id
+    assert timeslot.school_id
+    fetched_timeslot = crud.timeslot.get_by_school(db, school_id=timeslot.school_id)[0]
+    assert fetched_timeslot
+    assert fetched_timeslot.id == timeslot.id
