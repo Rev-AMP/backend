@@ -265,6 +265,26 @@ def test_add_division_students(client: TestClient, superuser_token_headers: Dict
         assert student.user_id in fetched_students
 
 
+def test_add_division_students_duplicate_students(
+    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+) -> None:
+    course = create_random_course(db)
+    division = create_random_division(db, course_id=course.id)
+    s = create_random_student(db, school_id=course.term.year.school_id, term_id=course.term_id)
+    students = [s, s]
+    data = [student.user_id for student in students]
+    r = client.post(
+        f"{settings.API_V1_STR}/divisions/{division.id}/students", headers=superuser_token_headers, json=data
+    )
+    assert r.status_code == 207
+    assert r.json()
+    db.refresh(division)
+    fetched_students = [student_id for student_id in r.json()["success"]]
+    for student in students:
+        assert student.user_id in fetched_students
+        assert student in division.students
+
+
 def test_get_division_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     course = create_random_course(db)
     division = create_random_division(db, course_id=course.id)
