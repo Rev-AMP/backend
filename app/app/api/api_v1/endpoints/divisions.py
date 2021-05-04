@@ -138,6 +138,8 @@ def add_division_students_by_id(
                                     division.students.append({"student": student, "batch_number": batch_number + 1})
                                     batch_number = (batch_number + 1) % division.number_of_batches
                                     response["success"].append(student.user_id)
+                                else:
+                                    errors["student already in division"].append(user_id)
                             else:
                                 errors["different terms"].append(user_id)
                         else:

@@ -279,10 +279,12 @@ def test_add_division_students_duplicate_students(
     assert r.status_code == 207
     assert r.json()
     db.refresh(division)
-    fetched_students = [student_id for student_id in r.json()["success"]]
-    for student in students:
-        assert student.user_id in fetched_students
-        assert student in division.students
+    success = r.json().get("success")
+    assert success
+    assert s.user_id in [student_id for student_id in success]
+    errors = r.json().get("errors")
+    assert errors.get("student already in division")
+    assert s.user_id in [student_id for student_id in errors.get("student already in division")]
 
 
 def test_get_division_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
