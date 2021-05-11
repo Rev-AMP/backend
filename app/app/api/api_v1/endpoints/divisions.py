@@ -134,9 +134,12 @@ def add_division_students_by_id(
                     if user.school_id == division.course.term.year.school_id:
                         if student := crud.student.get(db, id=user_id):
                             if student.term_id == division.course.term_id:
-                                division.students.append({"student": student, "batch_number": batch_number + 1})
-                                batch_number = (batch_number + 1) % division.number_of_batches
-                                response["success"].append(student.user_id)
+                                if student not in division.students:
+                                    division.students.append({"student": student, "batch_number": batch_number + 1})
+                                    batch_number = (batch_number + 1) % division.number_of_batches
+                                    response["success"].append(student.user_id)
+                                else:
+                                    errors["student already in division"].append(user_id)
                             else:
                                 errors["different terms"].append(user_id)
                         else:

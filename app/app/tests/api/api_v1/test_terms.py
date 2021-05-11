@@ -188,6 +188,21 @@ def test_add_term_students_no_student_object(
         assert student.term_id == term.id
 
 
+def test_add_term_students_duplicate(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+    term = create_random_term(db)
+    s = create_random_user(db, type="student", school_id=term.year.school_id)
+    students = [s, s]
+    data = [user.id for user in students]
+    r = client.post(f"{settings.API_V1_STR}/terms/{term.id}/students", headers=superuser_token_headers, json=data)
+    assert r.status_code == 207
+    assert r.json()
+    assert s.id in [student_id for student_id in r.json()["success"]]
+    student = crud.student.get(db, id=s.id)
+    assert student
+    assert student.term_id == term.id
+    assert s.id in [student_id for student_id in r.json().get("errors").get("student already in term")]
+
+
 def test_add_term_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
     term = create_random_term(db)
     students = [

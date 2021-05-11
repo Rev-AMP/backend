@@ -65,8 +65,11 @@ def add_term_students_by_id(
                 if user.type == "student":
                     if user.school_id == term.year.school_id:
                         if student := crud.student.get(db, id=user_id):
-                            crud.student.update(db, db_obj=student, obj_in=StudentUpdate(term_id=term_id))
-                            response["success"].append(student.user_id)
+                            if student.term_id != term_id:
+                                crud.student.update(db, db_obj=student, obj_in=StudentUpdate(term_id=term_id))
+                                response["success"].append(student.user_id)
+                            else:
+                                errors["student already in term"].append(user_id)
                         else:
                             errors["no student object"].append(user_id)
                     else:
