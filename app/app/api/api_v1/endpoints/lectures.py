@@ -33,6 +33,15 @@ def read_lecture_by_id(
     raise NotFoundException(detail="A lecture with this ID does not exist!")
 
 
+@router.get("/division/{division_id}", response_model=List[schemas.Lecture])
+def get_lectures_for_division(
+    *, db: Session = Depends(deps.get_db), division_id: str, _: models.User = Depends(deps.get_current_user)
+) -> Any:
+    if crud.division.get(db, id=division_id):
+        return crud.lecture.get_by_division(db, division_id=division_id)
+    raise NotFoundException(detail="A division with this ID does not exist!")
+
+
 @router.post("/", response_model=schemas.Lecture)
 def create_lecture(
     *,
