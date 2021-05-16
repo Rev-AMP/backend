@@ -105,6 +105,15 @@ def test_get_lecture_admin(client: TestClient, db: Session) -> None:
     compare_api_and_db_query_results(api_result=fetched_lecture, db_dict=to_json(lecture))
 
 
+def test_get_lecture_division(client: TestClient, db: Session, superuser_token_headers: Dict[str, str]) -> None:
+    lecture = create_random_lecture(db)
+    r = client.get(f"{settings.API_V1_STR}/lectures/division/{lecture.division_id}", headers=superuser_token_headers)
+    assert r.status_code == 200
+    fetched_lecture = r.json()
+    assert fetched_lecture
+    compare_api_and_db_query_results(api_result=fetched_lecture[0], db_dict=to_json(lecture))
+
+
 def test_get_lecture_division_student(client: TestClient, db: Session) -> None:
     lecture = create_random_lecture(db)
     normal_user_token_headers = authentication_token_from_email(
@@ -118,6 +127,13 @@ def test_get_lecture_division_student(client: TestClient, db: Session) -> None:
     assert fetched_lecture
     assert len(fetched_lecture) > 0
     compare_api_and_db_query_results(api_result=fetched_lecture[0], db_dict=to_json(lecture))
+
+
+def test_get_lecture_non_existent_division(
+    client: TestClient, db: Session, superuser_token_headers: Dict[str, str]
+) -> None:
+    r = client.get(f"{settings.API_V1_STR}/lectures/division/{generate_uuid()}", headers=superuser_token_headers)
+    assert r.status_code == 404
 
 
 def test_update_lecture(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
