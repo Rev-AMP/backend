@@ -16,7 +16,7 @@ services:
 
   backend:
     image: ghcr.io/rev-amp/backend
-    command: gunicorn -k uvicorn.workers.UvicornWorker app.main:app --workers=4
+    command: gunicorn -k uvicorn.workers.UvicornWorker app.main:app --workers=4 -b 0.0.0.0:8000
     depends_on:
       - db
     env_file:
