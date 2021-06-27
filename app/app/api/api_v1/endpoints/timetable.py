@@ -21,6 +21,7 @@ def get_timetable(
     response = {}
     if crud.division.get(db, id=division_id):
         for day in calendar.day_name:
-            response[day] = crud.lecture.get_by_day_division(db, day=day, division_id=division_id)
-        return [day for day in response if day]
+            if lectures := crud.lecture.get_by_day_division(db, day=day, division_id=division_id):
+                response[day] = lectures
+        return response
     raise NotFoundException(detail=f"Division with id {division_id} not found")
