@@ -26,5 +26,8 @@ class CRUDLecture(CRUDBase[Lecture, LectureCreate, LectureUpdate]):
     def get_by_division(self, db: Session, *, division_id: str) -> List[Lecture]:
         return db.query(Lecture).filter(Lecture.division_id == division_id).all()
 
+    def get_by_day_division(self, db: Session, *, day: str, division_id: str) -> Optional[Lecture]:
+        return db.query(Lecture).filter(Lecture.day == day, Lecture.division_id == division_id).first()
+
 
 lecture = CRUDLecture(Lecture)
