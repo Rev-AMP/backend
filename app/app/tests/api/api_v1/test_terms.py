@@ -22,12 +22,11 @@ from app.utils import generate_uuid
 
 
 def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
-    term = create_random_term(db=db)
+    create_random_term(db=db)
     r = client.get(f"{settings.API_V1_STR}/terms/", headers=superuser_token_headers)
     assert r.status_code == 200
     results = r.json()
     assert results
-    compare_api_and_db_query_results(api_result=results[-1], db_dict=to_json(term))
 
 
 def test_get_terms_admin(client: TestClient, db: Session) -> None:
