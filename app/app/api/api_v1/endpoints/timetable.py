@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app import crud, models
 from app.api import deps
 from app.exceptions import BadRequestException
+from app.models import Division
 from app.schemas import Lecture
 
 router = APIRouter()
@@ -27,10 +28,10 @@ def get_timetable(
     raise BadRequestException(detail="User object not found!")
 
 
-def generate_timetable(db: Session, divisions: List[str]) -> Dict:
+def generate_timetable(db: Session, divisions: List[Division]) -> Dict:
     response = {}
     for day in calendar.day_name:
-        for division_id in divisions:
-            if lectures := crud.lecture.get_by_day_division(db, day=day, division_id=division_id):
+        for division in divisions:
+            if lectures := crud.lecture.get_by_day_division(db, day=day, division_id=division.id):
                 response[day] = lectures
     return response
