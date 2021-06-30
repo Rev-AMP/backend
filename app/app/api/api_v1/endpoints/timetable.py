@@ -6,22 +6,31 @@ from sqlalchemy.orm import Session
 
 from app import crud, models
 from app.api import deps
-from app.exceptions import NotFoundException
+from app.exceptions import BadRequestException
 from app.schemas import Lecture
 
 router = APIRouter()
 
 
-@router.get("/{division_id}", response_model=Dict[str, List[Lecture]])
+@router.get("/", response_model=Dict[str, List[Lecture]])
 def get_timetable(
-    division_id: str,
     db: Session = Depends(deps.get_db),
-    _: models.User = Depends(deps.get_current_user),
+    current_user: models.User = Depends(deps.get_current_user),
 ) -> Any:
+    if user := crud.user.get(db, id=current_user.id):
+        if user.type == "student" and (student := crud.student.get(db, id=user.id)):
+            return generate_timetable(db, student.divisions)
+        elif user.type == "professor" and (professor := crud.professor.get(db, id=user.id)):
+            return generate_timetable(db, professor.divisions)
+        else:
+            raise BadRequestException(detail=f"No timetable can be generated for user type {user.type}")
+    raise BadRequestException(detail="User object not found!")
+
+
+def generate_timetable(db: Session, divisions: List[str]) -> Dict:
     response = {}
-    if crud.division.get(db, id=division_id):
-        for day in calendar.day_name:
+    for day in calendar.day_name:
+        for division_id in divisions:
             if lectures := crud.lecture.get_by_day_division(db, day=day, division_id=division_id):
                 response[day] = lectures
-        return response
-    raise NotFoundException(detail=f"Division with id {division_id} not found")
+    return response
