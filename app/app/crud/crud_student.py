@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional, Union
 from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
+from app.exceptions import BadRequestException
 from app.models import Student
 from app.schemas import StudentCreate, StudentUpdate
 
@@ -31,14 +32,15 @@ class CRUDStudent(CRUDBase[Student, StudentCreate, StudentUpdate]):
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     def remove(self, db: Session, *, id: str) -> Student:
-        obj = db.query(Student).filter(Student.user_id == id).first()
-        db.delete(obj)
-        try:
-            db.commit()
-        except Exception as e:
-            logging.error(f"{e.__class__} - {e.__str__}")
-            db.rollback()
-        return obj
+        if obj := db.query(Student).filter(Student.user_id == id).first():
+            db.delete(obj)
+            try:
+                db.commit()
+            except Exception as e:
+                logging.error(f"{e.__class__} - {e.__str__}")
+                db.rollback()
+            return obj
+        raise BadRequestException(detail=f"Could not delete object with id {id}")
 
 
 student = CRUDStudent(Student)

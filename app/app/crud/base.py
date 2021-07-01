@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.db.base_class import Base
+from app.exceptions import BadRequestException
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -61,11 +62,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return db_obj
 
     def remove(self, db: Session, *, id: str) -> ModelType:
-        obj = db.query(self.model).get(id)
-        db.delete(obj)
-        try:
-            db.commit()
-        except Exception as e:
-            logging.error(f"{e.__class__} - {e.__str__}")
-            db.rollback()
-        return obj
+        if obj := db.query(self.model).get(id):
+            db.delete(obj)
+            try:
+                db.commit()
+            except Exception as e:
+                logging.error(f"{e.__class__} - {e.__str__}")
+                db.rollback()
+            return obj
+        raise BadRequestException(detail=f"Could not delete object with id {id}")
