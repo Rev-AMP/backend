@@ -32,7 +32,6 @@ def get_all_files_course(
     *,
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_non_admin_user),
-    course_id: str,
 ) -> Any:
     """
     Retrieve files.
@@ -43,12 +42,12 @@ def get_all_files_course(
         courses = (division.course_id for division in professor.divisions)
     else:
         raise BadRequestException(detail=f"Could not fetch courses for user {current_user.id}")
-    return [
-        file
-        for file in crud.file.get_by_course(db, course_id=course_id)
-        if file.file_type in ("assignment", "material")
-        for course_id in courses
-    ]
+    response = []
+    for course_id in courses:
+        for file in crud.file.get_by_course(db, course_id=course_id):
+            if file.file_type in ("assignment", "material"):
+                response.append(file)
+    return response
 
 
 @router.get("/{file_id}", response_model=schemas.File)
