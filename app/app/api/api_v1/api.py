@@ -4,6 +4,7 @@ from app.api.api_v1.endpoints import (
     admins,
     courses,
     divisions,
+    file,
     lectures,
     login,
     professors,
@@ -31,4 +32,5 @@ api_router.include_router(divisions.router, prefix="/divisions", tags=["division
 api_router.include_router(lectures.router, prefix="/lectures", tags=["lectures"])
 api_router.include_router(timeslots.router, prefix="/timeslots", tags=["timeslots"])
 api_router.include_router(timetable.router, prefix="/timetable", tags=["timetable"])
+api_router.include_router(file.router, prefix="/files", tags=["files"])
 api_router.include_router(utils.router, prefix="/utils", tags=["utils"])
