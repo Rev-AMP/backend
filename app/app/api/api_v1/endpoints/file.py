@@ -43,7 +43,12 @@ def get_all_files_course(
         courses = (division.course_id for division in professor.divisions)
     else:
         raise BadRequestException(detail=f"Could not fetch courses for user {current_user.id}")
-    return [file for file in crud.file.get_by_course(db, course_id=course_id) for course_id in courses]
+    return [
+        file
+        for file in crud.file.get_by_course(db, course_id=course_id)
+        if file.file_type in ("assignment", "material")
+        for course_id in courses
+    ]
 
 
 @router.get("/{file_id}", response_model=schemas.File)
