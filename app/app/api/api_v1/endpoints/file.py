@@ -79,6 +79,10 @@ def upload_file(
     if file.content_type != "application/pdf":
         raise UnsupportedMediaTypeException(detail="Uploaded files can only be PDFs")
 
+    if submission_id:
+        if crud.file.get(db, id=submission_id) is None:
+            raise NotFoundException(detail=f"Assignment with id {submission_id} not found!")
+
     filename = save_file(file)
     return crud.file.create(
         db,
