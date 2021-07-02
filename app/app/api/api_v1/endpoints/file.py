@@ -106,7 +106,7 @@ def upload_file(
         raise UnsupportedMediaTypeException(detail="Uploaded files can only be PDFs")
 
     if submission_id:
-        if crud.file.get(db, id=submission_id) is None:
+        if (assignment := crud.file.get(db, id=submission_id)) and assignment.file_type == "assignment":
             raise NotFoundException(detail=f"Assignment with id {submission_id} not found!")
 
     filename = save_file(file)
@@ -135,5 +135,7 @@ def update_file(
     """
     if file := crud.file.get(db, id=file_id):
         if file.course_id in {division.course_id for division in current_professor.divisions}:
-            return crud.file.update(db, db_obj=file, obj_in=file_in)
+            if file.file_type == "assignment":
+                return crud.file.update(db, db_obj=file, obj_in=file_in)
+            raise BadRequestException(detail=f"Cannot update a file of type {file.file_type}")
     raise NotFoundException(detail=f"Assignment with id {file_id} not found or you don't have access to it")
