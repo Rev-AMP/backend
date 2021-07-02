@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
 from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.orm import Session
@@ -71,6 +71,7 @@ def upload_file(
     current_user: models.User = Depends(deps.get_current_user),
     course_id: str,
     file_type: str,
+    submission_id: Optional[str] = None,
 ) -> Any:
     """
     Update a user's profile picture
@@ -82,7 +83,11 @@ def upload_file(
     return crud.file.create(
         db,
         obj_in=schemas.FileCreate(
-            owner_id=current_user.id, course_id=course_id, filename=filename, file_type=file_type
+            owner_id=current_user.id,
+            course_id=course_id,
+            filename=filename,
+            file_type=file_type,
+            submission_id=submission_id,
         ),
     )
 
