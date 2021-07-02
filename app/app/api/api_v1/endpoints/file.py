@@ -27,17 +27,23 @@ def get_all_files_user(
     return crud.file.get_by_owner(db, owner_id=current_user.id)
 
 
-@router.get("/course/{course_id}", response_model=List[schemas.File])
+@router.get("/course", response_model=List[schemas.File])
 def get_all_files_course(
     *,
     db: Session = Depends(deps.get_db),
-    _: models.User = Depends(deps.get_current_non_admin_user),
+    current_user: models.User = Depends(deps.get_current_non_admin_user),
     course_id: str,
 ) -> Any:
     """
     Retrieve files.
     """
-    return crud.file.get_by_course(db, course_id=course_id)
+    if current_user.type == "student" and (student := crud.student.get(db, id=current_user.id)):
+        courses = (division.course_id for division in student.divisions)
+    elif current_user.type == "professor" and (professor := crud.professor.get(db, id=current_user.id)):
+        courses = (division.course_id for division in professor.divisions)
+    else:
+        raise BadRequestException(detail=f"Could not fetch courses for user {current_user.id}")
+    return [file for file in crud.file.get_by_course(db, course_id=course_id) for course_id in courses]
 
 
 @router.get("/{file_id}", response_model=schemas.File)
