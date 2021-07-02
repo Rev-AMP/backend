@@ -106,7 +106,10 @@ def upload_file(
         raise UnsupportedMediaTypeException(detail="Uploaded files can only be PDFs")
 
     if submission_id:
-        if (assignment := crud.file.get(db, id=submission_id)) and assignment.file_type == "assignment":
+        if assignment := crud.file.get(db, id=submission_id):
+            if assignment.file_type != "assignment":
+                raise BadRequestException(detail=f"File {submission_id} isn't an assignment!")
+        else:
             raise NotFoundException(detail=f"Assignment with id {submission_id} not found!")
         if file_type != "submission":
             raise BadRequestException(detail=f"File with type {file_type} can't be submitted")
@@ -137,7 +140,7 @@ def update_file(
     """
     if file := crud.file.get(db, id=file_id):
         if file.course_id in {division.course_id for division in current_professor.divisions}:
-            if file.file_type == "assignment":
+            if file.file_type == "submission":
                 return crud.file.update(db, db_obj=file, obj_in=file_in)
             raise BadRequestException(detail=f"Cannot update a file of type {file.file_type}")
     raise NotFoundException(detail=f"Assignment with id {file_id} not found or you don't have access to it")
