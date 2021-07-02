@@ -46,7 +46,6 @@ class AdminPermissions:
         "year": "CRUD operations on years",
         "term": "CRUD operations on terms",
         "course": "CRUD operations on courses",
-        "cbcs": "CRUD operations on CBCS",
         "student": "CRUD operations on students",
         "professor": "CRUD operations on professors",
     }
@@ -60,9 +59,8 @@ class AdminPermissions:
             "year": 3,
             "term": 4,
             "course": 5,
-            "cbcs": 6,
-            "student": 7,
-            "professor": 8,
+            "student": 6,
+            "professor": 7,
         }
 
         self.permissions = permissions
