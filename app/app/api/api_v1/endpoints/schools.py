@@ -137,7 +137,7 @@ def get_professors(
     return crud.user.get_all_professors_for_school(db, school_id=school_id)
 
 
-@router.get("/{school_id}/timeslots", response_model=List[schemas.School])
+@router.get("/{school_id}/timeslots", response_model=List[schemas.TimeSlot])
 def get_timeslots(
     *,
     db: Session = Depends(deps.get_db),
