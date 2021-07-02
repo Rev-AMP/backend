@@ -1,7 +1,6 @@
 from typing import Optional
 
 from pydantic import BaseModel
-from sqlalchemy.sql.expression import desc
 
 from app.schemas.course import Course
 from app.schemas.users.user import User
