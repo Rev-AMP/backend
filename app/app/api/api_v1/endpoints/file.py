@@ -96,6 +96,7 @@ def upload_file(
     current_user: models.User = Depends(deps.get_current_non_admin_user),
     course_id: str,
     file_type: str,
+    description: str,
     submission_id: Optional[str] = None,
 ) -> Any:
     """
@@ -133,6 +134,7 @@ def upload_file(
             filename=filename,
             file_type=file_type,
             submission_id=submission_id,
+            description=description,
         ),
     )
 

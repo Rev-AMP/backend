@@ -1,6 +1,7 @@
 from typing import Optional
 
 from pydantic import BaseModel
+from sqlalchemy.sql.expression import desc
 
 from app.schemas.course import Course
 from app.schemas.users.user import User
@@ -13,6 +14,7 @@ class FileBase(BaseModel):
     file_type: Optional[str]
     submission_id: Optional[str]
     marks: Optional[int]
+    description: Optional[str]
 
 
 class FileCreate(FileBase):
@@ -20,6 +22,7 @@ class FileCreate(FileBase):
     filename: str
     course_id: str
     file_type: str
+    description: str
 
 
 class FileUpdate(BaseModel):
