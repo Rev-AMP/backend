@@ -1,4 +1,5 @@
 import calendar
+from collections import defaultdict
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends
@@ -41,9 +42,9 @@ def get_timetable_division(
 
 
 def generate_timetable(db: Session, divisions: List[Division]) -> Dict:
-    response = {}
+    response: Dict = defaultdict(lambda: [])
     for day in calendar.day_name:
         for division in divisions:
             if lectures := crud.lecture.get_by_day_division(db, day=day, division_id=division.id):
-                response[day] = lectures
+                response[day] += lectures
     return response
