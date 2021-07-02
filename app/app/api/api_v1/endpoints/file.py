@@ -108,6 +108,8 @@ def upload_file(
     if submission_id:
         if (assignment := crud.file.get(db, id=submission_id)) and assignment.file_type == "assignment":
             raise NotFoundException(detail=f"Assignment with id {submission_id} not found!")
+        if file_type != "submission":
+            raise BadRequestException(detail=f"File with type {file_type} can't be submitted")
 
     filename = save_file(file)
     return crud.file.create(
