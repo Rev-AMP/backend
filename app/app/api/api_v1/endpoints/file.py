@@ -62,7 +62,7 @@ def get_file_by_id(
     raise BadRequestException(detail=f"File with id {file_id} not found or you don't have access to it")
 
 
-@router.get("/{submission_id}", response_model=List[schemas.File])
+@router.get("/submission/{submission_id}", response_model=List[schemas.File])
 def get_file_by_submission(
     *,
     db: Session = Depends(deps.get_db),
