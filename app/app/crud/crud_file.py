@@ -17,5 +17,8 @@ class CRUDFile(CRUDBase[File, FileCreate, FileUpdate]):
     def get_by_course(self, db: Session, *, course_id: str) -> List[File]:
         return db.query(File).filter(File.course_id == course_id).all()
 
+    def get_by_submission(self, db: Session, *, submission_id: str) -> List[File]:
+        return db.query(File).filter(File.submission_id == submission_id).all()
+
 
 file = CRUDFile(File)

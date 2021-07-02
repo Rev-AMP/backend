@@ -7,16 +7,20 @@ class FileBase(BaseModel):
     owner_id: Optional[str]
     filename: Optional[str]
     course_id: Optional[str]
+    file_type: Optional[str]
+    submission_id: Optional[str]
+    marks: Optional[int]
 
 
 class FileCreate(FileBase):
     owner_id: str
     filename: str
     course_id: str
+    file_type: str
 
 
 class FileUpdate(BaseModel):
-    pass
+    marks: int
 
 
 class FileInDBBase(FileBase):

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 
 from app.db.base_class import Base
 from app.models.course import Course
@@ -15,3 +15,6 @@ class File(Base):
         String(36), ForeignKey(f"{User.__table__.name}.id", ondelete="CASCADE"), index=True, nullable=False
     )
     filename = Column(String(41), unique=True, nullable=False)
+    file_type = Column(String(10), nullable=False)
+    submission_id = Column(String(36), ForeignKey("files.id", ondelete="CASCADE"), nullable=True)
+    marks = Column(Integer, nullable=True)
