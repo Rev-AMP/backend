@@ -137,5 +137,12 @@ def save_image(image: UploadFile) -> str:
     return filename
 
 
+def save_file(file: UploadFile) -> str:
+    filename = f"{uuid4()}.{file.content_type.replace('application/', '')}"
+    with open(f"./files/{filename}", "wb") as buffer:
+        copyfileobj(file.file, buffer)
+    return filename
+
+
 def generate_uuid() -> str:
     return str(uuid.uuid4())

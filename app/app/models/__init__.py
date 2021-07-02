@@ -1,5 +1,6 @@
 from .course import Course
 from .division import Division
+from .file import File
 from .lecture import Lecture
 from .school import School
 from .student_division import StudentDivision

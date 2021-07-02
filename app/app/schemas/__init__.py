@@ -1,5 +1,6 @@
 from .course import Course, CourseCreate, CourseUpdate
 from .division import Division, DivisionCreate, DivisionUpdate
+from .file import File, FileCreate, FileUpdate
 from .lecture import Lecture, LectureCreate, LectureUpdate
 from .msg import Msg
 from .school import School, SchoolCreate, SchoolUpdate
