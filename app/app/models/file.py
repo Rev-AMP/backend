@@ -1,4 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 from app.models.course import Course
@@ -18,3 +19,5 @@ class File(Base):
     file_type = Column(String(10), nullable=False)
     submission_id = Column(String(36), ForeignKey("files.id", ondelete="CASCADE"), nullable=True)
     marks = Column(Integer, nullable=True)
+    owner = relationship("User")
+    course = relationship("Course")

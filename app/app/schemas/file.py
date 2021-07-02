@@ -2,6 +2,9 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from app.schemas.course import Course
+from app.schemas.users.user import User
+
 
 class FileBase(BaseModel):
     owner_id: Optional[str]
@@ -32,7 +35,8 @@ class FileInDBBase(FileBase):
 
 # Additional properties to return via API
 class File(FileInDBBase):
-    pass
+    owner: Optional[User]
+    course: Optional[Course]
 
 
 # Additional properties stored in DB
