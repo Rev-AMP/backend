@@ -84,7 +84,7 @@ def get_file_by_submission(
     """
     if file := crud.file.get(db, id=submission_id):
         if file.course_id in {division.course_id for division in current_professor.divisions}:
-            return file
+            return crud.file.get_by_submission(db, submission_id=submission_id)
     raise NotFoundException(detail=f"Assignment with id {submission_id} not found or you don't have access to it")
 
 
