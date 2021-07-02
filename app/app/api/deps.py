@@ -104,3 +104,9 @@ def get_current_superuser(
     if crud.user.is_superuser(current_user):
         return current_user
     raise ForbiddenException(detail="The user doesn't have enough privileges")
+
+
+def get_current_non_admin_user(user: models.User = Depends(get_current_user)) -> models.User:
+    if user.type not in ("student", "professor"):
+        raise ForbiddenException(detail=f"{user.type} can't upload files here!")
+    return user

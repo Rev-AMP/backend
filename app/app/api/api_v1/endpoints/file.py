@@ -19,7 +19,7 @@ router = APIRouter()
 @router.get("/", response_model=List[schemas.File])
 def get_all_files_user(
     db: Session = Depends(deps.get_db),
-    current_user: models.User = Depends(deps.get_current_user),
+    current_user: models.User = Depends(deps.get_current_non_admin_user),
 ) -> Any:
     """
     Retrieve files.
@@ -27,11 +27,11 @@ def get_all_files_user(
     return crud.file.get_by_owner(db, owner_id=current_user.id)
 
 
-@router.get("/{course_id}", response_model=List[schemas.File])
+@router.get("/course/{course_id}", response_model=List[schemas.File])
 def get_all_files_course(
     *,
     db: Session = Depends(deps.get_db),
-    _: models.User = Depends(deps.get_current_user),
+    _: models.User = Depends(deps.get_current_non_admin_user),
     course_id: str,
 ) -> Any:
     """
@@ -44,14 +44,20 @@ def get_all_files_course(
 def get_file_by_id(
     *,
     db: Session = Depends(deps.get_db),
-    current_user: models.User = Depends(deps.get_current_user),
+    current_user: models.User = Depends(deps.get_current_non_admin_user),
     file_id: str,
 ) -> Any:
     """
     Retrieve a file by id
     """
     if file := crud.file.get(db, id=file_id):
-        if current_user.id == file.owner_id or current_user.type == "professor":
+        if current_user.id == file.owner_id or (
+            current_user.type == "professor"
+            and (
+                (professor := crud.professor.get(db, id=current_user.id))
+                and file.course_id in (division.course_id for division in professor.divisions)
+            )
+        ):
             return file
     raise BadRequestException(detail=f"File with id {file_id} not found or you don't have access to it")
 
@@ -77,7 +83,7 @@ def upload_file(
     *,
     db: Session = Depends(deps.get_db),
     file: UploadFile = File(...),
-    current_user: models.User = Depends(deps.get_current_user),
+    current_user: models.User = Depends(deps.get_current_non_admin_user),
     course_id: str,
     file_type: str,
     submission_id: Optional[str] = None,
@@ -85,9 +91,6 @@ def upload_file(
     """
     Update a user's profile picture
     """
-
-    if current_user.type not in ("student", "professor"):
-        raise ForbiddenException(detail=f"{current_user.type} can't upload files here!")
 
     if current_user.type == "student" and (student := crud.student.get(db, id=current_user.id)):
         courses = (division.course_id for division in student.divisions)
