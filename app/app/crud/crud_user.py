@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Session
 
@@ -37,19 +37,20 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             db.rollback()
         db.refresh(db_obj)
 
-        # Ensure user gets the appropriate permissions depending on type
-        if obj_in.type == "superuser":
-            admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=-1))
-        elif obj_in.type == "admin" or obj_in.is_admin:
-            admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=0))
-        elif obj_in.type == "professor":
-            professor.create(db, obj_in=ProfessorCreate(user_id=db_obj.id))
-        elif obj_in.type == "student":
-            student.create(db, obj_in=StudentCreate(user_id=db_obj.id))
+        match (obj_in.type, obj_in.is_admin):
+            # Ensure user gets the appropriate permissions depending on type
+            case ("superuser", _):
+                admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=-1))
+            case ("admin", _) | (_, True):
+                admin.create(db, obj_in=AdminCreate(user_id=db_obj.id, permissions=0))
+            case ("professor", _):
+                professor.create(db, obj_in=ProfessorCreate(user_id=db_obj.id))
+            case ("student", _):
+                student.create(db, obj_in=StudentCreate(user_id=db_obj.id))
 
         return db_obj
 
-    def update(self, db: Session, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]) -> User:
+    def update(self, db: Session, *, db_obj: User, obj_in: UserUpdate | Dict[str, Any]) -> User:
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:

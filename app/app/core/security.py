@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, Union
+from typing import Any
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -12,7 +12,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS512"
 
 
-def create_token(subject: Union[Any, str]) -> Token:
+def create_token(subject: Any | str) -> Token:
     """
     :param subject: Subject for JWT, in this case user id
     :return: Token object, containing access and refresh tokens, and the timestamp for the access token's expiry
