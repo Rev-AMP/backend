@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -23,10 +23,10 @@ class CRUDLecture(CRUDBase[Lecture, LectureCreate, LectureUpdate]):
             .first()
         )
 
-    def get_by_division(self, db: Session, *, division_id: str) -> List[Lecture]:
+    def get_by_division(self, db: Session, *, division_id: str) -> list[Lecture]:
         return db.query(Lecture).filter(Lecture.division_id == division_id).all()
 
-    def get_by_day_division(self, db: Session, *, day: str, division_id: str) -> List[Lecture]:
+    def get_by_day_division(self, db: Session, *, day: str, division_id: str) -> list[Lecture]:
         return db.query(Lecture).filter(Lecture.day == day, Lecture.division_id == division_id).all()
 
 

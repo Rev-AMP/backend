@@ -1,6 +1,5 @@
 import logging
 from random import randint
-from typing import Dict
 
 from sqlalchemy import exc
 from sqlalchemy.orm import Session
@@ -22,7 +21,7 @@ from app.tests.utils.utils import compare_api_and_db_query_results, to_json
 from app.utils import generate_uuid
 
 
-def test_get_all_divisions(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_all_divisions(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     division = create_random_division(db)
     r = client.get(f"{settings.API_V1_STR}/divisions/", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -31,7 +30,7 @@ def test_get_all_divisions(client: TestClient, superuser_token_headers: Dict[str
     compare_api_and_db_query_results(results[-1], to_json(division))
 
 
-def test_get_division_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_division_existing(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     division = create_random_division(db)
     r = client.get(f"{settings.API_V1_STR}/divisions/{division.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -40,12 +39,12 @@ def test_get_division_existing(client: TestClient, superuser_token_headers: Dict
     compare_api_and_db_query_results(fetched_division, to_json(division))
 
 
-def test_get_division_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_division_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(f"{settings.API_V1_STR}/divisions/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
-def test_create_division(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_create_division(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     course_id = create_random_course(db).id
     division_code = randint(1, 20)
     professor_id = create_random_professor(db).user_id
@@ -67,7 +66,7 @@ def test_create_division(client: TestClient, superuser_token_headers: Dict[str, 
     compare_api_and_db_query_results(data, to_json(fetched_division))
 
 
-def test_create_division_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_create_division_existing(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     division = create_random_division(db)
     data = {
         "course_id": division.course_id,
@@ -78,7 +77,7 @@ def test_create_division_existing(client: TestClient, superuser_token_headers: D
     assert r.status_code == 409
 
 
-def test_update_division(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_division(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     division = create_random_division(db)
     assert division.professor_id
     professor_id = create_random_professor(db).user_id
@@ -90,12 +89,12 @@ def test_update_division(client: TestClient, superuser_token_headers: Dict[str, 
     compare_api_and_db_query_results(fetched_division, to_json(division))
 
 
-def test_update_division_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_division_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.put(f"{settings.API_V1_STR}/divisions/{generate_uuid()}", headers=superuser_token_headers, json={})
     assert r.status_code == 404
 
 
-def test_delete_division(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_delete_division(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     division = create_random_division(db)
     r = client.delete(f"{settings.API_V1_STR}/divisions/{division.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -103,12 +102,12 @@ def test_delete_division(client: TestClient, superuser_token_headers: Dict[str, 
     assert deleted_division is None
 
 
-def test_delete_division_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_delete_division_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.delete(f"{settings.API_V1_STR}/divisions/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
-def test_get_division_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_division_normal_user(client: TestClient, normal_user_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(f"{settings.API_V1_STR}/divisions/", headers=normal_user_token_headers)
     assert r.status_code == 403
 
@@ -134,7 +133,7 @@ def test_get_division_weakadmin(client: TestClient, db: Session) -> None:
 
 
 def test_add_division_students_not_a_user(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     division = create_random_division(db)
     new_user_id = generate_uuid()
@@ -148,7 +147,7 @@ def test_add_division_students_not_a_user(
 
 
 def test_add_division_students_not_a_student(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     course = create_random_course(db)
     division = create_random_division(db, course_id=course.id)
@@ -170,7 +169,7 @@ def test_add_division_students_not_a_student(
 
 
 def test_add_division_students_different_school(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     course = create_random_course(db)
     division = create_random_division(db, course_id=course.id)
@@ -192,7 +191,7 @@ def test_add_division_students_different_school(
 
 
 def test_add_division_students_different_term(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     course = create_random_course(db)
     division = create_random_division(db, course_id=course.id)
@@ -216,7 +215,7 @@ def test_add_division_students_different_term(
 
 
 def test_add_division_students_no_student_object(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     course = create_random_course(db)
     division = create_random_division(db, course_id=course.id)
@@ -239,7 +238,7 @@ def test_add_division_students_no_student_object(
 
 
 def test_add_division_students_non_existent_division(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     r = client.post(
         f"{settings.API_V1_STR}/divisions/{generate_uuid()}/students", headers=superuser_token_headers, json=[]
@@ -247,7 +246,7 @@ def test_add_division_students_non_existent_division(
     assert r.status_code == 404
 
 
-def test_add_division_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_add_division_students(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     course = create_random_course(db)
     division = create_random_division(db, course_id=course.id)
     students = [
@@ -266,7 +265,7 @@ def test_add_division_students(client: TestClient, superuser_token_headers: Dict
 
 
 def test_add_division_students_duplicate_students(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     course = create_random_course(db)
     division = create_random_division(db, course_id=course.id)
@@ -287,7 +286,7 @@ def test_add_division_students_duplicate_students(
     assert s.user_id in [student_id for student_id in errors.get("student already in division")]
 
 
-def test_get_division_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_division_students(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     course = create_random_course(db)
     division = create_random_division(db, course_id=course.id)
     students = [
@@ -376,7 +375,7 @@ def test_get_division_students_admin_with_perms(client: TestClient, db: Session)
 
 
 def test_get_division_students_admin_without_perms(
-    client: TestClient, admin_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, admin_user_token_headers: dict[str, str], db: Session
 ) -> None:
     division = create_random_division(db)
     r = client.get(
@@ -387,7 +386,7 @@ def test_get_division_students_admin_without_perms(
 
 
 def test_get_division_students_normal_user(
-    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
 ) -> None:
     division = create_random_division(db)
     r = client.get(
@@ -398,7 +397,7 @@ def test_get_division_students_normal_user(
 
 
 def test_get_division_students_non_existent_division(
-    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
 ) -> None:
     r = client.get(
         f"{settings.API_V1_STR}/divisions/{generate_uuid()}/students",
@@ -407,7 +406,7 @@ def test_get_division_students_non_existent_division(
     assert r.status_code == 404
 
 
-def test_get_division_batch_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_division_batch_students(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     course = create_random_course(db)
     division = create_random_division(db, course_id=course.id)
     students = [
@@ -495,7 +494,7 @@ def test_get_division_batch_students_admin_with_perms(client: TestClient, db: Se
 
 
 def test_get_division_batch_students_admin_without_perms(
-    client: TestClient, admin_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, admin_user_token_headers: dict[str, str], db: Session
 ) -> None:
     division = create_random_division(db)
     r = client.get(
@@ -506,7 +505,7 @@ def test_get_division_batch_students_admin_without_perms(
 
 
 def test_get_division_batch_students_normal_user(
-    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
 ) -> None:
     division = create_random_division(db)
     r = client.get(
@@ -517,7 +516,7 @@ def test_get_division_batch_students_normal_user(
 
 
 def test_get_division_batch_students_non_existent_division(
-    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
 ) -> None:
     r = client.get(
         f"{settings.API_V1_STR}/divisions/{generate_uuid()}/students/0",
@@ -526,7 +525,7 @@ def test_get_division_batch_students_non_existent_division(
     assert r.status_code == 404
 
 
-def test_remove_division_student(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_remove_division_student(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     course = create_random_course(db)
     division = create_random_division(db, course_id=course.id)
     students = [
@@ -551,7 +550,7 @@ def test_remove_division_student(client: TestClient, superuser_token_headers: Di
     assert students[0] not in division.students
 
 
-def test_remove_nonexisting_division_student(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
+def test_remove_nonexisting_division_student(client: TestClient, superuser_token_headers: dict[str, str]) -> None:
     r = client.delete(
         f"{settings.API_V1_STR}/divisions/{generate_uuid()}/students/{generate_uuid()}", headers=superuser_token_headers
     )
@@ -559,7 +558,7 @@ def test_remove_nonexisting_division_student(client: TestClient, superuser_token
 
 
 def test_remove_division_nonexisting_student(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     division = create_random_division(db)
     r = client.delete(
@@ -569,7 +568,7 @@ def test_remove_division_nonexisting_student(
 
 
 def test_remove_division_student_not_in_division(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     division = create_random_division(db)
     student = create_random_student(db)

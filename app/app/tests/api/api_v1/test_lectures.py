@@ -1,5 +1,3 @@
-from typing import Dict
-
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
@@ -24,7 +22,7 @@ from ...utils.division import create_random_division
 from ...utils.timeslot import create_random_timeslot
 
 
-def test_get_all_lectures(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_all_lectures(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     lecture = create_random_lecture(db)
     r = client.get(f"{settings.API_V1_STR}/lectures/", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -33,7 +31,7 @@ def test_get_all_lectures(client: TestClient, superuser_token_headers: Dict[str,
     compare_api_and_db_query_results(api_result=results[-1], db_dict=to_json(lecture))
 
 
-def test_create_lecture(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_create_lecture(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     day = get_random_day()
     time_slot_id = create_random_timeslot(db).id
     division_id = create_random_division(db).id
@@ -60,7 +58,7 @@ def test_create_lecture(client: TestClient, superuser_token_headers: Dict[str, s
     compare_api_and_db_query_results(api_result=created_lecture, db_dict=to_json(lecture))
 
 
-def test_create_lecture_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_create_lecture_existing(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     lecture = create_random_lecture(db)
     data = {
         "day": lecture.day,
@@ -73,7 +71,7 @@ def test_create_lecture_existing(client: TestClient, superuser_token_headers: Di
     assert r.status_code == 409
 
 
-def test_get_lecture_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_lecture_superuser(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     lecture = create_random_lecture(db)
     r = client.get(f"{settings.API_V1_STR}/lectures/{lecture.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -83,7 +81,7 @@ def test_get_lecture_superuser(client: TestClient, superuser_token_headers: Dict
 
 
 def test_get_non_existing_lecture_superuser(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     lecture_id = generate_uuid()
     r = client.get(f"{settings.API_V1_STR}/lectures/{lecture_id}", headers=superuser_token_headers)
@@ -105,7 +103,7 @@ def test_get_lecture_admin(client: TestClient, db: Session) -> None:
     compare_api_and_db_query_results(api_result=fetched_lecture, db_dict=to_json(lecture))
 
 
-def test_get_lecture_division(client: TestClient, db: Session, superuser_token_headers: Dict[str, str]) -> None:
+def test_get_lecture_division(client: TestClient, db: Session, superuser_token_headers: dict[str, str]) -> None:
     lecture = create_random_lecture(db)
     r = client.get(f"{settings.API_V1_STR}/lectures/division/{lecture.division_id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -130,13 +128,13 @@ def test_get_lecture_division_student(client: TestClient, db: Session) -> None:
 
 
 def test_get_lecture_non_existent_division(
-    client: TestClient, db: Session, superuser_token_headers: Dict[str, str]
+    client: TestClient, db: Session, superuser_token_headers: dict[str, str]
 ) -> None:
     r = client.get(f"{settings.API_V1_STR}/lectures/division/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
-def test_update_lecture(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_lecture(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     lecture = create_random_lecture(db)
     new_timeslot = create_random_timeslot(db)
     data = {"time_slot_id": new_timeslot.id}
@@ -148,7 +146,7 @@ def test_update_lecture(client: TestClient, superuser_token_headers: Dict[str, s
     compare_api_and_db_query_results(api_result=fetched_lecture, db_dict=to_json(lecture))
 
 
-def test_update_lecture_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_lecture_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     day = get_random_day()
     time_slot_id = create_random_timeslot(db).id
     division_id = create_random_division(db).id
@@ -169,7 +167,7 @@ def test_update_lecture_nonexisting(client: TestClient, superuser_token_headers:
     assert r.status_code == 404
 
 
-def test_delete_lecture(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_delete_lecture(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     lecture = create_random_lecture(db)
     r = client.delete(f"{settings.API_V1_STR}/lectures/{lecture.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -177,6 +175,6 @@ def test_delete_lecture(client: TestClient, superuser_token_headers: Dict[str, s
     assert deleted_lecture is None
 
 
-def test_delete_lecture_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_delete_lecture_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.delete(f"{settings.API_V1_STR}/lectures/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404

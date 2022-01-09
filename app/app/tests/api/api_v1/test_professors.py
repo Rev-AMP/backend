@@ -1,5 +1,3 @@
-from typing import Dict
-
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -10,7 +8,7 @@ from app.tests.utils.user import authentication_token_from_email, create_random_
 from app.tests.utils.utils import compare_api_and_db_query_results, to_json
 
 
-def test_get_professors_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_professors_superuser(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     create_random_user(db, type="professor")
     create_random_user(db, type="professor")
     r = client.get(
@@ -41,7 +39,7 @@ def test_get_professors_admin_with_perms(client: TestClient, db: Session) -> Non
         assert "user_id" in professor
 
 
-def test_get_professors_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_professors_normal_user(client: TestClient, normal_user_token_headers: dict[str, str], db: Session) -> None:
     create_random_user(db, type="professor")
     create_random_user(db, type="professor")
     r = client.get(
@@ -51,7 +49,7 @@ def test_get_professors_normal_user(client: TestClient, normal_user_token_header
     assert r.status_code == 403
 
 
-def test_get_professor_me_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_professor_me_superuser(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(
         f"{settings.API_V1_STR}/professors/me",
         headers=superuser_token_headers,
@@ -71,7 +69,7 @@ def test_get_professor_me_normal_professor(client: TestClient, db: Session) -> N
 
 
 def test_get_professor_me_normal_user(
-    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
 ) -> None:
     r = client.get(
         f"{settings.API_V1_STR}/professors/me",
@@ -81,7 +79,7 @@ def test_get_professor_me_normal_user(
 
 
 def test_get_professor_me_divisions_superuser(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     r = client.get(
         f"{settings.API_V1_STR}/professors/me/divisions",
@@ -103,7 +101,7 @@ def test_get_professor_me_divisions_normal_professor(client: TestClient, db: Ses
 
 
 def test_get_professor_me_divisions_normal_user(
-    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
 ) -> None:
     r = client.get(
         f"{settings.API_V1_STR}/professors/me/divisions",
@@ -113,7 +111,7 @@ def test_get_professor_me_divisions_normal_user(
 
 
 def test_read_professor_by_id_superuser(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     professor = create_random_user(db, type="professor")
     r = client.get(
@@ -126,7 +124,7 @@ def test_read_professor_by_id_superuser(
 
 
 def test_read_professor_by_id_superuser_nonexistent_professor(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     user = create_random_user(db, type="student")
     r = client.get(
@@ -171,7 +169,7 @@ def test_read_professor_by_id_normal_professor_fetch_self(client: TestClient, db
 
 
 def test_read_professor_by_id_normal_user(
-    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
 ) -> None:
     professor = create_random_user(db, type="professor")
     r = client.get(
@@ -182,7 +180,7 @@ def test_read_professor_by_id_normal_user(
 
 
 def test_read_professor_divisions_by_id_superuser(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     professor = create_random_user(db, type="professor")
     division = create_random_division(db, professor_id=professor.id)
@@ -196,7 +194,7 @@ def test_read_professor_divisions_by_id_superuser(
 
 
 def test_read_professor_divisions_by_id_superuser_nonexistent_professor(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     user = create_random_user(db, type="student")
     r = client.get(
@@ -246,7 +244,7 @@ def test_read_professor_divisions_by_id_normal_professor_fetch_self(client: Test
 
 
 def test_read_professor_divisions_by_id_normal_user(
-    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
 ) -> None:
     professor = create_random_user(db, type="professor")
     r = client.get(
@@ -256,7 +254,7 @@ def test_read_professor_divisions_by_id_normal_user(
     assert r.status_code == 403
 
 
-def test_update_professor_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_professor_superuser(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     professor = create_random_user(db, type="professor")
     r = client.put(f"{settings.API_V1_STR}/professors/{professor.id}", headers=superuser_token_headers, json={})
     assert r.status_code == 200
@@ -265,7 +263,7 @@ def test_update_professor_superuser(client: TestClient, superuser_token_headers:
 
 
 def test_update_non_existent_professor_superuser(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     professor = create_random_user(db, type="student")
     r = client.put(f"{settings.API_V1_STR}/professors/{professor.id}", headers=superuser_token_headers, json={})

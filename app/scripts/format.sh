@@ -6,5 +6,5 @@ path=${1:-app}
 
 # Format
 autoflake --remove-all-unused-imports --recursive --remove-unused-variables --in-place "${path}" --exclude=__init__.py
-black "${path}"
+black "${path}" --target-version py310
 isort "${path}"

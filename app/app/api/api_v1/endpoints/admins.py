@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List
+from typing import Any
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -11,7 +11,7 @@ from app.exceptions import ForbiddenException, NotFoundException
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Admin])
+@router.get("/", response_model=list[schemas.Admin])
 def read_admins(
     db: Session = Depends(deps.get_db),
     skip: int = 0,

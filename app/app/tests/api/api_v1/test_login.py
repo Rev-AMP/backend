@@ -1,5 +1,3 @@
-from typing import Dict
-
 from fastapi.testclient import TestClient
 
 from app.core.config import settings
@@ -32,7 +30,7 @@ def test_invalid_credentials(client: TestClient) -> None:
     assert r.status_code == 401
 
 
-def test_use_access_token(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
+def test_use_access_token(client: TestClient, superuser_token_headers: dict[str, str]) -> None:
     r = client.post(
         f"{settings.API_V1_STR}/login/test-token",
         headers=superuser_token_headers,
@@ -42,7 +40,7 @@ def test_use_access_token(client: TestClient, superuser_token_headers: Dict[str,
     assert "email" in result
 
 
-def test_nonexistent_user(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
+def test_nonexistent_user(client: TestClient, superuser_token_headers: dict[str, str]) -> None:
     token = create_token("-1").access_token
     r = client.post(
         f"{settings.API_V1_STR}/login/test-token",
@@ -51,7 +49,7 @@ def test_nonexistent_user(client: TestClient, superuser_token_headers: Dict[str,
     assert r.status_code == 404
 
 
-def test_nonexistent_user_refresh(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
+def test_nonexistent_user_refresh(client: TestClient, superuser_token_headers: dict[str, str]) -> None:
     token = create_token("-1").refresh_token
     r = client.post(
         f"{settings.API_V1_STR}/login/refresh-token",
@@ -60,7 +58,7 @@ def test_nonexistent_user_refresh(client: TestClient, superuser_token_headers: D
     assert r.status_code == 404
 
 
-def test_use_refresh_token(client: TestClient, superuser_refresh_token_headers: Dict[str, str]) -> None:
+def test_use_refresh_token(client: TestClient, superuser_refresh_token_headers: dict[str, str]) -> None:
     r = client.post(
         f"{settings.API_V1_STR}/login/refresh-token",
         headers=superuser_refresh_token_headers,
