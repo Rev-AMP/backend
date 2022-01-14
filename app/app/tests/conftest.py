@@ -1,4 +1,4 @@
-from typing import Dict, Generator
+from typing import Generator
 
 import pytest
 from fastapi.testclient import TestClient
@@ -23,20 +23,20 @@ def client() -> Generator:
 
 
 @pytest.fixture(scope="module")
-def superuser_token_headers(client: TestClient) -> Dict[str, str]:
+def superuser_token_headers(client: TestClient) -> dict[str, str]:
     return get_superuser_token_headers(client)
 
 
 @pytest.fixture(scope="module")
-def superuser_refresh_token_headers(client: TestClient) -> Dict[str, str]:
+def superuser_refresh_token_headers(client: TestClient) -> dict[str, str]:
     return get_superuser_token_headers(client, type_="refresh")
 
 
 @pytest.fixture(scope="module")
-def normal_user_token_headers(client: TestClient, db: Session) -> Dict[str, str]:
+def normal_user_token_headers(client: TestClient, db: Session) -> dict[str, str]:
     return authentication_token_from_email(client=client, email=settings.EMAIL_TEST_USER, db=db)
 
 
 @pytest.fixture(scope="module")
-def admin_user_token_headers(client: TestClient, db: Session) -> Dict[str, str]:
+def admin_user_token_headers(client: TestClient, db: Session) -> dict[str, str]:
     return authentication_token_from_email(client=client, email=settings.EMAIL_TEST_ADMIN, db=db, user_type="admin")

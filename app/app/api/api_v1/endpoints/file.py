@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.orm import Session
@@ -16,7 +16,7 @@ from app.utils import save_file
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.File])
+@router.get("/", response_model=list[schemas.File])
 def get_all_files_user(
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_non_admin_user),
@@ -27,7 +27,7 @@ def get_all_files_user(
     return crud.file.get_by_owner(db, owner_id=current_user.id)
 
 
-@router.get("/course", response_model=List[schemas.File])
+@router.get("/course", response_model=list[schemas.File])
 def get_all_files_course(
     *,
     db: Session = Depends(deps.get_db),
@@ -72,7 +72,7 @@ def get_file_by_id(
     raise BadRequestException(detail=f"File with id {file_id} not found or you don't have access to it")
 
 
-@router.get("/submission/{submission_id}", response_model=List[schemas.File])
+@router.get("/submission/{submission_id}", response_model=list[schemas.File])
 def get_file_by_submission(
     *,
     db: Session = Depends(deps.get_db),

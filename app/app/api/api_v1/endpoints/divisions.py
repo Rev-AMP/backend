@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from typing import Any, Dict, List
+from typing import Any
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import exc
@@ -19,7 +19,7 @@ from app.schemas import AdminPermissions
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Division])
+@router.get("/", response_model=list[schemas.Division])
 def read_divisions(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -41,7 +41,7 @@ def read_division_by_id(
     raise NotFoundException(detail="The division with this ID does not exist!")
 
 
-@router.get("/{division_id}/students", response_model=List[schemas.Student])
+@router.get("/{division_id}/students", response_model=list[schemas.Student])
 def read_division_students_by_id(
     division_id: str, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
 ) -> Any:
@@ -65,7 +65,7 @@ def read_division_students_by_id(
     )
 
 
-@router.get("/{division_id}/students/{batch_number}", response_model=List[schemas.Student])
+@router.get("/{division_id}/students/{batch_number}", response_model=list[schemas.Student])
 def read_division_batch_students_by_id(
     division_id: str,
     batch_number: int,
@@ -114,16 +114,16 @@ def create_division(
     return crud.division.create(db, obj_in=division_in)
 
 
-@router.post("/{division_id}/students", response_model=Dict[str, Any], status_code=207)
+@router.post("/{division_id}/students", response_model=dict[str, Any], status_code=207)
 def add_division_students_by_id(
     *,
     db: Session = Depends(deps.get_db),
     division_id: str,
-    user_ids: List[str],
+    user_ids: list[str],
     _: models.Admin = Depends(deps.get_current_admin_with_permission("course")),
 ) -> Any:
     if division := crud.division.get(db, id=division_id):
-        response: Dict[str, Any] = defaultdict(lambda: [])
+        response: dict[str, Any] = defaultdict(lambda: [])
         errors = defaultdict(lambda: [])
 
         batch_number = 0

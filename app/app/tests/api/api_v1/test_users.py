@@ -1,6 +1,5 @@
 from os import remove
 from os.path import isfile
-from typing import Dict
 
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -19,7 +18,7 @@ from app.tests.utils.utils import (
 from app.utils import generate_uuid
 
 
-def test_get_users_superuser_me(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
+def test_get_users_superuser_me(client: TestClient, superuser_token_headers: dict[str, str]) -> None:
     r = client.get(f"{settings.API_V1_STR}/users/me", headers=superuser_token_headers)
     current_user = r.json()
     assert current_user
@@ -28,7 +27,7 @@ def test_get_users_superuser_me(client: TestClient, superuser_token_headers: Dic
     assert current_user["email"] == settings.FIRST_SUPERUSER
 
 
-def test_get_users_normal_user_me(client: TestClient, normal_user_token_headers: Dict[str, str]) -> None:
+def test_get_users_normal_user_me(client: TestClient, normal_user_token_headers: dict[str, str]) -> None:
     r = client.get(f"{settings.API_V1_STR}/users/me", headers=normal_user_token_headers)
     current_user = r.json()
     assert current_user
@@ -79,7 +78,7 @@ def test_create_user_existing_username(client: TestClient, superuser_token_heade
     assert "_id" not in created_user
 
 
-def test_create_user_by_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str]) -> None:
+def test_create_user_by_normal_user(client: TestClient, normal_user_token_headers: dict[str, str]) -> None:
     username = random_email()
     password = random_password()
     data = {"email": username, "password": password, "type": "superuser"}
@@ -91,7 +90,7 @@ def test_create_user_by_normal_user(client: TestClient, normal_user_token_header
     assert r.status_code == 403
 
 
-def test_create_superuser_by_superuser(client: TestClient, superuser_token_headers: Dict[str, str]) -> None:
+def test_create_superuser_by_superuser(client: TestClient, superuser_token_headers: dict[str, str]) -> None:
     username = random_email()
     password = random_password()
     data = {"email": username, "password": password, "type": "superuser"}
@@ -103,7 +102,7 @@ def test_create_superuser_by_superuser(client: TestClient, superuser_token_heade
     assert r.status_code == 200
 
 
-def test_create_superuser_by_normal_admin(client: TestClient, admin_user_token_headers: Dict[str, str]) -> None:
+def test_create_superuser_by_normal_admin(client: TestClient, admin_user_token_headers: dict[str, str]) -> None:
     username = random_email()
     password = random_password()
     data = {"email": username, "password": password, "type": "superuser"}
@@ -169,7 +168,7 @@ def test_read_user_self(client: TestClient, db: Session) -> None:
     compare_api_and_db_query_results(api_result=fetched_user, db_dict=to_json(user))
 
 
-def test_read_user_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_read_user_superuser(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="student")
     r = client.get(f"{settings.API_V1_STR}/users/{user.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -178,7 +177,7 @@ def test_read_user_superuser(client: TestClient, superuser_token_headers: Dict[s
 
 
 def test_read_non_existent_user_superuser(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     user_id = generate_uuid()
     while crud.user.get(db, id=user_id):
@@ -187,19 +186,19 @@ def test_read_non_existent_user_superuser(
     assert r.status_code == 404
 
 
-def test_read_user_normal_admin(client: TestClient, admin_user_token_headers: Dict[str, str], db: Session) -> None:
+def test_read_user_normal_admin(client: TestClient, admin_user_token_headers: dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="student")
     r = client.get(f"{settings.API_V1_STR}/users/{user.id}", headers=admin_user_token_headers)
     assert r.status_code == 403
 
 
-def test_read_user_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
+def test_read_user_normal_user(client: TestClient, normal_user_token_headers: dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="student")
     r = client.get(f"{settings.API_V1_STR}/users/{user.id}", headers=normal_user_token_headers)
     assert r.status_code == 403
 
 
-def test_update_user_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_user_superuser(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="student")
     full_name = random_lower_string()
     data = {"full_name": full_name}
@@ -215,7 +214,7 @@ def test_update_user_superuser(client: TestClient, superuser_token_headers: Dict
 
 
 def test_update_non_existent_user_superuser(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     user_id = generate_uuid()
     while crud.user.get(db, id=user_id):
@@ -230,7 +229,7 @@ def test_update_non_existent_user_superuser(
     assert r.status_code == 404
 
 
-def test_update_user_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_user_normal_user(client: TestClient, normal_user_token_headers: dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="student")
     full_name = random_lower_string()
     email = random_email()
@@ -244,7 +243,7 @@ def test_update_user_normal_user(client: TestClient, normal_user_token_headers: 
     assert r.status_code == 403
 
 
-def test_update_nonpromotable_user(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_nonpromotable_user(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="superuser")
     data = {"type": "admin"}
     r = client.put(
@@ -255,7 +254,7 @@ def test_update_nonpromotable_user(client: TestClient, superuser_token_headers: 
     assert r.status_code == 400
 
 
-def test_update_nonpromoteable_role(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_nonpromoteable_role(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="professor")
     data = {"type": "superuser"}
     r = client.put(
@@ -266,7 +265,7 @@ def test_update_nonpromoteable_role(client: TestClient, superuser_token_headers:
     assert r.status_code == 400
 
 
-def test_promote_professor(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_promote_professor(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="professor")
     data = {"is_admin": True}
     r = client.put(
@@ -280,7 +279,7 @@ def test_promote_professor(client: TestClient, superuser_token_headers: Dict[str
     assert admin.permissions == 0
 
 
-def test_demote_admin(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_demote_admin(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="admin")
     data = {"is_admin": False}
     r = client.put(
@@ -292,7 +291,7 @@ def test_demote_admin(client: TestClient, superuser_token_headers: Dict[str, str
 
 
 def test_update_profile_picture_superuser(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     user = create_random_user(db, type="student")
     response = client.get("https://media.rev-amp.tech/logo/revamp.png")
@@ -313,7 +312,7 @@ def test_update_profile_picture_superuser(
 
 
 def test_update_profile_picture_superuser_non_existent_user(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     user_id = generate_uuid()
     while crud.user.get(db, id=user_id):
@@ -330,7 +329,7 @@ def test_update_profile_picture_superuser_non_existent_user(
 
 
 def test_update_profile_picture_superuser_not_image(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     user = create_random_user(db, type="student")
     response = client.get("https://files.rev-amp.tech/README.md")
@@ -346,7 +345,7 @@ def test_update_profile_picture_superuser_not_image(
 
 
 def test_update_profile_picture_normal_user(
-    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
 ) -> None:
     user = create_random_user(db, type="student")
     response = client.get("https://media.rev-amp.tech/logo/revamp.png")
@@ -362,7 +361,7 @@ def test_update_profile_picture_normal_user(
 
 
 def test_update_profile_picture_normal_user_self(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     user = create_random_user(db, type="student")
     response = client.get("https://media.rev-amp.tech/logo/revamp.png")

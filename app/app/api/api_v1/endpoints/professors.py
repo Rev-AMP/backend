@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List
+from typing import Any
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -12,7 +12,7 @@ from app.schemas import AdminPermissions
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Professor])
+@router.get("/", response_model=list[schemas.Professor])
 def read_professors(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -35,7 +35,7 @@ def get_professor_me(
     return current_professor
 
 
-@router.get("/me/divisions", response_model=List[schemas.Division])
+@router.get("/me/divisions", response_model=list[schemas.Division])
 def get_professor_divisions(
     current_professor: models.Professor = Depends(deps.get_current_professor),
 ) -> Any:
@@ -72,7 +72,7 @@ def read_professor_by_id(
     )
 
 
-@router.get("/{professor_id}/divisions", response_model=List[schemas.Division])
+@router.get("/{professor_id}/divisions", response_model=list[schemas.Division])
 def read_professor_divisions_by_id(
     professor_id: str, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
 ) -> Any:

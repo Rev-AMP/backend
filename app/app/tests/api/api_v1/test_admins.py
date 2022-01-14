@@ -1,5 +1,3 @@
-from typing import Dict
-
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
@@ -7,7 +5,7 @@ from app.core.config import settings
 from app.tests.utils.user import authentication_token_from_email, create_random_user
 
 
-def test_get_admins_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_admins_superuser(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     create_random_user(db, type="admin")
     create_random_user(db, type="admin")
     r = client.get(
@@ -21,7 +19,7 @@ def test_get_admins_superuser(client: TestClient, superuser_token_headers: Dict[
         assert "permissions" in admin
 
 
-def test_get_admins_normal_admin(client: TestClient, admin_user_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_admins_normal_admin(client: TestClient, admin_user_token_headers: dict[str, str], db: Session) -> None:
     create_random_user(db, type="admin")
     create_random_user(db, type="admin")
     r = client.get(
@@ -46,7 +44,7 @@ def test_get_admins_admin_with_perms(client: TestClient, db: Session) -> None:
         assert "permissions" in admin
 
 
-def test_get_admins_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_admins_normal_user(client: TestClient, normal_user_token_headers: dict[str, str], db: Session) -> None:
     create_random_user(db, type="admin")
     create_random_user(db, type="admin")
     r = client.get(
@@ -56,7 +54,7 @@ def test_get_admins_normal_user(client: TestClient, normal_user_token_headers: D
     assert r.status_code == 403
 
 
-def test_get_admin_me_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_admin_me_superuser(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(
         f"{settings.API_V1_STR}/admins/me",
         headers=superuser_token_headers,
@@ -80,7 +78,7 @@ def test_get_admin_me_normal_admin(client: TestClient, db: Session) -> None:
     assert fetched_admin["permissions"] == 0
 
 
-def test_get_admin_me_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_admin_me_normal_user(client: TestClient, normal_user_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(
         f"{settings.API_V1_STR}/admins/me",
         headers=normal_user_token_headers,
@@ -88,7 +86,7 @@ def test_get_admin_me_normal_user(client: TestClient, normal_user_token_headers:
     assert r.status_code == 403
 
 
-def test_read_admin_by_id_superuser(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_read_admin_by_id_superuser(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     admin = create_random_user(db, type="admin")
     r = client.get(
         f"{settings.API_V1_STR}/admins/{admin.id}",
@@ -101,7 +99,7 @@ def test_read_admin_by_id_superuser(client: TestClient, superuser_token_headers:
 
 
 def test_read_admin_by_id_superuser_nonexistent_admin(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     user = create_random_user(db, type="student")
     r = client.get(
@@ -125,7 +123,7 @@ def test_read_admin_by_id_admin_with_permissions(client: TestClient, db: Session
 
 
 def test_read_admin_by_id_normal_admin(
-    client: TestClient, admin_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, admin_user_token_headers: dict[str, str], db: Session
 ) -> None:
     admin = create_random_user(db, type="admin")
     r = client.get(
@@ -148,7 +146,7 @@ def test_read_admin_by_id_normal_admin_fetch_self(client: TestClient, db: Sessio
 
 
 def test_read_admin_by_id_normal_user(
-    client: TestClient, normal_user_token_headers: Dict[str, str], db: Session
+    client: TestClient, normal_user_token_headers: dict[str, str], db: Session
 ) -> None:
     admin = create_random_user(db, type="admin")
     r = client.get(
@@ -158,7 +156,7 @@ def test_read_admin_by_id_normal_user(
     assert r.status_code == 403
 
 
-def test_update_admin(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_admin(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="admin")
     admin_id = user.id
     data = {"user_id": admin_id, "permissions": 5}
@@ -172,7 +170,7 @@ def test_update_admin(client: TestClient, superuser_token_headers: Dict[str, str
     assert updated_admin["permissions"] == 5
 
 
-def test_update_admin_nonadmin(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_admin_nonadmin(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     user = create_random_user(db, type="student")
     admin_id = user.id
     data = {"user_id": admin_id, "permissions": 5}

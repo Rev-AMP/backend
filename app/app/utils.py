@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 from shutil import copyfileobj
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 from uuid import uuid4
 
 import emails
@@ -19,7 +19,7 @@ def send_email(
     email_to: str,
     subject_template: str = "",
     html_template: str = "",
-    environment: Dict[str, Any] = {},
+    environment: dict[str, Any] = {},
 ) -> None:
     if settings.EMAILS_ENABLED:
         message = emails.Message(

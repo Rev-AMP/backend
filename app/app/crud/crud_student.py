@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional
 
 from sqlalchemy.orm import Session
 
@@ -24,7 +24,7 @@ class CRUDStudent(CRUDBase[Student, StudentCreate, StudentUpdate]):
         db.refresh(db_obj)
         return db_obj
 
-    def update(self, db: Session, *, db_obj: Student, obj_in: Union[StudentUpdate, Dict[str, Any]]) -> Student:
+    def update(self, db: Session, *, db_obj: Student, obj_in: StudentUpdate | dict[str, Any]) -> Student:
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:

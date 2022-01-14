@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Dict
 
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
@@ -17,7 +16,7 @@ from app.tests.utils.year import create_random_school, create_random_year
 from app.utils import generate_uuid
 
 
-def test_get_all_years(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_all_years(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     create_random_year(db)
     r = client.get(f"{settings.API_V1_STR}/years/", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -25,7 +24,7 @@ def test_get_all_years(client: TestClient, superuser_token_headers: Dict[str, st
     assert results
 
 
-def test_get_year_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_year_existing(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     year = create_random_year(db)
     r = client.get(f"{settings.API_V1_STR}/years/{year.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -34,12 +33,12 @@ def test_get_year_existing(client: TestClient, superuser_token_headers: Dict[str
     compare_api_and_db_query_results(api_result=fetched_year, db_dict=to_json(year))
 
 
-def test_get_year_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_year_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(f"{settings.API_V1_STR}/years/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
-def test_create_year(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_create_year(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     school_id = create_random_school(db).id
     start_year = datetime.now().year
     end_year = start_year + 1
@@ -59,7 +58,7 @@ def test_create_year(client: TestClient, superuser_token_headers: Dict[str, str]
     compare_api_and_db_query_results(data, created_year)
 
 
-def test_create_year_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_create_year_existing(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     year = create_random_year(db)
     data = {
         "name": year.name,
@@ -71,17 +70,17 @@ def test_create_year_existing(client: TestClient, superuser_token_headers: Dict[
     assert r.status_code == 409
 
 
-def test_get_year_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_year_normal_user(client: TestClient, normal_user_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(f"{settings.API_V1_STR}/years/", headers=normal_user_token_headers)
     assert r.status_code == 403
 
 
-def test_update_year_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_year_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.put(f"{settings.API_V1_STR}/years/{generate_uuid()}", headers=superuser_token_headers, json={})
     assert r.status_code == 404
 
 
-def test_update_year(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_year(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     year = create_random_year(db)
     assert year.start_year
     assert year.end_year
@@ -114,7 +113,7 @@ def test_get_year_weakadmin(client: TestClient, db: Session) -> None:
     assert r.status_code == 403
 
 
-def test_delete_year(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_delete_year(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     year = create_random_year(db)
     r = client.delete(f"{settings.API_V1_STR}/years/{year.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -122,6 +121,6 @@ def test_delete_year(client: TestClient, superuser_token_headers: Dict[str, str]
     assert deleted_year is None
 
 
-def test_delete_year_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_delete_year_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.delete(f"{settings.API_V1_STR}/years/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404

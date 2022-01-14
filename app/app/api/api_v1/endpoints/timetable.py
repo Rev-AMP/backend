@@ -1,6 +1,6 @@
 import calendar
 from collections import defaultdict
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -14,7 +14,7 @@ from app.schemas import Lecture
 router = APIRouter()
 
 
-@router.get("/", response_model=Dict[str, List[Lecture]])
+@router.get("/", response_model=dict[str, list[Lecture]])
 def get_timetable(
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_user),
@@ -29,7 +29,7 @@ def get_timetable(
     raise BadRequestException(detail="User object not found!")
 
 
-@router.get("/{division_id}", response_model=Dict[str, List[Lecture]])
+@router.get("/{division_id}", response_model=dict[str, list[Lecture]])
 def get_timetable_division(
     *,
     db: Session = Depends(deps.get_db),
@@ -41,7 +41,7 @@ def get_timetable_division(
     raise NotFoundException(detail=f"Division with id {division_id} not found")
 
 
-def generate_timetable(db: Session, divisions: List[Division]) -> Dict:
+def generate_timetable(db: Session, divisions: list[Division]) -> Dict:
     response: Dict = defaultdict(lambda: [])
     for day in calendar.day_name:
         for division in divisions:

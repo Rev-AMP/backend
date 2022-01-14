@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from typing import Any, Dict, List
+from typing import Any
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -13,7 +13,7 @@ from app.schemas import StudentUpdate
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Term])
+@router.get("/", response_model=list[schemas.Term])
 def read_terms(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -36,7 +36,7 @@ def read_term_by_id(
     raise NotFoundException(detail="The term with this ID does not exist!")
 
 
-@router.get("/{term_id}/students", response_model=List[schemas.Student])
+@router.get("/{term_id}/students", response_model=list[schemas.Student])
 def read_term_students_by_id(
     *,
     db: Session = Depends(deps.get_db),
@@ -48,16 +48,16 @@ def read_term_students_by_id(
     raise NotFoundException(detail="The term with this ID does not exist!")
 
 
-@router.post("/{term_id}/students", response_model=Dict[str, Any], status_code=207)
+@router.post("/{term_id}/students", response_model=dict[str, Any], status_code=207)
 def add_term_students_by_id(
     *,
     db: Session = Depends(deps.get_db),
     term_id: str,
-    user_ids: List[str],
+    user_ids: list[str],
     _: models.Admin = Depends(deps.get_current_admin_with_permission("term")),
 ) -> Any:
     if term := crud.term.get(db, id=term_id):
-        response: Dict[str, Any] = defaultdict(lambda: [])
+        response: dict[str, Any] = defaultdict(lambda: [])
         errors = defaultdict(lambda: [])
 
         for user_id in user_ids:

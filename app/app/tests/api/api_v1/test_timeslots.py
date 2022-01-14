@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import Dict
 
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
@@ -15,7 +14,7 @@ from app.utils import generate_uuid
 from ...utils.school import create_random_school
 
 
-def test_get_all_timeslots(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_all_timeslots(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     timeslot = create_random_timeslot(db)
     r = client.get(f"{settings.API_V1_STR}/timeslots/", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -24,7 +23,7 @@ def test_get_all_timeslots(client: TestClient, superuser_token_headers: Dict[str
     compare_api_and_db_query_results(api_result=results[-1], db_dict=to_json(timeslot))
 
 
-def test_get_timeslot_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_timeslot_existing(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     timeslot = create_random_timeslot(db)
     r = client.get(f"{settings.API_V1_STR}/timeslots/{timeslot.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -33,12 +32,12 @@ def test_get_timeslot_existing(client: TestClient, superuser_token_headers: Dict
     compare_api_and_db_query_results(api_result=fetched_timeslot, db_dict=to_json(timeslot))
 
 
-def test_get_timeslot_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_timeslot_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(f"{settings.API_V1_STR}/timeslots/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
-def test_create_timeslot(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_create_timeslot(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     start_time = datetime.now().time()
     end_time = (datetime.now() + timedelta(hours=1)).time()
     school_id = create_random_school(db).id
@@ -61,7 +60,7 @@ def test_create_timeslot(client: TestClient, superuser_token_headers: Dict[str, 
     compare_api_and_db_query_results(data, created_timeslot)
 
 
-def test_create_timeslot_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_create_timeslot_existing(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     timeslot = create_random_timeslot(db)
     assert timeslot.start_time
     assert timeslot.end_time
@@ -75,7 +74,7 @@ def test_create_timeslot_existing(client: TestClient, superuser_token_headers: D
     assert r.status_code == 409
 
 
-def test_update_timeslot(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_timeslot(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     timeslot = create_random_timeslot(db)
     start_time = datetime.now().time()
     end_time = (datetime.now() + timedelta(hours=1)).time()
@@ -92,12 +91,12 @@ def test_update_timeslot(client: TestClient, superuser_token_headers: Dict[str, 
     compare_api_and_db_query_results(api_result=fetched_timeslot, db_dict=to_json(timeslot))
 
 
-def test_update_timeslot_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_timeslot_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.put(f"{settings.API_V1_STR}/timeslots/{generate_uuid()}", headers=superuser_token_headers, json={})
     assert r.status_code == 404
 
 
-def test_delete_timeslot(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_delete_timeslot(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     timeslot = create_random_timeslot(db)
     r = client.delete(f"{settings.API_V1_STR}/timeslots/{timeslot.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -105,12 +104,12 @@ def test_delete_timeslot(client: TestClient, superuser_token_headers: Dict[str, 
     assert deleted_timeslot is None
 
 
-def test_delete_timeslot_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_delete_timeslot_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.delete(f"{settings.API_V1_STR}/timeslots/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
-def test_get_timeslot_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_timeslot_normal_user(client: TestClient, normal_user_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(f"{settings.API_V1_STR}/timeslots/", headers=normal_user_token_headers)
     assert r.status_code == 403
 

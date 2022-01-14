@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional
 
 from sqlalchemy.orm import Session
 
@@ -46,10 +46,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             professor.create(db, obj_in=ProfessorCreate(user_id=db_obj.id))
         elif obj_in.type == "student":
             student.create(db, obj_in=StudentCreate(user_id=db_obj.id))
-
         return db_obj
 
-    def update(self, db: Session, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]) -> User:
+    def update(self, db: Session, *, db_obj: User, obj_in: UserUpdate | dict[str, Any]) -> User:
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
@@ -82,10 +81,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def is_superuser(self, user: User) -> bool:
         return user.type == "superuser"
 
-    def get_all_students_for_school(self, db: Session, *, school_id: str) -> List[User]:
+    def get_all_students_for_school(self, db: Session, *, school_id: str) -> list[User]:
         return db.query(User).filter(User.type == "student").filter(User.school_id == school_id).all()
 
-    def get_all_professors_for_school(self, db: Session, *, school_id: str) -> List[User]:
+    def get_all_professors_for_school(self, db: Session, *, school_id: str) -> list[User]:
         return db.query(User).filter(User.type == "professor").filter(User.school_id == school_id).all()
 
 

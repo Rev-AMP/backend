@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List
+from typing import Any
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -11,7 +11,7 @@ from app.exceptions import ConflictException, NotFoundException
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Lecture])
+@router.get("/", response_model=list[schemas.Lecture])
 def read_lectures(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -33,7 +33,7 @@ def read_lecture_by_id(
     raise NotFoundException(detail="A lecture with this ID does not exist!")
 
 
-@router.get("/division/{division_id}", response_model=List[schemas.Lecture])
+@router.get("/division/{division_id}", response_model=list[schemas.Lecture])
 def get_lectures_for_division(
     *, db: Session = Depends(deps.get_db), division_id: str, _: models.User = Depends(deps.get_current_user)
 ) -> Any:

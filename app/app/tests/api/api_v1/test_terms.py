@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from random import choice, randint
-from typing import Dict
 
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
@@ -21,7 +20,7 @@ from app.tests.utils.utils import (
 from app.utils import generate_uuid
 
 
-def test_get_all_terms(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_all_terms(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     create_random_term(db=db)
     r = client.get(f"{settings.API_V1_STR}/terms/", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -49,7 +48,7 @@ def test_get_terms_weakadmin(client: TestClient, db: Session) -> None:
     assert r.status_code == 403
 
 
-def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_term_existing(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     term = create_random_term(db=db)
     r = client.get(f"{settings.API_V1_STR}/terms/{term.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -58,12 +57,12 @@ def test_get_term_existing(client: TestClient, superuser_token_headers: Dict[str
     compare_api_and_db_query_results(api_result=fetched_term, db_dict=to_json(term))
 
 
-def test_get_term_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_term_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(f"{settings.API_V1_STR}/terms/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
-def test_get_term_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_term_students(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     term = create_random_term(db=db)
     student = create_random_student(db=db, term_id=term.id)
     db.refresh(term)
@@ -77,14 +76,14 @@ def test_get_term_students(client: TestClient, superuser_token_headers: Dict[str
 
 
 def test_get_term_students_nonexisting(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     r = client.get(f"{settings.API_V1_STR}/terms/{generate_uuid()}/students", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
 def test_add_term_students_nonexisting(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     last_term_id = sorted(term.id for term in crud.term.get_multi(db))[-1]
     term = crud.term.get(db, id=last_term_id)
@@ -100,7 +99,7 @@ def test_add_term_students_nonexisting(
     assert r.status_code == 404
 
 
-def test_add_term_students_not_a_user(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_add_term_students_not_a_user(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     term = create_random_term(db)
     students = [
         create_random_user(db, type="student", school_id=term.year.school_id),
@@ -121,7 +120,7 @@ def test_add_term_students_not_a_user(client: TestClient, superuser_token_header
 
 
 def test_add_term_students_not_a_student(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     term = create_random_term(db)
     students = [
@@ -143,7 +142,7 @@ def test_add_term_students_not_a_student(
 
 
 def test_add_term_students_different_school(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     term = create_random_term(db)
     students = [
@@ -165,7 +164,7 @@ def test_add_term_students_different_school(
 
 
 def test_add_term_students_no_student_object(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     term = create_random_term(db)
     students = [
@@ -187,7 +186,7 @@ def test_add_term_students_no_student_object(
         assert student.term_id == term.id
 
 
-def test_add_term_students_duplicate(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_add_term_students_duplicate(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     term = create_random_term(db)
     s = create_random_user(db, type="student", school_id=term.year.school_id)
     students = [s, s]
@@ -202,7 +201,7 @@ def test_add_term_students_duplicate(client: TestClient, superuser_token_headers
     assert s.id in [student_id for student_id in r.json().get("errors").get("student already in term")]
 
 
-def test_add_term_students(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_add_term_students(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     term = create_random_term(db)
     students = [
         create_random_user(db, type="student", school_id=term.year.school_id),
@@ -220,7 +219,7 @@ def test_add_term_students(client: TestClient, superuser_token_headers: Dict[str
         assert student.term_id == term.id
 
 
-def test_remove_term_student(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_remove_term_student(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     term = create_random_term(db)
     students = [
         create_random_user(db, type="student", school_id=term.year.school_id),
@@ -240,7 +239,7 @@ def test_remove_term_student(client: TestClient, superuser_token_headers: Dict[s
 
 
 def test_remove_nonexisting_term_student(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     r = client.delete(
         f"{settings.API_V1_STR}/terms/{generate_uuid()}/students/{generate_uuid()}", headers=superuser_token_headers
@@ -249,7 +248,7 @@ def test_remove_nonexisting_term_student(
 
 
 def test_remove_term_nonexisting_student(
-    client: TestClient, superuser_token_headers: Dict[str, str], db: Session
+    client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:
     term = create_random_term(db)
     r = client.delete(
@@ -258,7 +257,7 @@ def test_remove_term_nonexisting_student(
     assert r.status_code == 404
 
 
-def test_create_term(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_create_term(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     name = random_lower_string()
     year_id = create_random_year(db=db).id
     start_date = datetime.now().date()
@@ -289,7 +288,7 @@ def test_create_term(client: TestClient, superuser_token_headers: Dict[str, str]
     compare_api_and_db_query_results(data, created_term)
 
 
-def test_create_term_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_create_term_existing(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     term = create_random_term(db=db)
     data = {
         "name": term.name,
@@ -303,17 +302,17 @@ def test_create_term_existing(client: TestClient, superuser_token_headers: Dict[
     assert r.status_code == 409
 
 
-def test_get_term_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_term_normal_user(client: TestClient, normal_user_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(f"{settings.API_V1_STR}/terms/", headers=normal_user_token_headers)
     assert r.status_code == 403
 
 
-def test_update_term_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_term_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.put(f"{settings.API_V1_STR}/terms/{generate_uuid()}", headers=superuser_token_headers, json={})
     assert r.status_code == 404
 
 
-def test_update_term(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_term(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     term = create_random_term(db=db)
     assert term.start_date
     assert term.end_date
@@ -331,7 +330,7 @@ def test_update_term(client: TestClient, superuser_token_headers: Dict[str, str]
     compare_api_and_db_query_results(api_result=fetched_term, db_dict=to_json(term))
 
 
-def test_delete_term(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_delete_term(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     term = create_random_term(db=db)
     r = client.delete(f"{settings.API_V1_STR}/terms/{term.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -339,6 +338,6 @@ def test_delete_term(client: TestClient, superuser_token_headers: Dict[str, str]
     assert deleted_term is None
 
 
-def test_delete_term_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_delete_term_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.delete(f"{settings.API_V1_STR}/terms/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404

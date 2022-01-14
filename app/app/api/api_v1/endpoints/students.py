@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List
+from typing import Any
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -12,7 +12,7 @@ from app.schemas import AdminPermissions
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Student])
+@router.get("/", response_model=list[schemas.Student])
 def read_students(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -35,7 +35,7 @@ def get_student_me(
     return current_student
 
 
-@router.get("/me/divisions", response_model=List[schemas.Division])
+@router.get("/me/divisions", response_model=list[schemas.Division])
 def get_student_divisions_me(
     current_student: models.Student = Depends(deps.get_current_student),
 ) -> Any:
@@ -71,7 +71,7 @@ def read_student_by_id(
     raise ForbiddenException(detail="The user doesn't have enough privileges")
 
 
-@router.get("/{student_id}/divisions", response_model=List[schemas.Division])
+@router.get("/{student_id}/divisions", response_model=list[schemas.Division])
 def read_student_divisions_by_id(
     student_id: str, current_user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)
 ) -> Any:

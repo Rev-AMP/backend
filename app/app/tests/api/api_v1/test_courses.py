@@ -1,5 +1,3 @@
-from typing import Dict
-
 from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 
@@ -16,7 +14,7 @@ from app.tests.utils.utils import (
 from app.utils import generate_uuid
 
 
-def test_get_all_courses(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_all_courses(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     course = create_random_course(db)
     r = client.get(f"{settings.API_V1_STR}/courses/", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -25,7 +23,7 @@ def test_get_all_courses(client: TestClient, superuser_token_headers: Dict[str, 
     compare_api_and_db_query_results(api_result=results[-1], db_dict=to_json(course))
 
 
-def test_get_course_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_course_existing(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     course = create_random_course(db)
     r = client.get(f"{settings.API_V1_STR}/courses/{course.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -34,12 +32,12 @@ def test_get_course_existing(client: TestClient, superuser_token_headers: Dict[s
     compare_api_and_db_query_results(api_result=fetched_course, db_dict=to_json(course))
 
 
-def test_get_course_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_course_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(f"{settings.API_V1_STR}/courses/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
-def test_create_course(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_create_course(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     name = random_lower_string()
     course_code = random_lower_string()[:20]
     elective_code = random_lower_string()[:20]
@@ -64,7 +62,7 @@ def test_create_course(client: TestClient, superuser_token_headers: Dict[str, st
     compare_api_and_db_query_results(data, created_course)
 
 
-def test_create_course_existing(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_create_course_existing(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     course = create_random_course(db)
     data = {
         "name": course.name,
@@ -75,7 +73,7 @@ def test_create_course_existing(client: TestClient, superuser_token_headers: Dic
     assert r.status_code == 409
 
 
-def test_update_course(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_course(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     course = create_random_course(db)
     assert course.name
     name = random_lower_string()
@@ -87,12 +85,12 @@ def test_update_course(client: TestClient, superuser_token_headers: Dict[str, st
     compare_api_and_db_query_results(api_result=fetched_course, db_dict=to_json(course))
 
 
-def test_update_course_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_update_course_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.put(f"{settings.API_V1_STR}/courses/{generate_uuid()}", headers=superuser_token_headers, json={})
     assert r.status_code == 404
 
 
-def test_delete_course(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_delete_course(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     course = create_random_course(db)
     r = client.delete(f"{settings.API_V1_STR}/courses/{course.id}", headers=superuser_token_headers)
     assert r.status_code == 200
@@ -100,12 +98,12 @@ def test_delete_course(client: TestClient, superuser_token_headers: Dict[str, st
     assert deleted_course is None
 
 
-def test_delete_course_nonexisting(client: TestClient, superuser_token_headers: Dict[str, str], db: Session) -> None:
+def test_delete_course_nonexisting(client: TestClient, superuser_token_headers: dict[str, str], db: Session) -> None:
     r = client.delete(f"{settings.API_V1_STR}/courses/{generate_uuid()}", headers=superuser_token_headers)
     assert r.status_code == 404
 
 
-def test_get_course_normal_user(client: TestClient, normal_user_token_headers: Dict[str, str], db: Session) -> None:
+def test_get_course_normal_user(client: TestClient, normal_user_token_headers: dict[str, str], db: Session) -> None:
     r = client.get(f"{settings.API_V1_STR}/courses/", headers=normal_user_token_headers)
     assert r.status_code == 403
 

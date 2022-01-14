@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional
 
 from sqlalchemy.orm import Session
 
@@ -23,7 +23,7 @@ class CRUDAdmin(CRUDBase[Admin, AdminCreate, AdminUpdate]):
         db.refresh(db_obj)
         return db_obj
 
-    def update(self, db: Session, *, db_obj: Admin, obj_in: Union[AdminUpdate, Dict[str, Any]]) -> Admin:
+    def update(self, db: Session, *, db_obj: Admin, obj_in: AdminUpdate | dict[str, Any]) -> Admin:
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:

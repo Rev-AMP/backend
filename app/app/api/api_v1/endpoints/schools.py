@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List
+from typing import Any
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -11,7 +11,7 @@ from app.exceptions import ConflictException, ForbiddenException, NotFoundExcept
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.School])
+@router.get("/", response_model=list[schemas.School])
 def read_schools(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -111,7 +111,7 @@ def update_school(
     return crud.school.update(db, db_obj=school, obj_in=school_in)
 
 
-@router.get("/{school_id}/students", response_model=List[schemas.User])
+@router.get("/{school_id}/students", response_model=list[schemas.User])
 def get_students(
     *,
     db: Session = Depends(deps.get_db),
@@ -124,7 +124,7 @@ def get_students(
     return crud.user.get_all_students_for_school(db, school_id=school_id)
 
 
-@router.get("/{school_id}/professors", response_model=List[schemas.User])
+@router.get("/{school_id}/professors", response_model=list[schemas.User])
 def get_professors(
     *,
     db: Session = Depends(deps.get_db),
@@ -137,7 +137,7 @@ def get_professors(
     return crud.user.get_all_professors_for_school(db, school_id=school_id)
 
 
-@router.get("/{school_id}/timeslots", response_model=List[schemas.TimeSlot])
+@router.get("/{school_id}/timeslots", response_model=list[schemas.TimeSlot])
 def get_timeslots(
     *,
     db: Session = Depends(deps.get_db),

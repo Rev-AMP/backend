@@ -17,7 +17,7 @@ class CRUDTerm(CRUDBase[Term, TermCreate, TermUpdate]):
         year_id: str,
         current_year_term: int,
         start_date: date,
-        end_date: Optional[date]
+        end_date: Optional[date],
     ) -> Optional[Term]:
         return (
             db.query(Term)
