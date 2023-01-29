@@ -80,7 +80,7 @@ class AdminPermissions:
             return True
         # for admins
         bit_no = self.bit_names[key]
-        return bool(self.permissions & 2 ** bit_no)
+        return bool(self.permissions & 2**bit_no)
 
     def __setitem__(self, key: str, val: bool = True) -> None:
         """
@@ -90,9 +90,9 @@ class AdminPermissions:
         if self.permissions >= 0:
             bit_no = self.bit_names[key]
             if val:
-                self.permissions |= 2 ** bit_no
+                self.permissions |= 2**bit_no
             else:
-                self.permissions &= ~(2 ** bit_no)
+                self.permissions &= ~(2**bit_no)
 
     def reset(self) -> None:
         self.permissions = 0
