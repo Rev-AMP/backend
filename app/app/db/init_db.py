@@ -1,4 +1,5 @@
-from decouple import config
+import os
+
 from sqlalchemy.orm import Session
 
 from app import crud, schemas
@@ -18,7 +19,7 @@ def init_db(db: Session) -> None:
     # the tables un-commenting the next line
     # Base.metadata.create_all(bind=engine)
 
-    if config("TEST_DB", default=False):
+    if os.getenv("TEST_DB", default=False):
         Base.metadata.create_all(bind=engine)
 
     user = crud.user.get_by_email(db, email=settings.FIRST_SUPERUSER)
