@@ -131,14 +131,14 @@ def verify_password_reset_token(token: str) -> Optional[str]:
 
 
 def save_image(image: UploadFile) -> str:
-    filename = f"{uuid4()}.{image.content_type.replace('image/', '')}"
+    filename = f"{uuid4()}.{(image.content_type or '').replace('image/', '')}"
     with open(f"./profile_pictures/{filename}", "wb") as buffer:
         copyfileobj(image.file, buffer)
     return filename
 
 
 def save_file(file: UploadFile) -> str:
-    filename = f"{uuid4()}.{file.content_type.replace('application/', '')}"
+    filename = f"{uuid4()}.{(file.content_type or '').replace('application/', '')}"
     with open(f"./files/{filename}", "wb") as buffer:
         copyfileobj(file.file, buffer)
     return filename
