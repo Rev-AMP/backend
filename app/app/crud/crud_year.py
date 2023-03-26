@@ -1,5 +1,6 @@
 from typing import Optional
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
@@ -11,13 +12,9 @@ class CRUDYear(CRUDBase[Year, YearCreate, YearUpdate]):
     def get_by_details(
         self, db: Session, *, name: str, school_id: str, start_year: int, end_year: int
     ) -> Optional[Year]:
-        return (
-            db.query(Year)
-            .filter(
-                Year.name == name, Year.school_id == school_id, Year.start_year == start_year, Year.end_year == end_year
-            )
-            .first()
-        )
+        return db.scalars(
+            select(Year).filter_by(name=name, school_id=school_id, start_year=start_year, end_year=end_year).limit(1)
+        ).first()
 
 
 year = CRUDYear(Year)

@@ -1,6 +1,7 @@
 import logging
-from typing import Any, Optional
+from typing import Any, Optional, Sequence
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.security import get_password_hash, verify_password
@@ -18,7 +19,7 @@ from app.schemas import (
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
-        return db.query(User).filter(User.email == email).first()
+        return db.scalars(select(User).filter_by(email=email).limit(1)).first()
 
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
         db_obj = User(
@@ -81,11 +82,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def is_superuser(self, user: User) -> bool:
         return user.type == "superuser"
 
-    def get_all_students_for_school(self, db: Session, *, school_id: str) -> list[User]:
-        return db.query(User).filter(User.type == "student").filter(User.school_id == school_id).all()
+    def get_all_students_for_school(self, db: Session, *, school_id: str) -> Sequence[User]:
+        return db.scalars(select(User).filter_by(type="student").filter_by(school_id=school_id)).all()
 
-    def get_all_professors_for_school(self, db: Session, *, school_id: str) -> list[User]:
-        return db.query(User).filter(User.type == "professor").filter(User.school_id == school_id).all()
+    def get_all_professors_for_school(self, db: Session, *, school_id: str) -> Sequence[User]:
+        return db.scalars(select(User).filter_by(type="professor").filter_by(school_id=school_id)).all()
 
 
 user = CRUDUser(User)

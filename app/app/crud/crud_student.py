@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Optional
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
@@ -11,7 +12,7 @@ from app.schemas import StudentCreate, StudentUpdate
 
 class CRUDStudent(CRUDBase[Student, StudentCreate, StudentUpdate]):
     def get(self, db: Session, id: str) -> Optional[Student]:
-        return db.query(Student).filter(Student.user_id == id).first()
+        return db.scalars(select(Student).filter_by(user_id=id).limit(1)).first()
 
     def create(self, db: Session, *, obj_in: StudentCreate) -> Student:
         db_obj = Student(user_id=obj_in.user_id, term_id=obj_in.term_id)
@@ -32,7 +33,7 @@ class CRUDStudent(CRUDBase[Student, StudentCreate, StudentUpdate]):
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     def remove(self, db: Session, *, id: str) -> Student:
-        if obj := db.query(Student).filter(Student.user_id == id).first():
+        if obj := db.scalars(select(Student).filter_by(user_id=id).limit(1)).first():
             db.delete(obj)
             try:
                 db.commit()

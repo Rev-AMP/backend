@@ -1,17 +1,17 @@
 from sqlalchemy import Column, ForeignKey, String
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, relationship
 
 from app.db.base_class import Base
 from app.models.users.user import User
 
 
 class Professor(Base):
-    user_id = Column(
+    user_id: Mapped[str] = Column(
         String(36),
-        ForeignKey(f"{User.__table__.name}.id", ondelete="CASCADE"),
+        ForeignKey("users.id", ondelete="CASCADE"),
         index=True,
         primary_key=True,
     )
 
-    user = relationship("User")
-    divisions = relationship("Division", back_populates="professor")  # type: ignore
+    user: User = relationship("User")
+    divisions: list["Division"] = relationship("Division", back_populates="professor")  # type: ignore

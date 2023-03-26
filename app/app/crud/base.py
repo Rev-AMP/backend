@@ -1,8 +1,9 @@
 import logging
-from typing import Any, Generic, Optional, Type, TypeVar
+from typing import Any, Generic, Optional, Sequence, Type, TypeVar
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db.base_class import Base
@@ -26,10 +27,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         self.model = model
 
     def get(self, db: Session, id: str) -> Optional[ModelType]:
-        return db.query(self.model).filter(self.model.id == id).first()
+        return db.get(self.model, id)
 
-    def get_multi(self, db: Session, *, skip: int = 0, limit: int = 100) -> list[ModelType]:
-        return db.query(self.model).all()
+    def get_multi(self, db: Session, *, skip: int = 0, limit: int = 100) -> Sequence[ModelType]:
+        return db.scalars(select(self.model).offset(skip).limit(limit)).all()
 
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = jsonable_encoder(obj_in)

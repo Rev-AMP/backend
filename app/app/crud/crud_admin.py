@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Optional
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
@@ -10,7 +11,7 @@ from app.schemas import AdminCreate, AdminUpdate
 
 class CRUDAdmin(CRUDBase[Admin, AdminCreate, AdminUpdate]):
     def get(self, db: Session, id: str) -> Optional[Admin]:
-        return db.query(Admin).filter(Admin.user_id == id).first()
+        return db.scalars(select(Admin).filter_by(user_id=id).limit(1)).first()
 
     def create(self, db: Session, *, obj_in: AdminCreate) -> Admin:
         db_obj = Admin(user_id=obj_in.user_id, permissions=obj_in.permissions)

@@ -2,11 +2,11 @@ from __future__ import with_statement
 
 from logging.config import fileConfig
 
-import decouple
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.db.base import Base  # noqa
+from app.core.config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -33,13 +33,7 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    protocol = "postgresql"
-    user = decouple.config("DB_USER")
-    password = decouple.config("DB_PASSWORD")
-    server = decouple.config("DB_SERVER")
-    db = decouple.config("DB_NAME")
-    port = decouple.config("DB_PORT", default=5432)
-    return f"{protocol}://{user}:{password}@{server}:{port}/{db}"
+    return settings.SQLALCHEMY_DATABASE_URI
 
 
 def run_migrations_offline():

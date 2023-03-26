@@ -1,24 +1,20 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Text
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, relationship
 
-from app.db.base_class import Base
+from app.db.base_class import Base, IDMixin
 from app.models.course import Course
 from app.models.users.user import User
-from app.utils import generate_uuid
 
 
-class File(Base):
-    id = Column(String(36), primary_key=True, index=True, default=generate_uuid)
-    course_id = Column(
-        String(36), ForeignKey(f"{Course.__table__.name}.id", ondelete="CASCADE"), index=True, nullable=False
+class File(Base, IDMixin):
+    course_id: Mapped[str] = Column(
+        String(36), ForeignKey("courses.id", ondelete="CASCADE"), index=True, nullable=False
     )
-    owner_id = Column(
-        String(36), ForeignKey(f"{User.__table__.name}.id", ondelete="CASCADE"), index=True, nullable=False
-    )
-    filename = Column(String(41), unique=True, nullable=False)
-    file_type = Column(String(10), nullable=False)
-    submission_id = Column(String(36), ForeignKey("files.id", ondelete="CASCADE"), nullable=True)
-    marks = Column(Integer, nullable=True)
-    description = Column(Text, nullable=False)
-    owner = relationship("User")
-    course = relationship("Course")
+    owner_id: Mapped[str] = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    filename: Mapped[str] = Column(String(41), unique=True, nullable=False)
+    file_type: Mapped[str] = Column(String(10), nullable=False)
+    submission_id: Mapped[str] | None = Column(String(36), ForeignKey("files.id", ondelete="CASCADE"), nullable=True)
+    marks: Mapped[int] | None = Column(Integer, nullable=True)
+    description: Mapped[str] = Column(Text, nullable=False)
+    owner: User = relationship("User")
+    course: Course = relationship("Course")

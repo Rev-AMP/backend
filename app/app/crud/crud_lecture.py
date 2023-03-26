@@ -1,5 +1,6 @@
-from typing import Optional
+from typing import Optional, Sequence
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
@@ -11,23 +12,23 @@ class CRUDLecture(CRUDBase[Lecture, LectureCreate, LectureUpdate]):
     def get_by_details(
         self, db: Session, *, day: str, time_slot_id: str, division_id: str, type: str, room_number: str
     ) -> Optional[Lecture]:
-        return (
-            db.query(Lecture)
-            .filter(
-                Lecture.day == day,
-                Lecture.time_slot_id == time_slot_id,
-                Lecture.division_id == division_id,
-                Lecture.type == type,
-                Lecture.room_number == room_number,
+        return db.scalars(
+            select(Lecture)
+            .filter_by(
+                day=day,
+                time_slot_id=time_slot_id,
+                division_id=division_id,
+                type=type,
+                room_number=room_number,
             )
-            .first()
-        )
+            .limit(1)
+        ).first()
 
-    def get_by_division(self, db: Session, *, division_id: str) -> list[Lecture]:
-        return db.query(Lecture).filter(Lecture.division_id == division_id).all()
+    def get_by_division(self, db: Session, *, division_id: str) -> Sequence[Lecture]:
+        return db.scalars(select(Lecture).filter_by(division_id=division_id)).all()
 
-    def get_by_day_division(self, db: Session, *, day: str, division_id: str) -> list[Lecture]:
-        return db.query(Lecture).filter(Lecture.day == day, Lecture.division_id == division_id).all()
+    def get_by_day_division(self, db: Session, *, day: str, division_id: str) -> Sequence[Lecture]:
+        return db.scalars(select(Lecture).filter_by(day=day, division_id=division_id)).all()
 
 
 lecture = CRUDLecture(Lecture)

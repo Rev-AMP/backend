@@ -1,6 +1,7 @@
 import logging
 from typing import Optional
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.crud.base import CRUDBase
@@ -10,7 +11,7 @@ from app.schemas import ProfessorCreate, ProfessorUpdate
 
 class CRUDProfessor(CRUDBase[Professor, ProfessorCreate, ProfessorUpdate]):
     def get(self, db: Session, id: str) -> Optional[Professor]:
-        return db.query(Professor).filter(Professor.user_id == id).first()
+        return db.scalars(select(Professor).filter_by(user_id=id).limit(1)).first()
 
     def create(self, db: Session, *, obj_in: ProfessorCreate) -> Professor:
         db_obj = Professor(user_id=obj_in.user_id)
