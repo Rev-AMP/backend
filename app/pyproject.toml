@@ -28,7 +28,7 @@ python-decouple = "^3.8"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^0.991"
-black = "^22.12.0"
+black = "^24.3.0"
 isort = "^5.12.0"
 autoflake = "^2.0.0"
 flake8 = "^6.0.0"
